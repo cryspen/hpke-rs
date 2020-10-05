@@ -3,7 +3,7 @@ name: Deploy Docs
 on:
   push:
     branches:
-      - publishing
+      - master
 
 jobs:
   rustdoc:
@@ -15,6 +15,12 @@ jobs:
         run: |
           cargo doc --all-features --no-deps
           touch target/doc/.nojekyll
+          cat > target/doc/index.html <<EOF
+          <!doctype html>
+          <html><head>
+            <meta http-equiv="refresh" content="0; URL='hpke/index.html'" />
+          </head></html>
+          EOF
       - name: Deploy to Github Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
