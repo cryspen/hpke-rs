@@ -26,6 +26,10 @@ pub enum HPKEError {
     InvalidConfig,
     InvalidInput,
     UnknownMode,
+    InconsistentPsk,
+    MissingPsk,
+    UnnecessaryPsk,
+    InsecurePsk,
 }
 
 /// An HPKE public key is a byte vector.
@@ -268,7 +272,7 @@ impl Hpke {
                 info,
                 psk.unwrap_or_default(),
                 psk_id.unwrap_or_default(),
-            ),
+            )?,
         ))
     }
 
@@ -302,12 +306,12 @@ impl Hpke {
             }
         };
         println!("setup_receiver zz: {:?}", zz);
-        Ok(self.key_schedule(
+        self.key_schedule(
             &zz,
             info,
             psk.unwrap_or_default(),
             psk_id.unwrap_or_default(),
-        ))
+        )
     }
 
     /// 6. Single-Shot APIs
@@ -401,26 +405,28 @@ impl Hpke {
         Ok(context.export(exporter_context, length))
     }
 
-    // TODO: Don't panic here.
-    #[inline]
-    fn verify_psk_inputs(&self, psk: &[u8], psk_id: &[u8]) {
+    /// Verify PSKs.
+    #[inline(always)]
+    fn verify_psk_inputs(&self, psk: &[u8], psk_id: &[u8]) -> Result<(), HPKEError> {
         let got_psk = !psk.is_empty();
         let got_psk_id = !psk_id.is_empty();
         if (got_psk && !got_psk_id) || (!got_psk && got_psk_id) {
-            panic!("Inconsistent PSK inputs");
+            return Err(HPKEError::InconsistentPsk);
         }
 
         if got_psk && (self.mode == Mode::Base || self.mode == Mode::Auth) {
-            panic!("PSK input provided when not needed");
+            return Err(HPKEError::UnnecessaryPsk);
         }
         if !got_psk && (self.mode == Mode::Psk || self.mode == Mode::AuthPsk) {
-            panic!("Missing required PSK input");
+            return Err(HPKEError::MissingPsk);
         }
 
         // The PSK MUST have at least 32 bytes of entropy and SHOULD be of length Nh bytes or longer.
         if (self.mode == Mode::Psk || self.mode == Mode::AuthPsk) && psk.len() < 32 {
-            panic!("PSK must be at least 32 bytes.");
+            return Err(HPKEError::InsecurePsk);
         }
+
+        Ok(())
     }
 
     #[inline]
@@ -481,8 +487,8 @@ impl Hpke {
         info: &[u8],
         psk: &[u8],
         psk_id: &[u8],
-    ) -> Context {
-        self.verify_psk_inputs(psk, psk_id);
+    ) -> Result<Context, HPKEError> {
+        self.verify_psk_inputs(psk, psk_id)?;
         let suite_id = self.get_ciphersuite();
         let key_schedule_context = self.get_key_schedule_context(info, psk_id, &suite_id);
         let secret = self
@@ -503,13 +509,13 @@ impl Hpke {
             self.kdf
                 .labeled_expand(&secret, &suite_id, "exp", &key_schedule_context, self.nh);
 
-        Context {
+        Ok(Context {
             key,
             nonce: base_nonce,
             exporter_secret,
             sequence_number: 0,
             hpke: self,
-        }
+        })
     }
 
     /// 4. Cryptographic Dependencies

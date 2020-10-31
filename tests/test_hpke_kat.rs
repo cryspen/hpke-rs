@@ -122,12 +122,14 @@ fn test_kat() {
         let ikm_s = hex_to_bytes_option(test.ikmS);
 
         // Use internal `key_schedule` function for KAT.
-        let mut direct_ctx = hpke.key_schedule(
-            &shared_secret,
-            &info,
-            psk.unwrap_or_default(),
-            psk_id.unwrap_or_default(),
-        );
+        let mut direct_ctx = hpke
+            .key_schedule(
+                &shared_secret,
+                &info,
+                psk.unwrap_or_default(),
+                psk_id.unwrap_or_default(),
+            )
+            .unwrap();
 
         // Check setup info
         assert_eq!(direct_ctx.key(), key);
