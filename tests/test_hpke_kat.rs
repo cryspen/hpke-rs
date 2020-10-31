@@ -3,11 +3,8 @@ use std::convert::TryInto;
 use std::fs::File;
 use std::io::BufReader;
 
-use hpke::{
-    aead, kdf, kem,
-    test_util::{hex_to_bytes, hex_to_bytes_option, vec_to_option_slice},
-    HPKEPrivateKey, HPKEPublicKey, Hpke, Mode,
-};
+use hpke::prelude::*;
+use hpke::test_util::{hex_to_bytes, hex_to_bytes_option, vec_to_option_slice};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_snake_case)]
@@ -70,12 +67,12 @@ fn test_kat() {
     };
 
     for test in tests {
-        let mode: Mode = test.mode.try_into().unwrap();
-        let kem_id: kem::Mode = test.kem_id.try_into().unwrap();
-        let kdf_id: kdf::Mode = test.kdf_id.try_into().unwrap();
-        let aead_id: aead::Mode = test.aead_id.try_into().unwrap();
+        let mode: HpkeMode = test.mode.try_into().unwrap();
+        let kem_id: HpkeKemMode = test.kem_id.try_into().unwrap();
+        let kdf_id: HpkeKdfMode = test.kdf_id.try_into().unwrap();
+        let aead_id: HpkeAeadMode = test.aead_id.try_into().unwrap();
 
-        if kem_id != kem::Mode::DhKem25519 && kem_id != kem::Mode::DhKemP256 {
+        if kem_id != HpkeKemMode::DhKem25519 && kem_id != HpkeKemMode::DhKemP256 {
             println!(" > KEM {:?} not implemented yet", kem_id);
             continue;
         }
@@ -213,18 +210,16 @@ fn test_kat() {
 #[test]
 fn test_serialization() {
     use hpke::HPKEKeyPair;
-    use std::convert::TryFrom;
-    use hpke::{aead::Mode as AeadMode, kdf::Mode as KdfMode, kem::Mode as KemMode};
 
     // XXX: Make these individual tests.
     for mode in 0u16..4 {
-        let hpke_mode = Mode::try_from(mode).unwrap();
+        let hpke_mode = HpkeMode::try_from(mode).unwrap();
         for aead_mode in 1u16..4 {
-            let aead_mode = AeadMode::try_from(aead_mode).unwrap();
+            let aead_mode = HpkeAeadMode::try_from(aead_mode).unwrap();
             for kdf_mode in 1u16..4 {
-                let kdf_mode = KdfMode::try_from(kdf_mode).unwrap();
+                let kdf_mode = HpkeKdfMode::try_from(kdf_mode).unwrap();
                 for &kem_mode in &[0x10u16, 0x20] {
-                    let kem_mode = KemMode::try_from(kem_mode).unwrap();
+                    let kem_mode = HpkeKemMode::try_from(kem_mode).unwrap();
 
                     let hpke = Hpke::new(hpke_mode, kem_mode, kdf_mode, aead_mode);
 

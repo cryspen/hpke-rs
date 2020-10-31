@@ -5,12 +5,13 @@
 #[cfg(feature = "serialization")]
 use serde::{Deserialize, Serialize};
 
-pub mod aead;
+pub(crate) mod aead;
 mod aead_impl;
-pub mod dh_kem;
+mod dh_kem;
 mod hkdf;
-pub mod kdf;
-pub mod kem;
+pub(crate) mod kdf;
+pub(crate) mod kem;
+pub mod prelude;
 
 mod util;
 

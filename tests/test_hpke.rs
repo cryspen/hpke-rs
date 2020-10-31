@@ -1,5 +1,5 @@
 use evercrypt::prelude::*;
-use hpke::{aead::Mode as AeadMode, kdf::Mode as KdfMode, kem::Mode as KemMode, Hpke, Mode};
+use hpke::prelude::*;
 use std::convert::TryFrom;
 
 #[test]
@@ -8,11 +8,11 @@ fn test_self() {
     for mode in 0u16..4 {
         let hpke_mode = Mode::try_from(mode).unwrap();
         for aead_mode in 1u16..4 {
-            let aead_mode = AeadMode::try_from(aead_mode).unwrap();
+            let aead_mode = HpkeAeadMode::try_from(aead_mode).unwrap();
             for kdf_mode in 1u16..4 {
-                let kdf_mode = KdfMode::try_from(kdf_mode).unwrap();
+                let kdf_mode = HpkeKdfMode::try_from(kdf_mode).unwrap();
                 for &kem_mode in &[0x10u16, 0x20] {
-                    let kem_mode = KemMode::try_from(kem_mode).unwrap();
+                    let kem_mode = HpkeKemMode::try_from(kem_mode).unwrap();
 
                     let hpke = Hpke::new(hpke_mode, kem_mode, kdf_mode, aead_mode);
 
