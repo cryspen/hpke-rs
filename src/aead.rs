@@ -10,13 +10,14 @@ pub enum Mode {
     ChaCha20Poly1305 = 0x0003,
 }
 
-impl From<u16> for Mode {
-    fn from(x: u16) -> Mode {
+impl std::convert::TryFrom<u16> for Mode {
+    type Error = Error;
+    fn try_from(x: u16) -> Result<Mode, Error> {
         match x {
-            0x0001 => Mode::AesGcm128,
-            0x0002 => Mode::AesGcm256,
-            0x0003 => Mode::ChaCha20Poly1305,
-            _ => panic!("Unknown AEAD Mode {}", x),
+            0x0001 => Ok(Mode::AesGcm128),
+            0x0002 => Ok(Mode::AesGcm256),
+            0x0003 => Ok(Mode::ChaCha20Poly1305),
+            _ => Err(Error::UnknownMode),
         }
     }
 }
@@ -26,6 +27,7 @@ pub enum Error {
     OpenError,
     InvalidConfig,
     InvalidNonce,
+    UnknownMode,
 }
 
 pub(crate) trait AeadTrait: Debug {
@@ -82,6 +84,7 @@ impl Aead {
         aad: &[u8],
         plain_txt: &[u8],
     ) -> Result<Vec<u8>, Error> {
+        println!("seal key: {:?}", key);
         self.aead.seal(key, nonce, aad, plain_txt)
     }
     pub fn open(
@@ -91,6 +94,7 @@ impl Aead {
         aad: &[u8],
         cipher_txt: &[u8],
     ) -> Result<Vec<u8>, Error> {
+        println!("open key: {:?}", key);
         self.aead.open(key, nonce, aad, cipher_txt)
     }
 }
