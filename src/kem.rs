@@ -12,6 +12,12 @@ pub enum Mode {
     DhKem448 = 0x0021,
 }
 
+impl std::fmt::Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl std::convert::TryFrom<u16> for Mode {
     type Error = Error;
     fn try_from(x: u16) -> Result<Mode, Error> {
@@ -66,6 +72,12 @@ pub(crate) trait KemTrait: std::fmt::Debug {
 pub struct Kem {
     mode: Mode,
     kem: Box<dyn KemTrait>,
+}
+
+impl std::fmt::Display for Kem {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.mode)
+    }
 }
 
 fn get_kem_object(mode: Mode, kdf_id: kdf::Mode) -> Box<dyn KemTrait> {

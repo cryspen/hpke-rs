@@ -65,6 +65,12 @@ pub enum Mode {
     AuthPsk = 0x03,
 }
 
+impl std::fmt::Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl std::convert::TryFrom<u16> for Mode {
     type Error = HPKEError;
     fn try_from(x: u16) -> Result<Mode, HPKEError> {
@@ -215,6 +221,19 @@ pub struct Hpke {
     nk: usize,
     nn: usize,
     nh: usize,
+}
+
+impl std::fmt::Display for Hpke {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{}_{}_{}_{}",
+            self.mode.to_string().to_lowercase(),
+            self.kem_id.to_string().to_lowercase(),
+            self.kdf_id.to_string().to_lowercase(),
+            self.aead_id.to_string().to_lowercase()
+        )
+    }
 }
 
 impl Hpke {

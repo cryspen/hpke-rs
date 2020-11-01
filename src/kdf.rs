@@ -11,6 +11,12 @@ pub enum Mode {
     HkdfSha512 = 0x0003,
 }
 
+impl std::fmt::Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl std::convert::TryFrom<u16> for Mode {
     type Error = Error;
     fn try_from(x: u16) -> Result<Mode, Error> {
