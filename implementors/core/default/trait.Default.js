@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["hpke"] = [{"text":"impl Default for HPKEPublicKey","synthetic":false,"types":[]},{"text":"impl Default for HPKEPrivateKey","synthetic":false,"types":[]},{"text":"impl Default for HPKEKeyPair","synthetic":false,"types":[]}];
+implementors["hpke_rs"] = [{"text":"impl Default for HPKEPublicKey","synthetic":false,"types":[]},{"text":"impl Default for HPKEPrivateKey","synthetic":false,"types":[]},{"text":"impl Default for HPKEKeyPair","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

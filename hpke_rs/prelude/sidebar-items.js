@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["HpkeAeadError","AEAD Errors"],["HpkeAeadMode","AEAD modes."],["HpkeKdfError","KDF Errors"],["HpkeKdfMode","KDF Modes"],["HpkeKemError","KEM Errors"],["HpkeKemMode","KEM Modes"]],"trait":[["TryFrom","Simple and safe type conversions that may fail in a controlled way under some circumstances. It is the reciprocal of [`TryInto`]."]]});

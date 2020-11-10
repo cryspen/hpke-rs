@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["hpke"] = [{"text":"impl From&lt;u16&gt; for Mode","synthetic":false,"types":[]},{"text":"impl From&lt;u16&gt; for Mode","synthetic":false,"types":[]},{"text":"impl From&lt;u16&gt; for Mode","synthetic":false,"types":[]},{"text":"impl From&lt;u16&gt; for Mode","synthetic":false,"types":[]},{"text":"impl From&lt;Error&gt; for HPKEError","synthetic":false,"types":[]}];
+implementors["hpke_rs"] = [{"text":"impl From&lt;Error&gt; for HPKEError","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
