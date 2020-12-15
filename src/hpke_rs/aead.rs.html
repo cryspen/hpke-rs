@@ -147,6 +147,9 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -200,6 +203,9 @@
 
     <span class="doccomment">/// Invalid Nonce</span>
     <span class="ident">InvalidNonce</span>,
+
+    <span class="doccomment">/// Invalid Ciphertext</span>
+    <span class="ident">InvalidCiphertext</span>,
 
     <span class="doccomment">/// Unknown AEAD mode</span>
     <span class="ident">UnknownMode</span>,
