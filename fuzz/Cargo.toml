@@ -19,10 +19,6 @@ path = ".."
 [workspace]
 members = ["."]
 
-[patch.crates-io]
-evercrypt = { path = "../../evercrypt-rust/evercrypt-rs" }
-evercrypt-sys = { path = "../../evercrypt-rust/evercrypt-sys" }
-
 [[bin]]
 name = "base"
 path = "fuzz_targets/base.rs"
