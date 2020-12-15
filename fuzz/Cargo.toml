@@ -1,0 +1,30 @@
+
+[package]
+name = "hpke-rs-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.3"
+
+[dependencies.hpke-rs]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[patch.crates-io]
+evercrypt = { path = "../../evercrypt-rust/evercrypt-rs" }
+evercrypt-sys = { path = "../../evercrypt-rust/evercrypt-sys" }
+
+[[bin]]
+name = "base"
+path = "fuzz_targets/base.rs"
+test = false
+doc = false
