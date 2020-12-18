@@ -150,6 +150,11 @@
 <span id="147">147</span>
 <span id="148">148</span>
 <span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -171,6 +176,9 @@
 
     <span class="doccomment">/// ChaCha20 Poly1305</span>
     <span class="ident">ChaCha20Poly1305</span> <span class="op">=</span> <span class="number">0x0003</span>,
+
+    <span class="doccomment">/// Export-only</span>
+    <span class="ident">Export</span> <span class="op">=</span> <span class="number">0xFFFF</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Mode</span> {
@@ -186,6 +194,7 @@
             <span class="number">0x0001</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">AesGcm128</span>),
             <span class="number">0x0002</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">AesGcm256</span>),
             <span class="number">0x0003</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">ChaCha20Poly1305</span>),
+            <span class="number">0xFFFF</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">Export</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">UnknownMode</span>),
         }
     }
@@ -265,6 +274,7 @@
         <span class="ident">Mode</span>::<span class="ident">AesGcm128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">AesGcm128</span>::<span class="ident">new</span>()),
         <span class="ident">Mode</span>::<span class="ident">AesGcm256</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">AesGcm256</span>::<span class="ident">new</span>()),
         <span class="ident">Mode</span>::<span class="ident">ChaCha20Poly1305</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChaCha20Poly1305</span>::<span class="ident">new</span>()),
+        <span class="ident">Mode</span>::<span class="ident">Export</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Exporter only interface is not implemented yet.&quot;</span>),
     }
 }
 
