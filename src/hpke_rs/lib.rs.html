@@ -774,6 +774,84 @@
 <span id="771">771</span>
 <span id="772">772</span>
 <span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This implements the work-in-progress Hybrid Public Key Encryption RFC.</span>
 <span class="doccomment">//! https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html</span>
@@ -807,9 +885,17 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test_kdf</span>;
 
+<span class="attribute">#[<span class="ident">deprecated</span>(
+    <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.0.7&quot;</span>,
+    <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use HpkeError instead. This alias will be removed with the first stable  0.1 release.&quot;</span>
+)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
+<span class="kw">type</span> <span class="ident">HPKEError</span> <span class="op">=</span> <span class="ident">HpkeError</span>;
+
 <span class="doccomment">/// HPKE Error types.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HPKEError</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HpkeError</span> {
     <span class="doccomment">/// Error opening an HPKE ciphertext.</span>
     <span class="ident">OpenError</span>,
 
@@ -838,26 +924,52 @@
     <span class="ident">CryptoError</span>,
 }
 
+<span class="attribute">#[<span class="ident">deprecated</span>(
+    <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.0.7&quot;</span>,
+    <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use HpkePublicKey instead. This alias will be removed with the first stable  0.1 release.&quot;</span>
+)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HPKEPublicKey</span> <span class="op">=</span> <span class="ident">HpkePublicKey</span>;
+
 <span class="doccomment">/// An HPKE public key is a byte vector.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HPKEPublicKey</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HpkePublicKey</span> {
     <span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
 }
+
+<span class="attribute">#[<span class="ident">deprecated</span>(
+    <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.0.7&quot;</span>,
+    <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use HpkePrivateKey instead. This alias will be removed with the first stable  0.1 release.&quot;</span>
+)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HPKEPrivateKey</span> <span class="op">=</span> <span class="ident">HpkePrivateKey</span>;
 
 <span class="doccomment">/// An HPKE private key is a byte vector.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HPKEPrivateKey</span> {
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>, <span class="ident">derive</span>(<span class="ident">Clone</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HpkePrivateKey</span> {
     <span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
 }
+
+<span class="attribute">#[<span class="ident">deprecated</span>(
+    <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.0.7&quot;</span>,
+    <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use HpkeKeyPair instead. This alias will be removed with the first stable  0.1 release.&quot;</span>
+)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">upper_case_acronyms</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HPKEKeyPair</span> <span class="op">=</span> <span class="ident">HpkeKeyPair</span>;
 
 <span class="doccomment">/// An HPKE key pair has an HPKE private and public key.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HPKEKeyPair</span> {
-    <span class="ident">private_key</span>: <span class="ident">HPKEPrivateKey</span>,
-    <span class="ident">public_key</span>: <span class="ident">HPKEPublicKey</span>,
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>, <span class="ident">derive</span>(<span class="ident">Clone</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HpkeKeyPair</span> {
+    <span class="ident">private_key</span>: <span class="ident">HpkePrivateKey</span>,
+    <span class="ident">public_key</span>: <span class="ident">HpkePublicKey</span>,
 }
 
 <span class="doccomment">/// HPKE supports four modes.</span>
@@ -885,14 +997,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mode</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">HPKEError</span>;
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">x</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Mode</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">HpkeError</span>;
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">x</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Mode</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="number">0x00</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">Base</span>),
             <span class="number">0x01</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">Psk</span>),
             <span class="number">0x02</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">Auth</span>),
             <span class="number">0x03</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mode</span>::<span class="ident">AuthPsk</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">UnknownMode</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">UnknownMode</span>),
         }
     }
 }
@@ -954,7 +1066,7 @@
     <span class="doccomment">///   self.IncrementSeq()</span>
     <span class="doccomment">///   return ct</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">aad</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">plain_txt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ciphertext</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">aad</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">plain_txt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ciphertext</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">hpke</span>
             .<span class="ident">aead</span>
@@ -976,7 +1088,7 @@
     <span class="doccomment">///   self.IncrementSeq()</span>
     <span class="doccomment">///   return pt</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">aad</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">cipher_txt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Plaintext</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">aad</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">cipher_txt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Plaintext</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ptxt</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">hpke</span>
             .<span class="ident">aead</span>
@@ -1081,18 +1193,18 @@
     <span class="doccomment">/// If the secret key is missing in an authenticated mode, an error is returned.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_sender</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span>,
+        <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span>,
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">psk_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">sk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">EncapsulatedSecret</span>, <span class="ident">Context</span>), <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+        <span class="ident">sk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">EncapsulatedSecret</span>, <span class="ident">Context</span>), <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">zz</span>, <span class="ident">enc</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
             <span class="ident">Mode</span>::<span class="ident">Base</span> <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">Psk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">encaps</span>(<span class="kw-2">&amp;</span><span class="ident">pk_r</span>.<span class="ident">value</span>)<span class="question-mark">?</span>,
             <span class="ident">Mode</span>::<span class="ident">Auth</span> <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">AuthPsk</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">sk_s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">sk_s</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">value</span>,
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">InvalidInput</span>),
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">InvalidInput</span>),
                 };
                 <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">auth_encaps</span>(<span class="kw-2">&amp;</span><span class="ident">pk_r</span>.<span class="ident">value</span>, <span class="ident">sk_s</span>)<span class="question-mark">?</span>
             }
@@ -1121,18 +1233,18 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_receiver</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span>,
+        <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span>,
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">psk_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">pk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+        <span class="ident">pk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
             <span class="ident">Mode</span>::<span class="ident">Base</span> <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">Psk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">decaps</span>(<span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">sk_r</span>.<span class="ident">value</span>)<span class="question-mark">?</span>,
             <span class="ident">Mode</span>::<span class="ident">Auth</span> <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">AuthPsk</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pk_s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pk_s</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">value</span>,
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">InvalidInput</span>),
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">InvalidInput</span>),
                 };
                 <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">auth_decaps</span>(<span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">sk_r</span>.<span class="ident">value</span>, <span class="ident">pk_s</span>)<span class="question-mark">?</span>
             }
@@ -1155,14 +1267,14 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">too_many_arguments</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seal</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span>,
+        <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span>,
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">aad</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">plain_txt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">psk_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">sk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">EncapsulatedSecret</span>, <span class="ident">Ciphertext</span>), <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+        <span class="ident">sk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">EncapsulatedSecret</span>, <span class="ident">Ciphertext</span>), <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">enc</span>, <span class="kw-2">mut</span> <span class="ident">context</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">setup_sender</span>(<span class="ident">pk_r</span>, <span class="ident">info</span>, <span class="ident">psk</span>, <span class="ident">psk_id</span>, <span class="ident">sk_s</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">seal</span>(<span class="ident">aad</span>, <span class="ident">plain_txt</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((<span class="ident">enc</span>, <span class="ident">ctxt</span>))
@@ -1178,14 +1290,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span>,
+        <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span>,
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">aad</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">ct</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">psk_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">pk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Plaintext</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+        <span class="ident">pk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Plaintext</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">setup_receiver</span>(<span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="ident">info</span>, <span class="ident">psk</span>, <span class="ident">psk_id</span>, <span class="ident">pk_s</span>)<span class="question-mark">?</span>;
         <span class="ident">context</span>.<span class="ident">open</span>(<span class="ident">aad</span>, <span class="ident">ct</span>)
     }
@@ -1201,14 +1313,14 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">too_many_arguments</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_export</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span>,
+        <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span>,
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">psk_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">sk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span><span class="op">&gt;</span>,
+        <span class="ident">sk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span><span class="op">&gt;</span>,
         <span class="ident">exporter_context</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">EncapsulatedSecret</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">EncapsulatedSecret</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">enc</span>, <span class="ident">context</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">setup_sender</span>(<span class="ident">pk_r</span>, <span class="ident">info</span>, <span class="ident">psk</span>, <span class="ident">psk_id</span>, <span class="ident">sk_s</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((<span class="ident">enc</span>, <span class="ident">context</span>.<span class="ident">export</span>(<span class="ident">exporter_context</span>, <span class="ident">length</span>)))
     }
@@ -1224,37 +1336,37 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">receiver_export</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span>,
+        <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span>,
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
         <span class="ident">psk_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">pk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span><span class="op">&gt;</span>,
+        <span class="ident">pk_s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span><span class="op">&gt;</span>,
         <span class="ident">exporter_context</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">length</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">setup_receiver</span>(<span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="ident">info</span>, <span class="ident">psk</span>, <span class="ident">psk_id</span>, <span class="ident">pk_s</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">context</span>.<span class="ident">export</span>(<span class="ident">exporter_context</span>, <span class="ident">length</span>))
     }
 
     <span class="doccomment">/// Verify PSKs.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">verify_psk_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">psk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">psk_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">verify_psk_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">psk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">psk_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">got_psk</span> <span class="op">=</span> <span class="op">!</span><span class="ident">psk</span>.<span class="ident">is_empty</span>();
         <span class="kw">let</span> <span class="ident">got_psk_id</span> <span class="op">=</span> <span class="op">!</span><span class="ident">psk_id</span>.<span class="ident">is_empty</span>();
         <span class="kw">if</span> (<span class="ident">got_psk</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">got_psk_id</span>) <span class="op">|</span><span class="op">|</span> (<span class="op">!</span><span class="ident">got_psk</span> <span class="op">&amp;&amp;</span> <span class="ident">got_psk_id</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">InconsistentPsk</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">InconsistentPsk</span>);
         }
 
         <span class="kw">if</span> <span class="ident">got_psk</span> <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Base</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Auth</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">UnnecessaryPsk</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">UnnecessaryPsk</span>);
         }
         <span class="kw">if</span> <span class="op">!</span><span class="ident">got_psk</span> <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Psk</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">AuthPsk</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">MissingPsk</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">MissingPsk</span>);
         }
 
         <span class="comment">// The PSK MUST have at least 32 bytes of entropy and SHOULD be of length Nh bytes or longer.</span>
         <span class="kw">if</span> (<span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Psk</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">AuthPsk</span>) <span class="op">&amp;&amp;</span> <span class="ident">psk</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">32</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HPKEError</span>::<span class="ident">InsecurePsk</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HpkeError</span>::<span class="ident">InsecurePsk</span>);
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -1318,7 +1430,7 @@
         <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">psk_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span>, <span class="ident">HPKEError</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">verify_psk_inputs</span>(<span class="ident">psk</span>, <span class="ident">psk_id</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">suite_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_ciphersuite</span>();
         <span class="kw">let</span> <span class="ident">key_schedule_context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_key_schedule_context</span>(<span class="ident">info</span>, <span class="ident">psk_id</span>, <span class="kw-2">&amp;</span><span class="ident">suite_id</span>);
@@ -1353,49 +1465,56 @@
     <span class="doccomment">/// Randomized algorithm to generate a key pair `(skX, pkX)` for the KEM.</span>
     <span class="doccomment">/// This is equivalent to `derive_key_pair(get_random_vector(sk.len()))`</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an `HPKEKeyPair`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HPKEKeyPair</span> {
+    <span class="doccomment">/// Returns an `HpkeKeyPair`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HpkeKeyPair</span> {
         <span class="kw">let</span> (<span class="ident">sk</span>, <span class="ident">pk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">key_gen</span>();
-        <span class="ident">HPKEKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
+        <span class="ident">HpkeKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
     }
 
     <span class="doccomment">/// 7.1.2. DeriveKeyPair</span>
     <span class="doccomment">/// Derive a key pair for the used KEM with the given input key material.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `HPKEKeyPair`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HPKEKeyPair</span> {
+    <span class="doccomment">/// Returns `HpkeKeyPair`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HpkeKeyPair</span> {
         <span class="kw">let</span> (<span class="ident">pk</span>, <span class="ident">sk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">derive_key_pair</span>(<span class="ident">ikm</span>);
-        <span class="ident">HPKEKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
+        <span class="ident">HpkeKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
+    }
+
+    <span class="doccomment">/// Set randomness for testing HPKE (KEM) without randomness.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deterministic&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_kem_random</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">set_random</span>(<span class="ident">r</span>);
+        <span class="self">self</span>
     }
 }
 
-<span class="kw">impl</span> <span class="ident">HPKEKeyPair</span> {
+<span class="kw">impl</span> <span class="ident">HpkeKeyPair</span> {
     <span class="doccomment">/// Create a new HPKE key pair.</span>
     <span class="doccomment">/// Consumes the private and public key bytes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sk</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">pk</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">private_key</span>: <span class="ident">HPKEPrivateKey</span>::<span class="ident">new</span>(<span class="ident">sk</span>),
-            <span class="ident">public_key</span>: <span class="ident">HPKEPublicKey</span>::<span class="ident">new</span>(<span class="ident">pk</span>),
+            <span class="ident">private_key</span>: <span class="ident">HpkePrivateKey</span>::<span class="ident">new</span>(<span class="ident">sk</span>),
+            <span class="ident">public_key</span>: <span class="ident">HpkePublicKey</span>::<span class="ident">new</span>(<span class="ident">pk</span>),
         }
     }
 
     <span class="doccomment">/// Get a reference to the HPKE private key of this key pair.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">private_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HPKEPrivateKey</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">private_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HpkePrivateKey</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">private_key</span>
     }
 
     <span class="doccomment">/// Get a reference to the HPKE public key of this key pair.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HPKEPublicKey</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">public_key</span>
     }
 
     <span class="doccomment">/// Split the key pair into the two keys</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_keys</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HPKEPrivateKey</span>, <span class="ident">HPKEPublicKey</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_keys</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HpkePrivateKey</span>, <span class="ident">HpkePublicKey</span>) {
         (<span class="self">self</span>.<span class="ident">private_key</span>, <span class="self">self</span>.<span class="ident">public_key</span>)
     }
 
     <span class="doccomment">/// Build a key pair from two keys</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_keys</span>(<span class="ident">private_key</span>: <span class="ident">HPKEPrivateKey</span>, <span class="ident">public_key</span>: <span class="ident">HPKEPublicKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_keys</span>(<span class="ident">private_key</span>: <span class="ident">HpkePrivateKey</span>, <span class="ident">public_key</span>: <span class="ident">HpkePublicKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">private_key</span>,
             <span class="ident">public_key</span>,
@@ -1403,7 +1522,19 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">HPKEPrivateKey</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkeKeyPair</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">sk</span>, <span class="ident">pk</span>): (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkeKeyPair</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">sk</span>, <span class="ident">pk</span>): (<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">sk</span>.<span class="ident">to_vec</span>(), <span class="ident">pk</span>.<span class="ident">to_vec</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">HpkePrivateKey</span> {
     <span class="doccomment">/// Create a new HPKE private key.</span>
     <span class="doccomment">/// Consumes the private key bytes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -1417,9 +1548,21 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkePrivateKey</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">b</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkePrivateKey</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">b</span>.<span class="ident">to_vec</span>())
+    }
+}
+
 <span class="doccomment">/// Hopefully constant time comparison of the two values as long as they have the</span>
 <span class="doccomment">/// same length.</span>
-<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">HPKEPrivateKey</span> {
+<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">HpkePrivateKey</span> {
     <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">value</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="bool-val">false</span>;
@@ -1433,25 +1576,25 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">HPKEPrivateKey</span> {
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>))]</span>
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">HpkePrivateKey</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;HPKEPrivateKey&quot;</span>)
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;HpkePrivateKey&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;</span>)
             .<span class="ident">finish</span>()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>))]</span>
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">HPKEPrivateKey</span> {
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">HpkePrivateKey</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;HPKEPrivateKey&quot;</span>)
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;HpkePrivateKey&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>)
             .<span class="ident">finish</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">HPKEPublicKey</span> {
+<span class="kw">impl</span> <span class="ident">HpkePublicKey</span> {
     <span class="doccomment">/// Create a new HPKE public key.</span>
     <span class="doccomment">/// Consumes the public key bytes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -1464,23 +1607,36 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkePublicKey</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">b</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkePublicKey</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">b</span>.<span class="ident">to_vec</span>())
+    }
+}
+
 <span class="doccomment">/// Test util module. Should be moved really.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hpke-test&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_util</span> {
     <span class="comment">// TODO: don&#39;t build for release</span>
     <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">super</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="doccomment">/// Get a reference to the key in the context.</span>
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span>
         }
         <span class="doccomment">/// Get a reference to the nonce in the context.</span>
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nonce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nonce</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nonce</span>
         }
         <span class="doccomment">/// Get a reference to the exporter secret in the context.</span>
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exporter_secret</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exporter_secret</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">exporter_secret</span>
         }
         <span class="doccomment">/// Get a reference to the sequence number in the context.</span>
@@ -1529,24 +1685,25 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">aead</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HPKEError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">aead</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkeError</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">aead</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">OpenError</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HPKEError</span>::<span class="ident">OpenError</span>,
-            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidNonce</span> <span class="op">|</span> <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidCiphertext</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HPKEError</span>::<span class="ident">InvalidInput</span>,
-            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidConfig</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HPKEError</span>::<span class="ident">InvalidConfig</span>,
-            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">UnknownMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HPKEError</span>::<span class="ident">UnknownMode</span>,
+            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">OpenError</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">OpenError</span>,
+            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidNonce</span> <span class="op">|</span> <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidCiphertext</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">InvalidInput</span>,
+            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidConfig</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">InvalidConfig</span>,
+            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">UnknownMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">UnknownMode</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">kem</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HPKEError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">kem</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HpkeError</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">kem</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">kem</span>::<span class="ident">Error</span>::<span class="ident">UnknownMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HPKEError</span>::<span class="ident">UnknownMode</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HPKEError</span>::<span class="ident">CryptoError</span>,
+            <span class="ident">kem</span>::<span class="ident">Error</span>::<span class="ident">UnknownMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">UnknownMode</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">CryptoError</span>,
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "hpke_rs";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
