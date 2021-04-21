@@ -255,7 +255,7 @@
 }
 
 <span class="comment">// Map KEM to KDF according to spec.</span>
-<span class="kw">fn</span> <span class="ident">get_kdf</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">kdf</span>::<span class="ident">Mode</span> {
+<span class="kw">fn</span> <span class="ident">kdf</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">kdf</span>::<span class="ident">Mode</span> {
     <span class="kw">match</span> <span class="ident">mode</span> {
         <span class="ident">Mode</span>::<span class="ident">DhKemP256</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">kdf</span>::<span class="ident">Mode</span>::<span class="ident">HkdfSha256</span>,
         <span class="ident">Mode</span>::<span class="ident">DhKemP384</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">kdf</span>::<span class="ident">Mode</span>::<span class="ident">HkdfSha384</span>,
@@ -344,7 +344,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">mode</span>: <span class="ident">Mode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">mode</span>,
-            <span class="ident">kem</span>: <span class="ident">kem_object</span>(<span class="ident">mode</span>, <span class="ident">get_kdf</span>(<span class="ident">mode</span>)),
+            <span class="ident">kem</span>: <span class="ident">kem_object</span>(<span class="ident">mode</span>, <span class="ident">kdf</span>(<span class="ident">mode</span>)),
         }
     }
 
