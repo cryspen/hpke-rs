@@ -865,6 +865,7 @@
 <span id="862">862</span>
 <span id="863">863</span>
 <span id="864">864</span>
+<span id="865">865</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This implements the work-in-progress Hybrid Public Key Encryption RFC.</span>
 <span class="doccomment">//! https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html</span>
@@ -1138,7 +1139,7 @@
     <span class="kw">fn</span> <span class="ident">compute_nonce</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sequence_number</span>.<span class="ident">to_be_bytes</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">enc_seq</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0u8</span>; <span class="self">self</span>.<span class="ident">nonce</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">seq</span>.<span class="ident">len</span>()];
-        <span class="ident">enc_seq</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">seq</span>.<span class="ident">to_vec</span>());
+        <span class="ident">enc_seq</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">seq</span>);
         <span class="ident">util</span>::<span class="ident">xor_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">enc_seq</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nonce</span>)
     }
 
@@ -1492,18 +1493,18 @@
     <span class="doccomment">/// This is equivalent to `derive_key_pair(random_vector(sk.len()))`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an `HpkeKeyPair`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HpkeKeyPair</span> {
-        <span class="kw">let</span> (<span class="ident">sk</span>, <span class="ident">pk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">key_gen</span>();
-        <span class="ident">HpkeKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HpkeKeyPair</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">sk</span>, <span class="ident">pk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">key_gen</span>()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">HpkeKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>))
     }
 
     <span class="doccomment">/// 7.1.2. DeriveKeyPair</span>
     <span class="doccomment">/// Derive a key pair for the used KEM with the given input key material.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `HpkeKeyPair`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HpkeKeyPair</span> {
-        <span class="kw">let</span> (<span class="ident">pk</span>, <span class="ident">sk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">derive_key_pair</span>(<span class="ident">ikm</span>);
-        <span class="ident">HpkeKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>)
+    <span class="doccomment">/// Returns an `HpkeKeyPair` result or an `HpkeError` if key derivation fails.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HpkeKeyPair</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">pk</span>, <span class="ident">sk</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">kem</span>.<span class="ident">derive_key_pair</span>(<span class="ident">ikm</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">HpkeKeyPair</span>::<span class="ident">new</span>(<span class="ident">sk</span>, <span class="ident">pk</span>))
     }
 
     <span class="doccomment">/// Set randomness for testing HPKE (KEM) without randomness.</span>
@@ -1718,6 +1719,7 @@
             <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidNonce</span> <span class="op">|</span> <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidCiphertext</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">InvalidInput</span>,
             <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">InvalidConfig</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">InvalidConfig</span>,
             <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">UnknownMode</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">UnknownMode</span>,
+            <span class="ident">aead</span>::<span class="ident">Error</span>::<span class="ident">CryptoLibError</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError</span>::<span class="ident">CryptoError</span>,
         }
     }
 }

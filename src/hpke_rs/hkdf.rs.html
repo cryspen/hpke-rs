@@ -45,7 +45,7 @@
                 <span class="self">Self</span> {}
             }
             <span class="kw">fn</span> <span class="ident">digest_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-                <span class="ident">get_tag_size</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">hmac_mode</span>)
+                <span class="ident">tag_size</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">hmac_mode</span>)
             }
             <span class="kw">fn</span> <span class="ident">extract</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">salt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
                 <span class="ident">hkdf_extract</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">hmac_mode</span>, <span class="kw-2">&amp;</span><span class="ident">salt</span>, <span class="kw-2">&amp;</span><span class="ident">ikm</span>)

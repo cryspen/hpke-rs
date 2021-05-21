@@ -223,6 +223,11 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">evercrypt</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
 
@@ -270,17 +275,18 @@
 
     <span class="doccomment">/// Prepend 0x04 for uncompressed NIST curve points.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">nist_format_uncompressed</span>(<span class="ident">pk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0x04</span>];
-        <span class="ident">tmp</span>.<span class="ident">extend</span>(<span class="ident">pk</span>);
+    <span class="kw">fn</span> <span class="ident">nist_format_uncompressed</span>(<span class="kw-2">mut</span> <span class="ident">pk</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">pk</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>);
+        <span class="ident">tmp</span>.<span class="ident">push</span>(<span class="number">0x04</span>);
+        <span class="ident">tmp</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pk</span>);
         <span class="ident">tmp</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">ecdh_derive_base</span>(<span class="self">self</span>.<span class="ident">dh_id</span>, <span class="ident">sk</span>).<span class="ident">unwrap</span>();
+    <span class="kw">fn</span> <span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">ecdh_derive_base</span>(<span class="self">self</span>.<span class="ident">dh_id</span>, <span class="ident">sk</span>)<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dh_id</span> {
-            <span class="ident">ecdh</span>::<span class="ident">Mode</span>::<span class="ident">X25519</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">out</span>,
-            <span class="ident">ecdh</span>::<span class="ident">Mode</span>::<span class="ident">P256</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">nist_format_uncompressed</span>(<span class="kw-2">&amp;</span><span class="ident">out</span>),
+            <span class="ident">ecdh</span>::<span class="ident">Mode</span>::<span class="ident">X25519</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">out</span>),
+            <span class="ident">ecdh</span>::<span class="ident">Mode</span>::<span class="ident">P256</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">nist_format_uncompressed</span>(<span class="ident">out</span>)),
         }
     }
 
@@ -335,13 +341,17 @@
         <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Don&#39;t use this please&quot;</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">key_gen</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="ident">ecdh</span>::<span class="ident">key_gen</span>(<span class="self">self</span>.<span class="ident">dh_id</span>);
-        <span class="kw">let</span> <span class="ident">pk</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="ident">sk</span>);
-        (<span class="ident">sk</span>, <span class="ident">pk</span>)
+    <span class="kw">fn</span> <span class="ident">key_gen</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="ident">ecdh</span>::<span class="ident">key_gen</span>(<span class="self">self</span>.<span class="ident">dh_id</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">pk</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="ident">sk</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>((<span class="ident">sk</span>, <span class="ident">pk</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">derive_key_pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>) {
+    <span class="kw">fn</span> <span class="ident">derive_key_pair</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+        <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">dkp_prk</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">kdf</span>.<span class="ident">labeled_extract</span>(<span class="kw-2">&amp;</span>[], <span class="ident">suite_id</span>, <span class="string">&quot;dkp_prk&quot;</span>, <span class="ident">ikm</span>);
 
         <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dh_id</span> {
@@ -373,18 +383,18 @@
                 }
             }
         };
-        (<span class="self">self</span>.<span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="ident">sk</span>).<span class="ident">to_vec</span>(), <span class="ident">sk</span>)
+        <span class="prelude-val">Ok</span>((<span class="self">self</span>.<span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="ident">sk</span>)<span class="question-mark">?</span>, <span class="ident">sk</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">encaps</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">derive_key_pair</span>(<span class="ident">suite_id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">random</span>());
+        <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">derive_key_pair</span>(<span class="ident">suite_id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">random</span>())<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dh</span>(<span class="kw-2">&amp;</span><span class="ident">sk_e</span>, <span class="ident">pk_r</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">pk_e</span>);
 
         <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="ident">pk_r</span>);
         <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>]);
 
-        <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>.<span class="ident">to_vec</span>(), <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>);
+        <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>);
         <span class="prelude-val">Ok</span>((<span class="ident">zz</span>, <span class="ident">enc</span>))
     }
 
@@ -392,10 +402,10 @@
         <span class="kw">let</span> <span class="ident">pk_e</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">deserialize</span>(<span class="ident">enc</span>);
         <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dh</span>(<span class="ident">sk_r</span>, <span class="kw-2">&amp;</span><span class="ident">pk_e</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh_base</span>(<span class="ident">sk_r</span>));
+        <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh_base</span>(<span class="ident">sk_r</span>)<span class="question-mark">?</span>);
         <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>]);
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>.<span class="ident">to_vec</span>(), <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>))
     }
     <span class="kw">fn</span> <span class="ident">auth_encaps</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -403,16 +413,16 @@
         <span class="ident">sk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">derive_key_pair</span>(<span class="ident">suite_id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">random</span>());
+        <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">derive_key_pair</span>(<span class="ident">suite_id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">random</span>())<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh</span>(<span class="kw-2">&amp;</span><span class="ident">sk_e</span>, <span class="ident">pk_r</span>)<span class="question-mark">?</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh</span>(<span class="kw-2">&amp;</span><span class="ident">sk_s</span>, <span class="ident">pk_r</span>)<span class="question-mark">?</span>]);
 
         <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">pk_e</span>);
         <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">pk_r</span>);
-        <span class="kw">let</span> <span class="ident">pk_sm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="ident">sk_s</span>));
+        <span class="kw">let</span> <span class="ident">pk_sm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh_base</span>(<span class="kw-2">&amp;</span><span class="ident">sk_s</span>)<span class="question-mark">?</span>);
 
         <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>, <span class="kw-2">&amp;</span><span class="ident">pk_sm</span>]);
 
-        <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>.<span class="ident">to_vec</span>(), <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>);
+        <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>);
         <span class="prelude-val">Ok</span>((<span class="ident">zz</span>, <span class="ident">enc</span>))
     }
     <span class="kw">fn</span> <span class="ident">auth_decaps</span>(
@@ -425,11 +435,11 @@
         <span class="kw">let</span> <span class="ident">pk_e</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">deserialize</span>(<span class="ident">enc</span>);
         <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh</span>(<span class="ident">sk_r</span>, <span class="kw-2">&amp;</span><span class="ident">pk_e</span>)<span class="question-mark">?</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh</span>(<span class="ident">sk_r</span>, <span class="kw-2">&amp;</span><span class="ident">pk_s</span>)<span class="question-mark">?</span>]);
 
-        <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh_base</span>(<span class="ident">sk_r</span>));
+        <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">dh_base</span>(<span class="ident">sk_r</span>)<span class="question-mark">?</span>);
         <span class="kw">let</span> <span class="ident">pk_sm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">pk_s</span>);
         <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>, <span class="kw-2">&amp;</span><span class="ident">pk_sm</span>]);
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>.<span class="ident">to_vec</span>(), <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">extract_and_expand</span>(<span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>))
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deterministic&quot;</span>)]</span>

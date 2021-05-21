@@ -30,11 +30,11 @@
 <span id="27">27</span>
 <span id="28">28</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">evercrypt</span>::<span class="ident">prelude</span>::<span class="ident">get_random_vec</span>;
+<span class="kw">use</span> <span class="ident">evercrypt</span>::<span class="ident">prelude</span>::<span class="ident">random_vec</span>;
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">random</span>(<span class="ident">l</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="ident">get_random_vec</span>(<span class="ident">l</span>)
+    <span class="ident">random_vec</span>(<span class="ident">l</span>)
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
