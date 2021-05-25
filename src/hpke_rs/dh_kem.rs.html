@@ -377,7 +377,7 @@
                     }
                     <span class="kw">if</span> <span class="ident">ctr</span> <span class="op">=</span><span class="op">=</span> <span class="ident">u8</span>::<span class="ident">MAX</span> {
                         <span class="comment">// If we get here we lost. This should never happen.</span>
-                        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t derive a secret key for P256&quot;</span>);
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">KeyGenerationError</span>);
                     }
                     <span class="ident">ctr</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }

@@ -199,6 +199,9 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -256,6 +259,9 @@
 
     <span class="doccomment">/// A cryptographic operation failed.</span>
     <span class="ident">CryptoError</span>,
+
+    <span class="doccomment">/// Key generation error.</span>
+    <span class="ident">KeyGenerationError</span>,
 }
 
 <span class="comment">// Map KEM to KDF according to spec.</span>
