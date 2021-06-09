@@ -15,6 +15,9 @@
 #[cfg(feature = "serialization")]
 pub(crate) use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "openmls-crypto-api")]
+pub mod openmls_crypto;
+
 pub(crate) mod aead;
 mod aead_impl;
 mod dh_kem;

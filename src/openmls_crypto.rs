@@ -1,94 +1,114 @@
-// fn evercrypt_kem_type(key_type: AsymmetricKeyType) -> Result<HpkeKemMode, openmls_crypto::errors::Error> {
-//     match key_type {
-//         AsymmetricKeyType::KemKey(KemKeyType::P256) => Ok(HpkeKemMode::DhKemP256),
-//         AsymmetricKeyType::KemKey(KemKeyType::P384) => Ok(HpkeKemMode::DhKemP384),
-//         AsymmetricKeyType::KemKey(KemKeyType::P521) => Ok(HpkeKemMode::DhKemP521),
-//         AsymmetricKeyType::KemKey(KemKeyType::X25519) => Ok(HpkeKemMode::DhKem25519),
-//         AsymmetricKeyType::KemKey(KemKeyType::X448) => Ok(HpkeKemMode::DhKem448),
-//         _ => return Err(Error::UnsupportedAlgorithm(format!("{:?}", key_type))),
-//     }
-// }
+use std::convert::TryInto;
 
-// impl HpkeSeal for KeyStore {
-//     fn hpke_seal(
-//         &self,
-//         kdf: HpkeKdfType,
-//         aead: AeadType,
-//         key_id: &impl KeyStoreId,
-//         info: &[u8],
-//         aad: &[u8],
-//         payload: &[u8],
-//     ) -> Result<(Vec<u8>, KemOutput), openmls_crypto::errors::Error> {
-//         let (pk_r, _status): (PublicKey, Status) = self.internal_read(key_id)?;
-//         self.hpke_seal_to_pk(kdf, aead, &pk_r, info, aad, payload)
-//     }
+use crypto_algorithms::{AeadType, AsymmetricKeyType, KdfType, KemKeyType};
+use openmls_crypto::{hpke::HpkeSeal, keys::PublicKey, secret::Secret};
 
-//     fn hpke_seal_to_pk(
-//         &self,
-//         kdf: HpkeKdfType,
-//         aead: AeadType,
-//         key: &PublicKey,
-//         info: &[u8],
-//         aad: &[u8],
-//         payload: &[u8],
-//     ) -> Result<(Vec<u8>, KemOutput), openmls_crypto::errors::Error> {
-//         let kem = evercrypt_kem_type(key.key_type())?;
-//         let hpke = Hpke::new(
-//             hpke::Mode::Base,
-//             (kem as u16).try_into().unwrap(),
-//             (kdf as u16).try_into().unwrap(),
-//             (aead as u16).try_into().unwrap(),
-//         );
-//         let (kem_output, ciphertext) = hpke
-//             .seal(&key.as_slice().into(), info, aad, payload, None, None, None)
-//             .map_err(|e| Error::CryptoLibError(format!("HPKE Seal error: {:?}", e)))?;
-//         Ok((ciphertext, KemOutput::new(kem_output)))
-//     }
+use crate::{kem, Hpke, Mode as HpkeMode};
 
-//     fn hpke_seal_secret(
-//         &self,
-//         kdf: HpkeKdfType,
-//         aead: AeadType,
-//         key_id: &impl KeyStoreId,
-//         info: &[u8],
-//         aad: &[u8],
-//         secret_id: &impl KeyStoreId,
-//     ) -> Result<(Vec<u8>, KemOutput), openmls_crypto::errors::Error> {
-//         let (pk_r, _status): (PublicKey, Status) = self.internal_read(key_id)?;
-//         self.hpke_seal_secret_to_pk(kdf, aead, &pk_r, info, aad, secret_id)
-//     }
+fn evercrypt_kem_type(
+    key_type: AsymmetricKeyType,
+) -> Result<kem::Mode, openmls_crypto::errors::Error> {
+    match key_type {
+        AsymmetricKeyType::KemKey(KemKeyType::P256) => Ok(kem::Mode::DhKemP256),
+        AsymmetricKeyType::KemKey(KemKeyType::P384) => Ok(kem::Mode::DhKemP384),
+        AsymmetricKeyType::KemKey(KemKeyType::P521) => Ok(kem::Mode::DhKemP521),
+        AsymmetricKeyType::KemKey(KemKeyType::X25519) => Ok(kem::Mode::DhKem25519),
+        AsymmetricKeyType::KemKey(KemKeyType::X448) => Ok(kem::Mode::DhKem448),
+        _ => {
+            return Err(openmls_crypto::errors::Error::UnsupportedAlgorithm(
+                format!("{:?}", key_type),
+            ))
+        }
+    }
+}
 
-//     fn hpke_seal_secret_to_pk(
-//         &self,
-//         kdf: HpkeKdfType,
-//         aead: AeadType,
-//         key: &PublicKey,
-//         info: &[u8],
-//         aad: &[u8],
-//         secret_id: &impl KeyStoreId,
-//     ) -> Result<(Vec<u8>, KemOutput), openmls_crypto::errors::Error> {
-//         let kem = evercrypt_kem_type(key.key_type())?;
-//         let (secret, _status): (Secret, Status) = self.internal_read(secret_id)?;
-//         let hpke = Hpke::new(
-//             hpke::Mode::Base,
-//             (kem as u16).try_into().unwrap(),
-//             (kdf as u16).try_into().unwrap(),
-//             (aead as u16).try_into().unwrap(),
-//         );
-//         let (kem_output, ciphertext) = hpke
-//             .seal(
-//                 &key.as_slice().into(),
-//                 info,
-//                 aad,
-//                 secret.as_slice(),
-//                 None,
-//                 None,
-//                 None,
-//             )
-//             .map_err(|e| Error::CryptoLibError(format!("HPKE Seal error: {:?}", e)))?;
-//         Ok((ciphertext, KemOutput::new(kem_output)))
-//     }
-// }
+impl HpkeSeal for Hpke {
+    type KeyStoreType;
+    type KeyStoreIndex;
+
+    fn hpke_seal(
+        key_store: &Self::KeyStoreType,
+        kdf: KdfType,
+        aead: AeadType,
+        key_id: &Self::KeyStoreIndex,
+        info: &[u8],
+        aad: &[u8],
+        payload: &[u8],
+    ) -> Result<(Vec<u8>, Vec<u8>), openmls_crypto::errors::Error> {
+        let (pk_r, _): (PublicKey, _) = key_store.internal_read(key_id)?;
+        Hpke::hpke_seal_to_pk(kdf, aead, &pk_r, info, aad, payload)
+    }
+
+    fn hpke_seal_to_pk(
+        key_store: &Self::KeyStoreType,
+        kdf: KdfType,
+        aead: AeadType,
+        key: &PublicKey,
+        info: &[u8],
+        aad: &[u8],
+        payload: &[u8],
+    ) -> Result<(Vec<u8>, Vec<u8>), openmls_crypto::errors::Error> {
+        let kem = evercrypt_kem_type(key.key_type())?;
+        let hpke = Hpke::new(
+            HpkeMode::Base,
+            (kem as u16).try_into().unwrap(),
+            (kdf as u16).try_into().unwrap(),
+            (aead as u16).try_into().unwrap(),
+        );
+        let (kem_output, ciphertext) = hpke
+            .seal(&key.as_slice().into(), info, aad, payload, None, None, None)
+            .map_err(|e| {
+                openmls_crypto::errors::Error::CryptoLibError(format!("HPKE Seal error: {:?}", e))
+            })?;
+        Ok((ciphertext, kem_output))
+    }
+
+    fn hpke_seal_secret(
+        key_store: &Self::KeyStoreType,
+        kdf: KdfType,
+        aead: AeadType,
+        key_id: &Self::KeyStoreIndex,
+        info: &[u8],
+        aad: &[u8],
+        secret_id: &Self::KeyStoreIndex,
+    ) -> Result<(Vec<u8>, Vec<u8>), openmls_crypto::errors::Error> {
+        let (pk_r, _): (PublicKey, _) = key_store.internal_read(key_id)?;
+        Self::hpke_seal_secret_to_pk(key_store, kdf, aead, &pk_r, info, aad, secret_id)
+    }
+
+    fn hpke_seal_secret_to_pk(
+        key_store: &Self::KeyStoreType,
+        kdf: KdfType,
+        aead: AeadType,
+        key: &PublicKey,
+        info: &[u8],
+        aad: &[u8],
+        secret_id: &Self::KeyStoreIndex,
+    ) -> Result<(Vec<u8>, Vec<u8>), openmls_crypto::errors::Error> {
+        let kem = evercrypt_kem_type(key.key_type())?;
+        let (secret, _): (Secret, _) = key_store.internal_read(secret_id)?;
+        let hpke = Hpke::new(
+            HpkeMode::Base,
+            (kem as u16).try_into().unwrap(),
+            (kdf as u16).try_into().unwrap(),
+            (aead as u16).try_into().unwrap(),
+        );
+        let (kem_output, ciphertext) = hpke
+            .seal(
+                &key.as_slice().into(),
+                info,
+                aad,
+                secret.as_slice(),
+                None,
+                None,
+                None,
+            )
+            .map_err(|e| {
+                openmls_crypto::errors::Error::CryptoLibError(format!("HPKE Seal error: {:?}", e))
+            })?;
+        Ok((ciphertext, kem_output))
+    }
+}
 
 // impl HpkeOpen for KeyStore {
 //     fn hpke_open_with_sk(
