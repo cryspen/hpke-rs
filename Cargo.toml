@@ -16,15 +16,6 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 openmls-crypto = { version = "0.1", git = "https://github.com/openmls/crypto.git", branch = "main", optional = true }
 crypto_algorithms = { version = "0.1", git = "https://github.com/franziskuskiefer/algorithm-identifiers-rs.git", branch = "main", features = ["serialization"], optional = true}
 
-[patch.crates-io]
-evercrypt = { git ="https://github.com/franziskuskiefer/evercrypt-rust.git", branch = "openmls-keystore" }
-# evercrypt = { path = "../evercrypt-rust/evercrypt-rs" }
-evercrypt-sys = { git ="https://github.com/franziskuskiefer/evercrypt-rust.git", branch = "openmls-keystore" }
-# evercrypt-sys = { path = "../evercrypt-rust/evercrypt-sys" }
-
-[patch.'https://github.com/openmls/crypto.git']
-openmls-crypto = { path = "../openmls-crypto" }
-
 [features]
 rust-crypto = ["evercrypt/rust-crypto-aes"]
 serialization = ["serde", "serde_json", "evercrypt/serialization"]

@@ -42,7 +42,7 @@ mod test_kdf;
 type HPKEError = HpkeError;
 
 /// HPKE Error types.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum HpkeError {
     /// Error opening an HPKE ciphertext.
     OpenError,
@@ -73,6 +73,9 @@ pub enum HpkeError {
 
     /// The message limit for this AEAD, key, and nonce.
     MessageLimitReached,
+
+    /// An error in the key store occurred.
+    KeyStoreError(String),
 }
 
 #[deprecated(
