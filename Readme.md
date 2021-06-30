@@ -8,6 +8,33 @@ An implementation of [HPKE](https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-ir
 
 This version is compatible with draft-09.
 
+## Supported HPKE modes
+
+- Base
+- PSK
+- Auth
+- AuthPSK
+
+## Supported cipher suites
+
+### KEM
+
+- DH KEM x25519
+- DH KEM P256
+
+### AEAD
+
+- AES GCM 128
+- AES GCM 256
+- ChaCha20 Poly1305
+- Exporter only
+
+### KDF
+
+- HKDF SHA-256
+- HKDF SHA-384
+- HKDF SHA-512
+
 [maturity-badge]: https://img.shields.io/badge/maturity-beta-orange.svg?style=for-the-badge
 [github-actions-badge]: https://img.shields.io/github/workflow/status/franziskuskiefer/hpke-rs/Build%20&%20Test?label=build%20%26%20tests&logo=github&style=for-the-badge
 [github-actions-link]: https://github.com/franziskuskiefer/hpke-rs/actions/workflows/rust.yml?query=branch%3Amain
