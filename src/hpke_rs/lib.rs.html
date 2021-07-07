@@ -1699,10 +1699,10 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">tls_codec::TlsSize</span> <span class="kw">for</span> <span class="ident">HpkePublicKey</span> {
+<span class="kw">impl</span> <span class="ident">tls_codec::Size</span> <span class="kw">for</span> <span class="ident">HpkePublicKey</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">serialized_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="ident">tls_codec::TlsSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">serialized_len</span>()
+    <span class="kw">fn</span> <span class="ident">tls_serialized_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="ident">tls_codec::TlsByteSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">tls_serialized_len</span>()
     }
 }
 
@@ -1710,15 +1710,15 @@
 <span class="kw">impl</span> <span class="ident">tls_codec::Serialize</span> <span class="kw">for</span> <span class="ident">HpkePublicKey</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">tls_serialize</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">std::io::Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">tls_codec::Error</span><span class="op">&gt;</span> {
-        <span class="ident">tls_codec::TlsSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">tls_serialize</span>(<span class="ident">writer</span>)
+        <span class="ident">tls_codec::TlsByteSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">tls_serialize</span>(<span class="ident">writer</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialization&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">tls_codec::TlsSize</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span> {
+<span class="kw">impl</span> <span class="ident">tls_codec::Size</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">serialized_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="ident">tls_codec::TlsSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">serialized_len</span>()
+    <span class="kw">fn</span> <span class="ident">tls_serialized_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="ident">tls_codec::TlsByteSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">tls_serialized_len</span>()
     }
 }
 
@@ -1726,7 +1726,7 @@
 <span class="kw">impl</span> <span class="ident">tls_codec::Serialize</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">HpkePublicKey</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">tls_serialize</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">std::io::Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">tls_codec::Error</span><span class="op">&gt;</span> {
-        <span class="ident">tls_codec::TlsSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">tls_serialize</span>(<span class="ident">writer</span>)
+        <span class="ident">tls_codec::TlsByteSliceU16</span>(<span class="self">self</span>.<span class="ident">as_slice</span>()).<span class="ident">tls_serialize</span>(<span class="ident">writer</span>)
     }
 }
 
@@ -1735,7 +1735,7 @@
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">tls_deserialize</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">std::io::Read</span><span class="op">&gt;</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">tls_codec::Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">value</span>: <span class="ident">tls_codec::TlsVecU16::tls_deserialize</span>(<span class="ident">bytes</span>)<span class="question-mark">?</span>.<span class="ident">into</span>(),
+            <span class="ident">value</span>: <span class="ident">tls_codec::TlsByteVecU16::tls_deserialize</span>(<span class="ident">bytes</span>)<span class="question-mark">?</span>.<span class="ident">into</span>(),
         })
     }
 }

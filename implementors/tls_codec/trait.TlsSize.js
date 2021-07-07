@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["hpke_rs"] = [{"text":"impl TlsSize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>","synthetic":false,"types":["hpke_rs::HpkePublicKey"]},{"text":"impl TlsSize for &amp;<a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>","synthetic":false,"types":["hpke_rs::HpkePublicKey"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
