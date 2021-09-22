@@ -1,6 +1,26 @@
-//! This implements the work-in-progress Hybrid Public Key Encryption RFC.
-//! https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html
+//! # Hybrid Public Key Encryption (HPKE).
+//! <https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html>
 //!
+//! From the RFC:
+//! > This scheme provides a variant of public-key encryption of arbitrary-sized plaintexts for a recipient public key. It also includes three authenticated variants, including one which authenticates possession of a pre-shared key, and two optional ones which authenticate possession of a KEM private key.
+//!
+//! ## Cryptographic Provider
+//! This crate does not implement its own cryptographic primitives.
+//! Instead it uses cryptographic libraries or provider that implement the necessary
+//! primitives.
+//!
+//! ## Supported algorithms
+//! ### Evercrypt
+//! Here we use the [Evercrypt Rust](https://github.com/franziskuskiefer/evercrypt-rust/)
+//! bindings for the formally verified cryptography library [Evercrypt](https://github.com/project-everest/hacl-star).
+//! * DHKEM(P-256, HKDF-SHA256)
+//! * DHKEM(X25519, HKDF-SHA256)
+//!
+//! ### Rust Crypto
+//!
+//! ## A note on randomness
+//! This crate does not generate its own randomness for key material.
+//! Instead it relies on the cryptographic library used to generate random keys.
 
 #![forbid(unsafe_code, unused_must_use, unstable_features)]
 #![deny(
@@ -171,7 +191,7 @@ type Plaintext = Vec<u8>;
 
 /// The HPKE context.
 /// Note that the RFC currently doesn't define this.
-/// Also see https://github.com/cfrg/draft-irtf-cfrg-hpke/issues/161.
+/// Also see <https://github.com/cfrg/draft-irtf-cfrg-hpke/issues/161>.
 pub struct Context<'a> {
     key: Vec<u8>,
     nonce: Vec<u8>,
