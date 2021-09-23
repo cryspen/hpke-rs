@@ -9,7 +9,6 @@ macro_rules! implement_hkdfs {
         impl $name {}
         impl KdfTrait for $name {
             fn new() -> Self {
-                panic!("using evercrypt");
                 Self {}
             }
             fn digest_length(&self) -> usize {

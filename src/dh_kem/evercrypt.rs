@@ -37,10 +37,7 @@ fn kem_key_type_to_mode(alg: KemKeyType) -> Result<EcdhMode, Error> {
 #[inline(always)]
 pub(super) fn derive(alg: KemKeyType, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
     let evercrypt_mode = kem_key_type_to_mode(alg)?;
-    ecdh_derive(evercrypt_mode, pk, sk).map_err(|e| {
-        println!("ECDH Deriver error: {:?}", e);
-        e.into()
-    })
+    ecdh_derive(evercrypt_mode, pk, sk).map_err(|e| e.into())
 }
 
 #[inline(always)]
