@@ -1,3 +1,4 @@
+use crypto_algorithms::KemKeyType;
 #[cfg(feature = "serialization")]
 pub(crate) use serde::{Deserialize, Serialize};
 
@@ -57,6 +58,12 @@ pub enum Error {
 
     /// Key generation error.
     KeyGenerationError,
+
+    /// Invalid secret key.
+    InvalidSecretKey,
+
+    /// Invalid public key.
+    InvalidPublicKey,
 }
 
 // Map KEM to KDF according to spec.
@@ -143,8 +150,8 @@ impl std::fmt::Display for Kem {
 
 fn kem_object(mode: Mode, kdf_id: kdf::Mode) -> Box<dyn KemTrait> {
     match mode {
-        Mode::DhKem25519 => Box::new(dh_kem::DhKem::init(kdf_id, evercrypt::ecdh::Mode::X25519)),
-        Mode::DhKemP256 => Box::new(dh_kem::DhKem::init(kdf_id, evercrypt::ecdh::Mode::P256)),
+        Mode::DhKem25519 => Box::new(dh_kem::DhKem::init(kdf_id, KemKeyType::X25519)),
+        Mode::DhKemP256 => Box::new(dh_kem::DhKem::init(kdf_id, KemKeyType::P256)),
         _ => panic!("KEM {:?} is not implemented", mode),
     }
 }
