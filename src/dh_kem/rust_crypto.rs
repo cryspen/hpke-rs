@@ -2,8 +2,7 @@
 //!
 //! Pipe DH calls through to the P256 and x25519-dalek
 
-use crate::kem::Error;
-use crypto_algorithms::KemKeyType;
+use crate::kem::{Error, KemKeyType};
 use p256::{elliptic_curve::ecdh::diffie_hellman, EncodedPoint, PublicKey, SecretKey};
 use rand::rngs::OsRng;
 use x25519_dalek_ng::{PublicKey as X25519PublicKey, StaticSecret as X25519StaticSecret};

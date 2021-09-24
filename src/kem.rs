@@ -1,4 +1,3 @@
-use crypto_algorithms::KemKeyType;
 #[cfg(feature = "serialization")]
 pub(crate) use serde::{Deserialize, Serialize};
 
@@ -25,6 +24,30 @@ pub enum Mode {
 
     /// DH KEM on x448
     DhKem448 = 0x0021,
+}
+
+/// KEM key types.
+/// This uses the TLS IANA parameters
+/// https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8
+#[allow(dead_code)]
+#[cfg_attr(feature = "serialization", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(u16)]
+pub(crate) enum KemKeyType {
+    /// ECDH Curve25519 key
+    X25519 = 29,
+
+    /// ECDH Curve448 key
+    X448 = 30,
+
+    /// ECDH NIST P256 key (secp256r1)
+    P256 = 23,
+
+    /// ECDH NIST P384 key (secp384r1)
+    P384 = 24,
+
+    /// ECDH NIST P521 key (secp521r1)
+    P521 = 25,
 }
 
 impl std::fmt::Display for Mode {

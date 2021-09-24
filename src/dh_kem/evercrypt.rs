@@ -2,10 +2,9 @@
 //!
 //! Pipe DH calls through to evercrypt
 
-use crypto_algorithms::KemKeyType;
 use evercrypt::prelude::*;
 
-use crate::kem::Error;
+use crate::kem::{Error, KemKeyType};
 
 impl From<EcdhError> for Error {
     fn from(e: EcdhError) -> Self {

@@ -1,5 +1,3 @@
-use crypto_algorithms::KemKeyType;
-
 use crate::kdf;
 use crate::kem::*;
 use crate::util::*;
