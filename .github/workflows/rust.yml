@@ -48,6 +48,12 @@ jobs:
     - name: Run tests all features
       if: matrix.os != 'macos-latest'
       run: cargo test --release --verbose --features="serialization"
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: cargo build --target wasm32-unknown-unknown --no-default-features --features="rust-crypto"
+
   fuzz:
     strategy:
       fail-fast: false
