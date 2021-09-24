@@ -96,8 +96,8 @@ jobs:
           profile: minimal
           override: true
       - run: ${{ matrix.deps }}
-      - run: cargo test --target ${{ matrix.target }} --no-default-features --features="rust-crypto"
-      - run: cargo test --target ${{ matrix.target }} --release --no-default-features --features="rust-crypto"
+      - run: cargo build --target ${{ matrix.target }} --no-default-features --features="rust-crypto"
+      - run: cargo build --target ${{ matrix.target }} --release --no-default-features --features="rust-crypto"
 
   fuzz:
     strategy:
