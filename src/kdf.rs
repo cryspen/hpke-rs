@@ -4,37 +4,6 @@ use crate::util::concat;
 
 const HPKE_VERSION: &[u8] = b"HPKE-v1";
 
-// #[derive(Debug)]
-// pub struct Kdf<Crypto: HpkeCrypto> {
-//     phantom: PhantomData<Crypto>,
-// }
-
-// #[cfg(feature = "serialization")]
-// impl<Crypto: HpkeCrypto> Serialize for Kdf<Crypto> {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::ser::Serializer,
-//     {
-//         self.mode.serialize(serializer)
-//     }
-// }
-
-// #[cfg(feature = "serialization")]
-// impl<'de, Crypto: HpkeCrypto> Deserialize<'de> for Kdf<Crypto> {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//     where
-//         D: serde::Deserializer<'de>,
-//     {
-//         let mode = KdfType::deserialize(deserializer)?;
-//         Ok(Self::new(mode))
-//     }
-// }
-
-// // impl<Crypto: HpkeCrypto> Kdf<Crypto> {
-// pub(crate) fn nh<Crypto: HpkeCrypto>(alg: KdfType) -> usize {
-//     Crypto::kdf_digest_length(alg)
-// }
-
 pub(crate) fn labeled_extract<Crypto: HpkeCrypto>(
     alg: KdfType,
     salt: &[u8],
@@ -77,4 +46,3 @@ pub(crate) fn expand<Crypto: HpkeCrypto>(
         Err(_) => Vec::new(),
     }
 }
-// }

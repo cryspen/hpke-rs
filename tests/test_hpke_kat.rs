@@ -1,7 +1,7 @@
 extern crate hpke_rs as hpke;
 
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use rust_crypto_provider::HpkeRustCrypto;
+use hpke_rust_crypto::HpkeRustCrypto;
 use serde::{self, Deserialize, Serialize};
 use std::convert::TryInto;
 use std::fs::File;
@@ -9,7 +9,7 @@ use std::io::BufReader;
 
 use hpke::prelude::*;
 use hpke::test_util::{hex_to_bytes, hex_to_bytes_option, vec_to_option_slice};
-use hpke_crypto_trait::{types::*, *};
+use hpke_crypto_trait::types::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_snake_case)]

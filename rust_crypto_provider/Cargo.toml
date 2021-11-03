@@ -1,5 +1,5 @@
 [package]
-name = "rust_crypto_provider"
+name = "hpke_rust_crypto"
 version = "0.1.0"
 edition = "2021"
 

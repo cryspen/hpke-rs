@@ -1,3 +1,5 @@
+//! DH KEM as described in §4.1. DH-Based KEM.
+
 use hpke_crypto_trait::{error::Error, types::KemType, HpkeCrypto};
 
 use crate::util::*;
@@ -5,52 +7,6 @@ use crate::{
     kdf::{labeled_expand, labeled_extract},
     kem::*,
 };
-
-// #[derive(Debug)]
-// pub(crate) struct DhKem<Crypto: HpkeCrypto> {
-//     encoded_pk_len: usize,
-//     sk_len: usize,
-//     kdf: KdfType,
-//     dh_id: KemKeyType,
-//     #[cfg(feature = "deterministic")]
-//     randomness: Vec<u8>,
-//     phantom: PhantomData<Crypto>,
-// }
-
-// impl<Crypto: HpkeCrypto> DhKem<Crypto> {
-//     pub fn init(kdf_id: KdfType, dh_id: KemKeyType) -> Self {
-//         Self {
-//             sk_len: 32,
-//             encoded_pk_len: match dh_id {
-//                 KemKeyType::X25519 => 32,
-//                 KemKeyType::P256 => 65,
-//                 _ => {
-//                     panic!("This should be unreachable. Only x25519 and P256 KEMs are implemented")
-//                 }
-//             },
-//             kdf: kdf_id,
-//             dh_id,
-//             #[cfg(feature = "deterministic")]
-//             randomness: Vec::new(),
-//             phantom: PhantomData,
-//         }
-//     }
-fn dh<Crypto: HpkeCrypto>(alg: KemType, sk: &[u8], pk: &[u8]) -> Result<Vec<u8>, Error> {
-    let dh = Crypto::kem_derive(alg, pk, sk)?;
-
-    match alg {
-        KemType::DhKem25519 => Ok(dh),
-        KemType::DhKemP256 => {
-            if dh.len() < 32 {
-                return Err(Error::KemInvalidSecretKey);
-            }
-            Ok(dh[0..32].to_vec())
-        }
-        _ => {
-            panic!("This should be unreachable. Only x25519 and P256 KEMs are implemented")
-        }
-    }
-}
 
 fn extract_and_expand<Crypto: HpkeCrypto>(
     alg: KemType,
@@ -82,28 +38,6 @@ pub(super) fn serialize(pk: &[u8]) -> Vec<u8> {
 pub(super) fn deserialize(enc: &[u8]) -> Vec<u8> {
     enc.to_vec()
 }
-
-// #[cfg(feature = "deterministic")]
-// fn random(&self) -> Vec<u8> {
-//     if self.randomness.len() == self.secret_len() {
-//         self.randomness.clone()
-//     } else {
-//         // In this case the randomness wasn't set. Just use real randomness.
-//         random(self.secret_len())
-//     }
-// }
-
-// #[cfg(not(feature = "deterministic"))]
-// fn random(&self) -> Vec<u8> {
-//     random(self.secret_len())
-// }
-
-// fn secret_len(&self) -> usize {
-//     self.sk_len
-// }
-// fn encoded_pk_len(&self) -> usize {
-//     self.encoded_pk_len
-// }
 
 pub(super) fn key_gen<Crypto: HpkeCrypto>(alg: KemType) -> Result<(Vec<u8>, Vec<u8>), Error> {
     let sk = Crypto::kem_key_gen(alg)?;
@@ -234,9 +168,3 @@ pub(super) fn auth_decaps<Crypto: HpkeCrypto>(
 
     extract_and_expand::<Crypto>(alg, dh_pk, &kem_context, suite_id)
 }
-
-// #[cfg(feature = "deterministic")]
-// fn set_random(&mut self, r: &[u8]) {
-//     self.randomness = r.to_vec();
-// }
-// }

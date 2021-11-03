@@ -1,5 +1,5 @@
 use hpke_crypto_trait::{types::AeadType, HpkeCrypto};
-use rust_crypto_provider::HpkeRustCrypto;
+use hpke_rust_crypto::HpkeRustCrypto;
 
 #[test]
 fn test_aes_gcm_128_self() {

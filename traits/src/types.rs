@@ -3,33 +3,8 @@
 //! Algorithm definitions for the [`HpkeCrypto`] trait.
 
 use serde::{Deserialize, Serialize};
-use tls_codec::{TlsDeserialize, TlsSerialize, TlsSize};
 
 use crate::error;
-
-// /// KEM key types.
-// /// This uses the TLS IANA parameters
-// /// https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8
-// #[derive(
-//     Debug, PartialEq, Eq, Clone, Copy, TlsSerialize, TlsDeserialize, TlsSize, Serialize, Deserialize,
-// )]
-// #[repr(u16)]
-// pub enum KemKeyType {
-//     /// ECDH Curve25519 key
-//     X25519 = 29,
-
-//     /// ECDH Curve448 key
-//     X448 = 30,
-
-//     /// ECDH NIST P256 key (secp256r1)
-//     P256 = 23,
-
-//     /// ECDH NIST P384 key (secp384r1)
-//     P384 = 24,
-
-//     /// ECDH NIST P521 key (secp521r1)
-//     P521 = 25,
-// }
 
 /// KEM Modes
 #[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]

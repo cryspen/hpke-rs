@@ -1,7 +1,7 @@
 use hpke_crypto_trait::{types::KdfType, HpkeCrypto};
-use rust_crypto_provider::HpkeRustCrypto;
+use hpke_rust_crypto::HpkeRustCrypto;
 
-use crate::{kdf, test_util::hex_to_bytes};
+use crate::test_util::hex_to_bytes;
 
 #[test]
 fn test_hkdf_sha256() {
