@@ -257,7 +257,7 @@ impl<'a, Crypto: HpkeCrypto> std::fmt::Debug for Context<'a, Crypto> {
 }
 
 #[cfg(not(feature = "hazmat"))]
-impl<'a> std::fmt::Debug for Context<'a> {
+impl<'a, Crypto: HpkeCrypto> std::fmt::Debug for Context<'a, Crypto> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

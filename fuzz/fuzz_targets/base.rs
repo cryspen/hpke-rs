@@ -2,17 +2,18 @@
 use libfuzzer_sys::fuzz_target;
 
 use hpke_rs::prelude::*;
+use hpke_crypto_trait::types::*;
 
 fuzz_target!(|data: &[u8]| {
-    let hpke = Hpke::new(
+    let hpke = Hpke::<hpke_rust_crypto::HpkeRustCrypto>::new(
         HpkeMode::Base,
-        HpkeKemMode::DhKemP256,
-        HpkeKdfMode::HkdfSha256,
-        HpkeAeadMode::AesGcm128,
+        KemType::DhKemP256,
+        KdfType::HkdfSha256,
+        AeadType::Aes128Gcm,
     );
 
-    let pk_r = HPKEPublicKey::new(data.to_vec());
-    let sk_r = HPKEPrivateKey::new(data.to_vec());
+    let pk_r = HpkePublicKey::new(data.to_vec());
+    let sk_r = HpkePrivateKey::new(data.to_vec());
     let info = b"HPKE self test info";
     let aad = b"HPKE self test aad";
     let plain_txt = b"HPKE self test plain text";
