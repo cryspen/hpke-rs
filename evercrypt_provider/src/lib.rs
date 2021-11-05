@@ -2,16 +2,24 @@
 //!
 //! An implementation of the HPKE crypto trait using evercrypt.
 
+use std::sync::RwLock;
+
 use evercrypt::prelude::*;
 use hpke_crypto_trait::{
     error::Error,
     types::{AeadType, KdfType, KemType},
     HpkeCrypto,
 };
+use rand::{CryptoRng, RngCore, SeedableRng};
 
 /// The Evercrypt HPKE Provider
 #[derive(Debug)]
 pub struct HpkeEvercrypt {}
+
+/// The PRNG for the Evercrypt Provider.
+pub struct HpkeEvercryptPrng {
+    rng: RwLock<rand_chacha::ChaCha20Rng>,
+}
 
 impl HpkeCrypto for HpkeEvercrypt {
     fn kdf_extract(alg: KdfType, salt: &[u8], ikm: &[u8]) -> Vec<u8> {
@@ -117,6 +125,18 @@ impl HpkeCrypto for HpkeEvercrypt {
             .decrypt_combined(&cipher_txt, &nonce, &aad)
             .map_err(|e| Error::CryptoLibraryError(format!("AEAD decryption error: {:?}", e)))
     }
+
+    type HpkePrng = HpkeEvercryptPrng;
+
+    fn prng() -> Self::HpkePrng {
+        HpkeEvercryptPrng {
+            rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
+        }
+    }
+
+    fn seed(_prng: Self::HpkePrng, _seed: &[u8]) -> Self::HpkePrng {
+        unimplemented!()
+    }
 }
 
 /// Prepend 0x04 for uncompressed NIST curve points.
@@ -146,3 +166,26 @@ fn aead_type_to_mode(alg: AeadType) -> Result<AeadMode, Error> {
         _ => Err(Error::UnknownKemAlgorithm),
     }
 }
+
+impl RngCore for HpkeEvercryptPrng {
+    fn next_u32(&mut self) -> u32 {
+        let mut rng = self.rng.write().unwrap();
+        rng.next_u32()
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        let mut rng = self.rng.write().unwrap();
+        rng.next_u64()
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        let mut rng = self.rng.write().unwrap();
+        rng.fill_bytes(dest)
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        let mut rng = self.rng.write().unwrap();
+        rng.try_fill_bytes(dest)
+    }
+}
+impl CryptoRng for HpkeEvercryptPrng {}

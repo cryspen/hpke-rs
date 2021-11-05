@@ -100,8 +100,10 @@ pub(super) fn encaps<Crypto: HpkeCrypto>(
     alg: KemType,
     pk_r: &[u8],
     suite_id: &[u8],
+    randomness: &[u8],
 ) -> Result<(Vec<u8>, Vec<u8>), Error> {
-    let (pk_e, sk_e) = derive_key_pair::<Crypto>(alg, suite_id, &random(alg.private_key_len()))?;
+    debug_assert_eq!(randomness.len(), alg.private_key_len());
+    let (pk_e, sk_e) = derive_key_pair::<Crypto>(alg, suite_id, randomness)?;
     let dh_pk = Crypto::kem_derive(alg, pk_r, &sk_e)?;
     let enc = serialize(&pk_e);
 
@@ -132,8 +134,10 @@ pub(super) fn auth_encaps<Crypto: HpkeCrypto>(
     pk_r: &[u8],
     sk_s: &[u8],
     suite_id: &[u8],
+    randomness: &[u8],
 ) -> Result<(Vec<u8>, Vec<u8>), Error> {
-    let (pk_e, sk_e) = derive_key_pair::<Crypto>(alg, suite_id, &random(alg.private_key_len()))?;
+    debug_assert_eq!(randomness.len(), alg.private_key_len());
+    let (pk_e, sk_e) = derive_key_pair::<Crypto>(alg, suite_id, randomness)?;
     let dh_pk = concat(&[
         &Crypto::kem_derive(alg, pk_r, &sk_e)?,
         &Crypto::kem_derive(alg, pk_r, sk_s)?,

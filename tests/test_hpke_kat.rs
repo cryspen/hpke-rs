@@ -1,7 +1,7 @@
 extern crate hpke_rs as hpke;
 
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use hpke_rust_crypto::HpkeRustCrypto;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use serde::{self, Deserialize, Serialize};
 use std::convert::TryInto;
 use std::fs::File;
@@ -162,22 +162,22 @@ fn test_kat() {
 
         // Setup sender and receiver with KAT randomness.
         // We first have to inject the randomness (ikmE).
-        // let hpke_sender =
-        //     Hpke::<HpkeRustCrypto>::new(mode, kem_id, kdf_id, aead_id).set_kem_random(&ikm_e);
-        // let (enc, _sender_context_kat) = hpke_sender
-        //     .setup_sender(&pk_rm, &info, psk, psk_id, sk_sm)
-        //     .unwrap();
-        // let receiver_context = hpke
-        //     .setup_receiver(&enc, &sk_rm, &info, psk, psk_id, pk_sm)
-        //     .unwrap();
-        // assert_eq!(enc, kat_enc);
-        // assert_eq!(receiver_context.key(), receiver_context_kat.key());
-        // assert_eq!(receiver_context.nonce(), receiver_context_kat.nonce());
-        // assert_eq!(
-        //     receiver_context.exporter_secret(),
-        //     receiver_context_kat.exporter_secret()
-        // );
-        // receiver_context_kat = receiver_context;
+        let hpke_sender = Hpke::<HpkeRustCrypto>::new(mode, kem_id, kdf_id, aead_id);
+        hpke_sender.seed(&ikm_e).expect("Error injecting ikm_e");
+        let (enc, _sender_context_kat) = hpke_sender
+            .setup_sender(&pk_rm, &info, psk, psk_id, sk_sm)
+            .unwrap();
+        let receiver_context = hpke
+            .setup_receiver(&enc, &sk_rm, &info, psk, psk_id, pk_sm)
+            .unwrap();
+        assert_eq!(enc, kat_enc);
+        assert_eq!(receiver_context.key(), receiver_context_kat.key());
+        assert_eq!(receiver_context.nonce(), receiver_context_kat.nonce());
+        assert_eq!(
+            receiver_context.exporter_secret(),
+            receiver_context_kat.exporter_secret()
+        );
+        receiver_context_kat = receiver_context;
 
         // Setup sender and receiver for self tests.
         let (enc, mut sender_context) = hpke
@@ -189,6 +189,7 @@ fn test_kat() {
 
         // Encrypt
         for (i, encryption) in test.encryptions.iter().enumerate() {
+            hpke.seed(&[0u8; 32]).unwrap(); // We need to add randomness to the fake PRNG
             println!("Test encryption {} ...", i);
             let aad = hex_to_bytes(&encryption.aad);
             let ptxt = hex_to_bytes(&encryption.pt);
@@ -248,8 +249,6 @@ fn test_serialization() {
 
                     let hpke =
                         Hpke::<HpkeRustCrypto>::new(hpke_mode, kem_mode, kdf_mode, aead_mode);
-
-                    println!("Self test {:?}", hpke);
 
                     // JSON: Public, Private, KeyPair
                     let key_pair = hpke.generate_key_pair().unwrap();

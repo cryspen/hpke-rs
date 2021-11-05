@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 serde_json = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
+rand = { version = "0.8" }
 tls_codec = { version = "0.1", features = ["derive"] }

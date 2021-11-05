@@ -14,15 +14,17 @@ fn ciphersuite(alg: KemType) -> Vec<u8> {
 pub(crate) fn encaps<Crypto: HpkeCrypto>(
     alg: KemType,
     pk_r: &[u8],
+    randomness: &[u8],
 ) -> Result<(Vec<u8>, Vec<u8>), Error> {
     match alg {
         KemType::DhKemP256
         | KemType::DhKemP384
         | KemType::DhKemP521
         | KemType::DhKem25519
-        | KemType::DhKem448 => dh_kem::encaps::<Crypto>(alg, pk_r, &ciphersuite(alg)),
+        | KemType::DhKem448 => dh_kem::encaps::<Crypto>(alg, pk_r, &ciphersuite(alg), randomness),
     }
 }
+
 pub(crate) fn decaps<Crypto: HpkeCrypto>(
     alg: KemType,
     enc: &[u8],
@@ -36,19 +38,24 @@ pub(crate) fn decaps<Crypto: HpkeCrypto>(
         | KemType::DhKem448 => dh_kem::decaps::<Crypto>(alg, enc, sk_r, &ciphersuite(alg)),
     }
 }
+
 pub(crate) fn auth_encaps<Crypto: HpkeCrypto>(
     alg: KemType,
     pk_r: &[u8],
     sk_s: &[u8],
+    randomness: &[u8],
 ) -> Result<(Vec<u8>, Vec<u8>), Error> {
     match alg {
         KemType::DhKemP256
         | KemType::DhKemP384
         | KemType::DhKemP521
         | KemType::DhKem25519
-        | KemType::DhKem448 => dh_kem::auth_encaps::<Crypto>(alg, pk_r, sk_s, &ciphersuite(alg)),
+        | KemType::DhKem448 => {
+            dh_kem::auth_encaps::<Crypto>(alg, pk_r, sk_s, &ciphersuite(alg), randomness)
+        }
     }
 }
+
 pub(crate) fn auth_decaps<Crypto: HpkeCrypto>(
     alg: KemType,
     enc: &[u8],
@@ -65,6 +72,7 @@ pub(crate) fn auth_decaps<Crypto: HpkeCrypto>(
         }
     }
 }
+
 pub(crate) fn key_gen<Crypto: HpkeCrypto>(alg: KemType) -> Result<(Vec<u8>, Vec<u8>), Error> {
     match alg {
         KemType::DhKemP256

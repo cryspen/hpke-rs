@@ -2,13 +2,18 @@
 //!
 //! An implementation of the HPKE crypto trait using pure Rust crypto primitives.
 
+#[cfg(not(feature = "deterministic-prng"))]
+use std::sync::RwLock;
+
 use hpke_crypto_trait::{
     error::Error,
     types::{AeadType, KdfType, KemType},
     HpkeCrypto,
 };
 use p256::{elliptic_curve::ecdh::diffie_hellman, EncodedPoint, PublicKey, SecretKey};
-use rand::rngs::OsRng;
+#[cfg(not(feature = "deterministic-prng"))]
+use rand::SeedableRng;
+use rand::{rngs::OsRng, CryptoRng, RngCore};
 use x25519_dalek_ng::{PublicKey as X25519PublicKey, StaticSecret as X25519StaticSecret};
 
 mod aead;
@@ -19,6 +24,18 @@ use crate::hkdf::*;
 /// The Rust Crypto HPKE Provider
 #[derive(Debug)]
 pub struct HpkeRustCrypto {}
+
+/// The PRNG for the Rust Crypto Provider.
+#[cfg(not(feature = "deterministic-prng"))]
+pub struct HpkeRustCryptoPrng {
+    rng: RwLock<rand_chacha::ChaCha20Rng>,
+}
+
+/// ⚠️ Fake PRNG for testing.
+#[cfg(feature = "deterministic-prng")]
+pub struct HpkeFakePrng {
+    rng: Vec<u8>,
+}
 
 impl HpkeCrypto for HpkeRustCrypto {
     fn kdf_extract(alg: KdfType, salt: &[u8], ikm: &[u8]) -> Vec<u8> {
@@ -143,4 +160,93 @@ impl HpkeCrypto for HpkeRustCrypto {
             AeadType::HpkeExport => Err(Error::UnknownAeadAlgorithm),
         }
     }
+
+    #[cfg(not(feature = "deterministic-prng"))]
+    type HpkePrng = HpkeRustCryptoPrng;
+
+    #[cfg(not(feature = "deterministic-prng"))]
+    fn prng() -> Self::HpkePrng {
+        HpkeRustCryptoPrng {
+            rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
+        }
+    }
+
+    #[cfg(not(feature = "deterministic-prng"))]
+    fn seed(prng: Self::HpkePrng, _: &[u8]) -> Self::HpkePrng {
+        // no-op
+        // TODO: use the additional randomness
+        prng
+    }
+
+    // === For testing a different PRNG is provided ===
+
+    // PRNG for testing.
+    #[cfg(feature = "deterministic-prng")]
+    type HpkePrng = HpkeFakePrng;
+
+    // PRNG for testing.
+    #[cfg(feature = "deterministic-prng")]
+    fn prng() -> Self::HpkePrng {
+        HpkeFakePrng { rng: vec![0u8; 256] }
+    }
+
+    #[cfg(feature = "deterministic-prng")]
+    fn seed(mut prng: Self::HpkePrng, seed: &[u8]) -> Self::HpkePrng {
+        prng.rng = seed.to_vec();
+        prng
+    }
 }
+
+#[cfg(not(feature = "deterministic-prng"))]
+impl RngCore for HpkeRustCryptoPrng {
+    fn next_u32(&mut self) -> u32 {
+        let mut rng = self.rng.write().unwrap();
+        rng.next_u32()
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        let mut rng = self.rng.write().unwrap();
+        rng.next_u64()
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        let mut rng = self.rng.write().unwrap();
+        rng.fill_bytes(dest)
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        let mut rng = self.rng.write().unwrap();
+        rng.try_fill_bytes(dest)
+    }
+}
+#[cfg(not(feature = "deterministic-prng"))]
+impl CryptoRng for HpkeRustCryptoPrng {}
+
+// === The following PRNG implementation is used for testing to inject known
+//     randomness.
+
+#[cfg(feature = "deterministic-prng")]
+impl RngCore for HpkeFakePrng {
+    fn next_u32(&mut self) -> u32 {
+        unimplemented!()
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        unimplemented!()
+    }
+
+    fn fill_bytes(&mut self, _: &mut [u8]) {
+        unimplemented!()
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        println!("rand (need {}): {:?}", dest.len(), self.rng);
+        if dest.len() > self.rng.len() {
+            return Err(rand::Error::new(Error::InsufficientRandomness));
+        }
+        dest.clone_from_slice(&self.rng.split_off(self.rng.len() - dest.len()));
+        Ok(())
+    }
+}
+#[cfg(feature = "deterministic-prng")]
+impl CryptoRng for HpkeFakePrng {}

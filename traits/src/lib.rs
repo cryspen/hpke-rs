@@ -11,7 +11,22 @@ use types::{AeadType, KemType};
 pub mod error;
 pub mod types;
 
+// re-export trait
+pub use rand::RngCore;
+
+/// The [`HpkeCrypto`] trait defines the necessary cryptographic functions used
+/// in the HPKE implementation.
 pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
+    type HpkePrng: rand::RngCore + rand::CryptoRng;
+
+    /// Get a stateful PRNG.
+    /// Note that this will create a new PRNG state.
+    fn prng() -> Self::HpkePrng;
+
+    /// Inject randomness in form of a seed into the PRNG state.
+    /// ❗️ It should not be necessary to actually call this function!
+    fn seed(prng: Self::HpkePrng, seed: &[u8]) -> Self::HpkePrng;
+
     /// Get the length of the output digest.
     #[inline(always)]
     fn kdf_digest_length(alg: types::KdfType) -> usize {

@@ -66,8 +66,9 @@
     unused_qualifications
 )]
 
-use std::marker::PhantomData;
+use std::sync::RwLock;
 
+use hpke_crypto_trait::RngCore;
 use hpke_crypto_trait::{
     types::{AeadType, KdfType, KemType},
     HpkeCrypto,
@@ -128,6 +129,12 @@ pub enum HpkeError {
 
     /// The message limit for this AEAD, key, and nonce.
     MessageLimitReached,
+
+    /// Unable to collect enough randomness.
+    InsufficientRandomness,
+
+    /// A concurrency issue with an [`RwLock`].
+    LockPoisoned,
 }
 
 #[deprecated(
@@ -359,16 +366,12 @@ impl<'a, Crypto: HpkeCrypto> Context<'a, Crypto> {
 /// `let hpke = Hpke::new(mode, kem_mode, kdf_mode, aead_mode)`.
 /// Now one can use the `hpke` configuration.
 #[derive(Debug)]
-#[cfg_attr(feature = "serialization", derive(Serialize, Deserialize))]
 pub struct Hpke<Crypto: 'static + HpkeCrypto> {
     mode: Mode,
     kem_id: KemType,
     kdf_id: KdfType,
     aead_id: AeadType,
-    nk: usize,
-    nn: usize,
-    nh: usize,
-    phantom: PhantomData<Crypto>,
+    prng: RwLock<Crypto::HpkePrng>,
 }
 
 impl<Crypto: HpkeCrypto> std::fmt::Display for Hpke<Crypto> {
@@ -392,10 +395,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             kem_id,
             kdf_id,
             aead_id,
-            nk: Crypto::aead_key_length(aead_id),
-            nn: Crypto::aead_nonce_length(aead_id),
-            nh: Crypto::kdf_digest_length(kdf_id),
-            phantom: PhantomData,
+            prng: RwLock::new(Crypto::prng()),
         }
     }
 
@@ -416,14 +416,17 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
         psk_id: Option<&[u8]>,
         sk_s: Option<&HpkePrivateKey>,
     ) -> Result<(EncapsulatedSecret, Context<Crypto>), HpkeError> {
+        let randomness = self.random(self.kem_id.private_key_len())?;
         let (zz, enc) = match self.mode {
-            Mode::Base | Mode::Psk => kem::encaps::<Crypto>(self.kem_id, pk_r.value.as_slice())?,
+            Mode::Base | Mode::Psk => {
+                kem::encaps::<Crypto>(self.kem_id, pk_r.value.as_slice(), &randomness)?
+            }
             Mode::Auth | Mode::AuthPsk => {
                 let sk_s = match sk_s {
                     Some(s) => &s.value,
                     None => return Err(HpkeError::InvalidInput),
                 };
-                kem::auth_encaps::<Crypto>(self.kem_id, pk_r.value.as_slice(), sk_s)?
+                kem::auth_encaps::<Crypto>(self.kem_id, pk_r.value.as_slice(), sk_s, &randomness)?
             }
         };
         Ok((
@@ -659,7 +662,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             &suite_id,
             "key",
             &key_schedule_context,
-            self.nk,
+            Crypto::aead_key_length(self.aead_id),
         )
         .map_err(|_| HpkeError::CryptoError)?;
         let base_nonce = labeled_expand::<Crypto>(
@@ -668,7 +671,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             &suite_id,
             "base_nonce",
             &key_schedule_context,
-            self.nn,
+            Crypto::aead_nonce_length(self.aead_id),
         )
         .map_err(|_| HpkeError::CryptoError)?;
         let exporter_secret = labeled_expand::<Crypto>(
@@ -677,7 +680,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             &suite_id,
             "exp",
             &key_schedule_context,
-            self.nh,
+            Crypto::kdf_digest_length(self.kdf_id),
         )
         .map_err(|_| HpkeError::CryptoError)?;
 
@@ -709,12 +712,24 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
         Ok(HpkeKeyPair::new(sk, pk))
     }
 
-    // /// Set randomness for testing HPKE (KEM) without randomness.
-    // #[cfg(feature = "deterministic")]
-    // pub fn set_kem_random(mut self, r: &[u8]) -> Self {
-    //     kem::set_random(r);
-    //     self
-    // }
+    #[inline]
+    pub(crate) fn random(&self, len: usize) -> Result<Vec<u8>, HpkeError> {
+        let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
+        let mut out = vec![0u8; len];
+        prng.try_fill_bytes(&mut out)
+            .map_err(|_| HpkeError::InsufficientRandomness)?;
+        Ok(out)
+    }
+
+    /// Set an additional seed for the PRNG.
+    /// It shouldn't be necessary to call this function.
+    /// Right now this replaces the existing PRNG with a new one with the given seed.
+    /// In future we might want to mix the seed into the existing PRNG.
+    pub fn seed(&self, seed: &[u8]) -> Result<(), HpkeError> {
+        let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
+        *prng = Crypto::seed(Crypto::prng(), seed);
+        Ok(())
+    }
 }
 
 impl HpkeKeyPair {
@@ -974,14 +989,16 @@ impl From<hpke_crypto_trait::error::Error> for HpkeError {
             hpke_crypto_trait::error::Error::AeadOpenError => HpkeError::OpenError,
             hpke_crypto_trait::error::Error::AeadInvalidNonce
             | hpke_crypto_trait::error::Error::AeadInvalidCiphertext => HpkeError::InvalidInput,
-            // hpke_crypto_trait::error::Error::AeadInvalidConfig => HpkeError::InvalidConfig,
             hpke_crypto_trait::error::Error::UnknownAeadAlgorithm => HpkeError::UnknownMode,
             hpke_crypto_trait::error::Error::CryptoLibraryError(_) => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::HpkeInvalidOutputLength => todo!(),
-            hpke_crypto_trait::error::Error::UnknownKdfAlgorithm => todo!(),
-            hpke_crypto_trait::error::Error::KemInvalidSecretKey => todo!(),
-            hpke_crypto_trait::error::Error::KemInvalidPublicKey => todo!(),
-            hpke_crypto_trait::error::Error::UnknownKemAlgorithm => todo!(),
+            hpke_crypto_trait::error::Error::HpkeInvalidOutputLength => HpkeError::CryptoError,
+            hpke_crypto_trait::error::Error::UnknownKdfAlgorithm => HpkeError::CryptoError,
+            hpke_crypto_trait::error::Error::KemInvalidSecretKey => HpkeError::CryptoError,
+            hpke_crypto_trait::error::Error::KemInvalidPublicKey => HpkeError::CryptoError,
+            hpke_crypto_trait::error::Error::UnknownKemAlgorithm => HpkeError::CryptoError,
+            hpke_crypto_trait::error::Error::InsufficientRandomness => {
+                HpkeError::InsufficientRandomness
+            }
         }
     }
 }

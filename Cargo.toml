@@ -10,8 +10,6 @@ readme = "Readme.md"
 repository = "https://github.com/franziskuskiefer/hpke-rs"
 
 [dependencies]
-rand = { version = "0.8" }
-getrandom = { version = "0.2", features = ["js"] }
 serde_json = { version = "1.0", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
 tls_codec = { version = "0.1", git = "https://github.com/openmls/tls-codec.git", branch = "main", features = ["derive"], optional = true }
@@ -21,7 +19,6 @@ hpke_crypto_trait = { version = "0.1", path = "./traits" }
 default = []
 serialization = ["serde", "serde_json", "tls_codec", "tls_codec/serde_serialize"]
 hazmat = []
-deterministic = []
 hpke-test = []
 
 [dev-dependencies]
@@ -29,11 +26,8 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 lazy_static = "1.4"
 rayon = "1.5"
-hpke-rs = { path = ".", features = ["deterministic", "hpke-test", "hazmat"] }
-hpke_rust_crypto = { path = "./rust_crypto_provider" }
+hpke-rs = { path = ".", features = ["hpke-test", "hazmat"] }
+hpke_rust_crypto = { path = "./rust_crypto_provider", features = ["deterministic-prng"] }
 hpke_evercrypt = { path = "./evercrypt_provider" }
-
-[package.metadata.docs.rs]
-# the evercrypt build is too heavy for docs.rs right now
-no-default-features = true
-features = ["rust-crypto"]
+rand = { version = "0.8" }
+getrandom = { version = "0.2", features = ["js"] }
