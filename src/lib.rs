@@ -128,7 +128,7 @@ pub enum HpkeError {
     InsecurePsk,
 
     /// An error in the crypto library occurred.
-    CryptoError,
+    CryptoError(String),
 
     /// The message limit for this AEAD, key, and nonce.
     MessageLimitReached,
@@ -337,7 +337,7 @@ impl<'a, Crypto: HpkeCrypto> Context<'a, Crypto> {
             exporter_context,
             length,
         )
-        .map_err(|_| HpkeError::CryptoError)
+        .map_err(|e| HpkeError::CryptoError(format!("Crypto error: {}", e)))
     }
 
     /// def Context<ROLE>.ComputeNonce(seq):
@@ -672,7 +672,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             &key_schedule_context,
             Crypto::aead_key_length(self.aead_id),
         )
-        .map_err(|_| HpkeError::CryptoError)?;
+        .map_err(|e| HpkeError::CryptoError(format!("Crypto error: {}", e)))?;
         let base_nonce = labeled_expand::<Crypto>(
             self.kdf_id,
             &secret,
@@ -681,7 +681,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             &key_schedule_context,
             Crypto::aead_nonce_length(self.aead_id),
         )
-        .map_err(|_| HpkeError::CryptoError)?;
+        .map_err(|e| HpkeError::CryptoError(format!("Crypto error: {}", e)))?;
         let exporter_secret = labeled_expand::<Crypto>(
             self.kdf_id,
             &secret,
@@ -690,7 +690,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             &key_schedule_context,
             Crypto::kdf_digest_length(self.kdf_id),
         )
-        .map_err(|_| HpkeError::CryptoError)?;
+        .map_err(|e| HpkeError::CryptoError(format!("Crypto error: {}", e)))?;
 
         Ok(Context {
             key,
@@ -1005,12 +1005,22 @@ impl From<hpke_rs_crypto::error::Error> for HpkeError {
             hpke_rs_crypto::error::Error::AeadInvalidNonce
             | hpke_rs_crypto::error::Error::AeadInvalidCiphertext => HpkeError::InvalidInput,
             hpke_rs_crypto::error::Error::UnknownAeadAlgorithm => HpkeError::UnknownMode,
-            hpke_rs_crypto::error::Error::CryptoLibraryError(_) => HpkeError::CryptoError,
-            hpke_rs_crypto::error::Error::HpkeInvalidOutputLength => HpkeError::CryptoError,
-            hpke_rs_crypto::error::Error::UnknownKdfAlgorithm => HpkeError::CryptoError,
-            hpke_rs_crypto::error::Error::KemInvalidSecretKey => HpkeError::CryptoError,
-            hpke_rs_crypto::error::Error::KemInvalidPublicKey => HpkeError::CryptoError,
-            hpke_rs_crypto::error::Error::UnknownKemAlgorithm => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::CryptoLibraryError(s) => HpkeError::CryptoError(s),
+            hpke_rs_crypto::error::Error::HpkeInvalidOutputLength => {
+                HpkeError::CryptoError(format!("Invalid HPKE output length"))
+            }
+            hpke_rs_crypto::error::Error::UnknownKdfAlgorithm => {
+                HpkeError::CryptoError(format!("Unknown KDF algorithm."))
+            }
+            hpke_rs_crypto::error::Error::KemInvalidSecretKey => {
+                HpkeError::CryptoError(format!("Invalid KEM secret key"))
+            }
+            hpke_rs_crypto::error::Error::KemInvalidPublicKey => {
+                HpkeError::CryptoError(format!("Invalid KEM public key"))
+            }
+            hpke_rs_crypto::error::Error::UnknownKemAlgorithm => {
+                HpkeError::CryptoError(format!("Unknown KEM algorithm"))
+            }
             hpke_rs_crypto::error::Error::InsufficientRandomness => {
                 HpkeError::InsufficientRandomness
             }

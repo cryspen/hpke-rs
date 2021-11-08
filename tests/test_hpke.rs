@@ -234,6 +234,14 @@ generate_test_case!(
     HpkeRustCrypto
 );
 generate_test_case!(
+    base_dhkem25519_hkdfsha256_chacha20poly1305_evercrypt,
+    HpkeMode::Base,
+    KemAlgorithm::DhKem25519,
+    KdfAlgorithm::HkdfSha256,
+    AeadAlgorithm::ChaCha20Poly1305,
+    HpkeEvercrypt
+);
+generate_test_case!(
     base_dhkemp256_hkdfsha384_chacha20poly1305,
     HpkeMode::Base,
     KemAlgorithm::DhKemP256,

@@ -48,6 +48,15 @@ impl HpkeCrypto for HpkeEvercrypt {
         let evercrypt_mode = kem_key_type_to_mode(alg)?;
         ecdh_derive(evercrypt_mode, pk, sk)
             .map_err(|e| Error::CryptoLibraryError(format!("ECDH derive error: {:?}", e)))
+            .map(|mut p| {
+                if evercrypt_mode == EcdhMode::P256 {
+                    // We only want the x-coordinate here but evercrypt gives us the entire point
+                    p.truncate(32);
+                    p
+                } else {
+                    p
+                }
+            })
     }
 
     fn kem_derive_base(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
@@ -109,19 +118,15 @@ impl HpkeCrypto for HpkeEvercrypt {
         aad: &[u8],
         cipher_txt: &[u8],
     ) -> Result<Vec<u8>, Error> {
-        let nonce_length = Self::aead_nonce_length(alg);
         let mode = aead_type_to_mode(alg)?;
-        if nonce.len() != nonce_length {
-            return Err(Error::AeadInvalidNonce);
-        }
-        let tag_length = Self::aead_tag_length(alg);
-        if cipher_txt.len() <= tag_length {
-            return Err(Error::AeadInvalidCiphertext);
-        }
-
         let cipher = match Aead::new(mode, key) {
             Ok(c) => c,
-            Err(_) => return Err(Error::CryptoLibraryError(format!("Invalid configuration"))),
+            Err(_) => {
+                return Err(Error::CryptoLibraryError(format!(
+                    "Invalid configuration or unsupported algorithm {:?}",
+                    mode
+                )))
+            }
         };
 
         cipher
@@ -198,7 +203,6 @@ impl CryptoRng for HpkeEvercryptPrng {}
 impl HpkeTestRng for HpkeEvercryptPrng {
     fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
         // Here we fake our randomness for testing.
-        println!("rand (need {}): {:?}", dest.len(), self.rng);
         if dest.len() > self.fake_rng.len() {
             return Err(rand::Error::new(Error::InsufficientRandomness));
         }

@@ -10,6 +10,7 @@ readme = "Readme.md"
 repository = "https://github.com/franziskuskiefer/hpke-rs"
 
 [dependencies]
+log = "0.4"
 serde_json = { version = "1.0", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
 tls_codec = { version = "0.1", features = ["derive"], optional = true }
@@ -31,3 +32,4 @@ hpke-rs-rust-crypto = { path = "./rust_crypto_provider", features = ["determinis
 hpke-rs-evercrypt = { path = "./evercrypt_provider" }
 rand = { version = "0.8" }
 getrandom = { version = "0.2", features = ["js"] }
+pretty_env_logger = "0.4"

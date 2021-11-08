@@ -254,7 +254,6 @@ impl CryptoRng for HpkeFakePrng {}
 impl HpkeTestRng for HpkeFakePrng {
     fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
         // Here we fake our randomness for testing.
-        println!("rand (need {}): {:?}", dest.len(), self.rng);
         if dest.len() > self.rng.len() {
             return Err(rand::Error::new(Error::InsufficientRandomness));
         }
