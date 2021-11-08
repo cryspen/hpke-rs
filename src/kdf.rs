@@ -1,11 +1,11 @@
-use hpke_crypto_trait::{error::Error, types::KdfType, HpkeCrypto};
+use hpke_rs_crypto::{error::Error, types::KdfAlgorithm, HpkeCrypto};
 
 use crate::util::concat;
 
 const HPKE_VERSION: &[u8] = b"HPKE-v1";
 
 pub(crate) fn labeled_extract<Crypto: HpkeCrypto>(
-    alg: KdfType,
+    alg: KdfAlgorithm,
     salt: &[u8],
     suite_id: &[u8],
     label: &str,
@@ -16,7 +16,7 @@ pub(crate) fn labeled_extract<Crypto: HpkeCrypto>(
 }
 
 pub(crate) fn labeled_expand<Crypto: HpkeCrypto>(
-    alg: KdfType,
+    alg: KdfAlgorithm,
     prk: &[u8],
     suite_id: &[u8],
     label: &'static str,

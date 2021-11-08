@@ -5,10 +5,10 @@
 use std::sync::RwLock;
 
 use evercrypt::prelude::*;
-use hpke_crypto_trait::{
+use hpke_rs_crypto::{
     error::Error,
-    types::{AeadType, KdfType, KemType},
-    HpkeCrypto,
+    types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm},
+    HpkeCrypto, HpkeTestRng,
 };
 use rand::{CryptoRng, RngCore, SeedableRng};
 
@@ -18,38 +18,39 @@ pub struct HpkeEvercrypt {}
 
 /// The PRNG for the Evercrypt Provider.
 pub struct HpkeEvercryptPrng {
+    fake_rng: Vec<u8>,
     rng: RwLock<rand_chacha::ChaCha20Rng>,
 }
 
 impl HpkeCrypto for HpkeEvercrypt {
-    fn kdf_extract(alg: KdfType, salt: &[u8], ikm: &[u8]) -> Vec<u8> {
+    fn kdf_extract(alg: KdfAlgorithm, salt: &[u8], ikm: &[u8]) -> Vec<u8> {
         match alg {
-            KdfType::HkdfSha256 => hkdf_extract(HmacMode::Sha256, salt, ikm),
-            KdfType::HkdfSha384 => hkdf_extract(HmacMode::Sha384, salt, ikm),
-            KdfType::HkdfSha512 => hkdf_extract(HmacMode::Sha512, salt, ikm),
+            KdfAlgorithm::HkdfSha256 => hkdf_extract(HmacMode::Sha256, salt, ikm),
+            KdfAlgorithm::HkdfSha384 => hkdf_extract(HmacMode::Sha384, salt, ikm),
+            KdfAlgorithm::HkdfSha512 => hkdf_extract(HmacMode::Sha512, salt, ikm),
         }
     }
 
     fn kdf_expand(
-        alg: KdfType,
+        alg: KdfAlgorithm,
         prk: &[u8],
         info: &[u8],
         output_size: usize,
     ) -> Result<Vec<u8>, Error> {
         Ok(match alg {
-            KdfType::HkdfSha256 => hkdf_expand(HmacMode::Sha256, prk, info, output_size),
-            KdfType::HkdfSha384 => hkdf_expand(HmacMode::Sha384, prk, info, output_size),
-            KdfType::HkdfSha512 => hkdf_expand(HmacMode::Sha512, prk, info, output_size),
+            KdfAlgorithm::HkdfSha256 => hkdf_expand(HmacMode::Sha256, prk, info, output_size),
+            KdfAlgorithm::HkdfSha384 => hkdf_expand(HmacMode::Sha384, prk, info, output_size),
+            KdfAlgorithm::HkdfSha512 => hkdf_expand(HmacMode::Sha512, prk, info, output_size),
         })
     }
 
-    fn kem_derive(alg: KemType, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
+    fn kem_derive(alg: KemAlgorithm, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
         let evercrypt_mode = kem_key_type_to_mode(alg)?;
         ecdh_derive(evercrypt_mode, pk, sk)
             .map_err(|e| Error::CryptoLibraryError(format!("ECDH derive error: {:?}", e)))
     }
 
-    fn kem_derive_base(alg: KemType, sk: &[u8]) -> Result<Vec<u8>, Error> {
+    fn kem_derive_base(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
         let evercrypt_mode = kem_key_type_to_mode(alg)?;
         ecdh_derive_base(evercrypt_mode, sk)
             .map_err(|e| Error::CryptoLibraryError(format!("ECDH derive base error: {:?}", e)))
@@ -62,15 +63,17 @@ impl HpkeCrypto for HpkeEvercrypt {
             })
     }
 
-    fn kem_key_gen(alg: KemType) -> Result<Vec<u8>, Error> {
+    fn kem_key_gen(alg: KemAlgorithm, _: &mut Self::HpkePrng) -> Result<Vec<u8>, Error> {
+        // XXX: Evercypt doesn't support bring your own randomness yet.
+        //      https://github.com/franziskuskiefer/evercrypt-rust/issues/35
         let evercrypt_mode = kem_key_type_to_mode(alg)?;
         ecdh::key_gen(evercrypt_mode)
             .map_err(|e| Error::CryptoLibraryError(format!("ECDH key gen error: {:?}", e)))
     }
 
-    fn kem_validate_sk(alg: KemType, sk: &[u8]) -> Result<Vec<u8>, Error> {
+    fn kem_validate_sk(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
         match alg {
-            KemType::DhKemP256 => p256_validate_sk(&sk)
+            KemAlgorithm::DhKemP256 => p256_validate_sk(&sk)
                 .map_err(|e| Error::CryptoLibraryError(format!("ECDH invalid sk error: {:?}", e)))
                 .map(|sk| sk.to_vec()),
             _ => Err(Error::UnknownKemAlgorithm),
@@ -78,7 +81,7 @@ impl HpkeCrypto for HpkeEvercrypt {
     }
 
     fn aead_seal(
-        alg: AeadType,
+        alg: AeadAlgorithm,
         key: &[u8],
         nonce: &[u8],
         aad: &[u8],
@@ -100,7 +103,7 @@ impl HpkeCrypto for HpkeEvercrypt {
     }
 
     fn aead_open(
-        alg: AeadType,
+        alg: AeadAlgorithm,
         key: &[u8],
         nonce: &[u8],
         aad: &[u8],
@@ -130,12 +133,14 @@ impl HpkeCrypto for HpkeEvercrypt {
 
     fn prng() -> Self::HpkePrng {
         HpkeEvercryptPrng {
+            fake_rng: Vec::new(),
             rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
         }
     }
 
-    fn seed(_prng: Self::HpkePrng, _seed: &[u8]) -> Self::HpkePrng {
-        unimplemented!()
+    fn seed(mut prng: Self::HpkePrng, seed: &[u8]) -> Self::HpkePrng {
+        prng.fake_rng = seed.to_vec();
+        prng
     }
 }
 
@@ -149,20 +154,20 @@ fn nist_format_uncompressed(mut pk: Vec<u8>) -> Vec<u8> {
 }
 
 #[inline(always)]
-fn kem_key_type_to_mode(alg: KemType) -> Result<EcdhMode, Error> {
+fn kem_key_type_to_mode(alg: KemAlgorithm) -> Result<EcdhMode, Error> {
     match alg {
-        KemType::DhKem25519 => Ok(EcdhMode::X25519),
-        KemType::DhKemP256 => Ok(EcdhMode::P256),
+        KemAlgorithm::DhKem25519 => Ok(EcdhMode::X25519),
+        KemAlgorithm::DhKemP256 => Ok(EcdhMode::P256),
         _ => Err(Error::UnknownKemAlgorithm),
     }
 }
 
 #[inline(always)]
-fn aead_type_to_mode(alg: AeadType) -> Result<AeadMode, Error> {
+fn aead_type_to_mode(alg: AeadAlgorithm) -> Result<AeadMode, Error> {
     match alg {
-        AeadType::Aes128Gcm => Ok(AeadMode::Aes128Gcm),
-        AeadType::Aes256Gcm => Ok(AeadMode::Aes256Gcm),
-        AeadType::ChaCha20Poly1305 => Ok(AeadMode::Chacha20Poly1305),
+        AeadAlgorithm::Aes128Gcm => Ok(AeadMode::Aes128Gcm),
+        AeadAlgorithm::Aes256Gcm => Ok(AeadMode::Aes256Gcm),
+        AeadAlgorithm::ChaCha20Poly1305 => Ok(AeadMode::Chacha20Poly1305),
         _ => Err(Error::UnknownKemAlgorithm),
     }
 }
@@ -189,3 +194,15 @@ impl RngCore for HpkeEvercryptPrng {
     }
 }
 impl CryptoRng for HpkeEvercryptPrng {}
+
+impl HpkeTestRng for HpkeEvercryptPrng {
+    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        // Here we fake our randomness for testing.
+        println!("rand (need {}): {:?}", dest.len(), self.rng);
+        if dest.len() > self.fake_rng.len() {
+            return Err(rand::Error::new(Error::InsufficientRandomness));
+        }
+        dest.clone_from_slice(&self.fake_rng.split_off(self.fake_rng.len() - dest.len()));
+        Ok(())
+    }
+}

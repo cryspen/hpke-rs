@@ -1,5 +1,5 @@
-use hpke_crypto_trait::{types::AeadType, HpkeCrypto};
-use hpke_rust_crypto::HpkeRustCrypto;
+use hpke_rs_crypto::{types::AeadAlgorithm, HpkeCrypto};
+use hpke_rs_rust_crypto::HpkeRustCrypto;
 
 #[test]
 fn test_aes_gcm_128_self() {
@@ -12,7 +12,7 @@ fn test_aes_gcm_128_self() {
     ];
     let aad = [0x03, 0x04, 0x05];
     let msg = b"test message";
-    let ctxt = HpkeRustCrypto::aead_seal(AeadType::Aes128Gcm, &key, &nonce, &aad, msg).unwrap();
-    let ptxt = HpkeRustCrypto::aead_open(AeadType::Aes128Gcm, &key, &nonce, &aad, &ctxt).unwrap();
+    let ctxt = HpkeRustCrypto::aead_seal(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, msg).unwrap();
+    let ptxt = HpkeRustCrypto::aead_open(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, &ctxt).unwrap();
     assert_eq!(&ptxt, msg);
 }

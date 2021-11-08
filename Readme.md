@@ -4,9 +4,13 @@
 [![crates.io][crate-badge]][crate-link]
 [![Docs][docs-main-badge]][docs-main-link]
 
-An implementation of [HPKE] using [Evercrypt].
+An implementation of [HPKE] with flexible crypto backends.
 
-This version is compatible with draft-12.
+
+From the RFC:
+> This scheme provides a variant of public-key encryption of arbitrary-sized plaintexts for a recipient public key. It also includes three authenticated variants, including one which authenticates possession of a pre-shared key, and two optional ones which authenticate possession of a KEM private key.
+
+This version is compatible with draft-12, which is expected to be equivalent to the RFC.
 
 ## Supported HPKE modes
 
@@ -35,7 +39,10 @@ This version is compatible with draft-12.
 - HKDF SHA-384
 - HKDF SHA-512
 
-## Other Crypto Backend
+# Crypto Backends
+
+This crate does not implement the cryptographic primitives used itself.
+Instead it expects an implementation of the [HpkeCrypto] trait.
 
 Because [Evercrypt] does not support all platforms and algorithms at this point it is possible to use an alternative cryptography backend.
 
@@ -65,3 +72,5 @@ cargo build --no-default-features --features="rust-crypto"
 [x25519-dalek-ng]: https://docs.rs/x25519-dalek-ng
 [chacha20poly1305]: https://docs.rs/chacha20poly1305
 [aes-gcm]: https://docs.rs/aes-gcm
+
+[HpkeCrypto]: ./tratis/

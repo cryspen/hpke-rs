@@ -3,7 +3,7 @@ use chacha20poly1305::{
     aead::{Aead, NewAead, Payload},
     ChaCha20Poly1305 as RC_ChaCha20Poly1305,
 };
-use hpke_crypto_trait::{error::Error, types::AeadType, HpkeCrypto};
+use hpke_rs_crypto::{error::Error, types::AeadAlgorithm, HpkeCrypto};
 
 use super::HpkeRustCrypto;
 
@@ -25,7 +25,7 @@ macro_rules! implement_aead {
                 .map_err(|e| Error::CryptoLibraryError(format!("AEAD error: {:?}", e)))
         }
         pub(crate) fn $name_open(
-            alg: AeadType,
+            alg: AeadAlgorithm,
             key: &[u8],
             nonce: &[u8],
             aad: &[u8],

@@ -2,9 +2,9 @@
 name = "hpke-rs"
 version = "0.0.11"
 authors = ["Franziskus Kiefer <franziskuskiefer@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MPL-2.0"
-documentation = "https://www.franziskuskiefer.de/hpke-rs"
+documentation = "https://docs.rs/hpke-rs"
 description = "HPKE Implementation using Evercrypt"
 readme = "Readme.md"
 repository = "https://github.com/franziskuskiefer/hpke-rs"
@@ -13,7 +13,7 @@ repository = "https://github.com/franziskuskiefer/hpke-rs"
 serde_json = { version = "1.0", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
 tls_codec = { version = "0.1", features = ["derive"], optional = true }
-hpke_crypto_trait = { version = "0.1", path = "./traits" }
+hpke-rs-crypto = { version = "0.1", path = "./traits" }
 
 [features]
 default = []
@@ -27,7 +27,7 @@ serde = { version = "1.0", features = ["derive"] }
 lazy_static = "1.4"
 rayon = "1.5"
 hpke-rs = { path = ".", features = ["hpke-test", "hazmat"] }
-hpke_rust_crypto = { path = "./rust_crypto_provider", features = ["deterministic-prng"] }
-hpke_evercrypt = { path = "./evercrypt_provider" }
+hpke-rs-rust-crypto = { path = "./rust_crypto_provider", features = ["deterministic-prng"] }
+hpke-rs-evercrypt = { path = "./evercrypt_provider" }
 rand = { version = "0.8" }
 getrandom = { version = "0.2", features = ["js"] }

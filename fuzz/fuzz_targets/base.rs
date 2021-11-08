@@ -2,14 +2,14 @@
 use libfuzzer_sys::fuzz_target;
 
 use hpke_rs::prelude::*;
-use hpke_crypto_trait::types::*;
+use hpke_rs_crypto::types::*;
 
 fuzz_target!(|data: &[u8]| {
     let hpke = Hpke::<hpke_rust_crypto::HpkeRustCrypto>::new(
         HpkeMode::Base,
-        KemType::DhKemP256,
-        KdfType::HkdfSha256,
-        AeadType::Aes128Gcm,
+        KemAlgorithm::DhKemP256,
+        KdfAlgorithm::HkdfSha256,
+        AeadAlgorithm::Aes128Gcm,
     );
 
     let pk_r = HpkePublicKey::new(data.to_vec());

@@ -68,9 +68,12 @@
 
 use std::sync::RwLock;
 
-use hpke_crypto_trait::RngCore;
-use hpke_crypto_trait::{
-    types::{AeadType, KdfType, KemType},
+#[cfg(feature = "hpke-test")]
+use hpke_rs_crypto::HpkeTestRng;
+#[cfg(not(feature = "hpke-test"))]
+use hpke_rs_crypto::RngCore;
+use hpke_rs_crypto::{
+    types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm},
     HpkeCrypto,
 };
 use prelude::kdf::{labeled_expand, labeled_extract};
@@ -209,7 +212,7 @@ impl std::fmt::Display for Mode {
     }
 }
 
-impl std::convert::TryFrom<u8> for Mode {
+impl TryFrom<u8> for Mode {
     type Error = HpkeError;
     fn try_from(x: u8) -> Result<Mode, HpkeError> {
         match x {
@@ -368,9 +371,9 @@ impl<'a, Crypto: HpkeCrypto> Context<'a, Crypto> {
 #[derive(Debug)]
 pub struct Hpke<Crypto: 'static + HpkeCrypto> {
     mode: Mode,
-    kem_id: KemType,
-    kdf_id: KdfType,
-    aead_id: AeadType,
+    kem_id: KemAlgorithm,
+    kdf_id: KdfAlgorithm,
+    aead_id: AeadAlgorithm,
     prng: RwLock<Crypto::HpkePrng>,
 }
 
@@ -389,7 +392,12 @@ impl<Crypto: HpkeCrypto> std::fmt::Display for Hpke<Crypto> {
 
 impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     /// Set up the configuration for HPKE.
-    pub fn new(mode: Mode, kem_id: KemType, kdf_id: KdfType, aead_id: AeadType) -> Self {
+    pub fn new(
+        mode: Mode,
+        kem_id: KemAlgorithm,
+        kdf_id: KdfAlgorithm,
+        aead_id: AeadAlgorithm,
+    ) -> Self {
         Self {
             mode,
             kem_id,
@@ -699,7 +707,8 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     ///
     /// Returns an `HpkeKeyPair`.
     pub fn generate_key_pair(&self) -> Result<HpkeKeyPair, HpkeError> {
-        let (sk, pk) = kem::key_gen::<Crypto>(self.kem_id)?;
+        let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
+        let (sk, pk) = kem::key_gen::<Crypto>(self.kem_id, &mut prng)?;
         Ok(HpkeKeyPair::new(sk, pk))
     }
 
@@ -716,8 +725,14 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     pub(crate) fn random(&self, len: usize) -> Result<Vec<u8>, HpkeError> {
         let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
         let mut out = vec![0u8; len];
+
+        #[cfg(feature = "hpke-test")]
+        prng.try_fill_test_bytes(&mut out)
+            .map_err(|_| HpkeError::InsufficientRandomness)?;
+        #[cfg(not(feature = "hpke-test"))]
         prng.try_fill_bytes(&mut out)
             .map_err(|_| HpkeError::InsufficientRandomness)?;
+
         Ok(out)
     }
 
@@ -918,7 +933,7 @@ impl tls_codec::Deserialize for &HpkePublicKey {
 /// Test util module. Should be moved really.
 #[cfg(feature = "hpke-test")]
 pub mod test_util {
-    use hpke_crypto_trait::HpkeCrypto;
+    use hpke_rs_crypto::HpkeCrypto;
 
     // TODO: don't build for release
     impl<'a, Crypto: HpkeCrypto> super::Context<'_, Crypto> {
@@ -983,20 +998,20 @@ pub mod test_util {
     }
 }
 
-impl From<hpke_crypto_trait::error::Error> for HpkeError {
-    fn from(e: hpke_crypto_trait::error::Error) -> Self {
+impl From<hpke_rs_crypto::error::Error> for HpkeError {
+    fn from(e: hpke_rs_crypto::error::Error) -> Self {
         match e {
-            hpke_crypto_trait::error::Error::AeadOpenError => HpkeError::OpenError,
-            hpke_crypto_trait::error::Error::AeadInvalidNonce
-            | hpke_crypto_trait::error::Error::AeadInvalidCiphertext => HpkeError::InvalidInput,
-            hpke_crypto_trait::error::Error::UnknownAeadAlgorithm => HpkeError::UnknownMode,
-            hpke_crypto_trait::error::Error::CryptoLibraryError(_) => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::HpkeInvalidOutputLength => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::UnknownKdfAlgorithm => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::KemInvalidSecretKey => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::KemInvalidPublicKey => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::UnknownKemAlgorithm => HpkeError::CryptoError,
-            hpke_crypto_trait::error::Error::InsufficientRandomness => {
+            hpke_rs_crypto::error::Error::AeadOpenError => HpkeError::OpenError,
+            hpke_rs_crypto::error::Error::AeadInvalidNonce
+            | hpke_rs_crypto::error::Error::AeadInvalidCiphertext => HpkeError::InvalidInput,
+            hpke_rs_crypto::error::Error::UnknownAeadAlgorithm => HpkeError::UnknownMode,
+            hpke_rs_crypto::error::Error::CryptoLibraryError(_) => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::HpkeInvalidOutputLength => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::UnknownKdfAlgorithm => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::KemInvalidSecretKey => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::KemInvalidPublicKey => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::UnknownKemAlgorithm => HpkeError::CryptoError,
+            hpke_rs_crypto::error::Error::InsufficientRandomness => {
                 HpkeError::InsufficientRandomness
             }
         }

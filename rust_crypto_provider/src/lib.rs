@@ -2,18 +2,15 @@
 //!
 //! An implementation of the HPKE crypto trait using pure Rust crypto primitives.
 
-#[cfg(not(feature = "deterministic-prng"))]
 use std::sync::RwLock;
 
-use hpke_crypto_trait::{
+use hpke_rs_crypto::{
     error::Error,
-    types::{AeadType, KdfType, KemType},
-    HpkeCrypto,
+    types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm},
+    CryptoRng, HpkeCrypto, HpkeTestRng, RngCore,
 };
 use p256::{elliptic_curve::ecdh::diffie_hellman, EncodedPoint, PublicKey, SecretKey};
-#[cfg(not(feature = "deterministic-prng"))]
 use rand::SeedableRng;
-use rand::{rngs::OsRng, CryptoRng, RngCore};
 use x25519_dalek_ng::{PublicKey as X25519PublicKey, StaticSecret as X25519StaticSecret};
 
 mod aead;
@@ -35,33 +32,34 @@ pub struct HpkeRustCryptoPrng {
 #[cfg(feature = "deterministic-prng")]
 pub struct HpkeFakePrng {
     rng: Vec<u8>,
+    real_rng: RwLock<rand_chacha::ChaCha20Rng>,
 }
 
 impl HpkeCrypto for HpkeRustCrypto {
-    fn kdf_extract(alg: KdfType, salt: &[u8], ikm: &[u8]) -> Vec<u8> {
+    fn kdf_extract(alg: KdfAlgorithm, salt: &[u8], ikm: &[u8]) -> Vec<u8> {
         match alg {
-            KdfType::HkdfSha256 => sha256_extract(salt, ikm),
-            KdfType::HkdfSha384 => sha384_extract(salt, ikm),
-            KdfType::HkdfSha512 => sha512_extract(salt, ikm),
+            KdfAlgorithm::HkdfSha256 => sha256_extract(salt, ikm),
+            KdfAlgorithm::HkdfSha384 => sha384_extract(salt, ikm),
+            KdfAlgorithm::HkdfSha512 => sha512_extract(salt, ikm),
         }
     }
 
     fn kdf_expand(
-        alg: KdfType,
+        alg: KdfAlgorithm,
         prk: &[u8],
         info: &[u8],
         output_size: usize,
     ) -> Result<Vec<u8>, Error> {
         match alg {
-            KdfType::HkdfSha256 => sha256_expand(prk, info, output_size),
-            KdfType::HkdfSha384 => sha384_expand(prk, info, output_size),
-            KdfType::HkdfSha512 => sha512_expand(prk, info, output_size),
+            KdfAlgorithm::HkdfSha256 => sha256_expand(prk, info, output_size),
+            KdfAlgorithm::HkdfSha384 => sha384_expand(prk, info, output_size),
+            KdfAlgorithm::HkdfSha512 => sha512_expand(prk, info, output_size),
         }
     }
 
-    fn kem_derive(alg: KemType, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
+    fn kem_derive(alg: KemAlgorithm, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
         match alg {
-            KemType::DhKem25519 => {
+            KemAlgorithm::DhKem25519 => {
                 if sk.len() != 32 {
                     return Err(Error::KemInvalidSecretKey);
                 }
@@ -78,7 +76,7 @@ impl HpkeCrypto for HpkeRustCrypto {
                     .as_bytes()
                     .to_vec())
             }
-            KemType::DhKemP256 => {
+            KemAlgorithm::DhKemP256 => {
                 let sk = SecretKey::from_bytes(sk).map_err(|_| Error::KemInvalidSecretKey)?;
                 let pk = PublicKey::from_sec1_bytes(pk).map_err(|_| Error::KemInvalidPublicKey)?;
                 Ok(diffie_hellman(sk.to_secret_scalar(), pk.as_affine())
@@ -90,9 +88,9 @@ impl HpkeCrypto for HpkeRustCrypto {
         }
     }
 
-    fn kem_derive_base(alg: KemType, sk: &[u8]) -> Result<Vec<u8>, Error> {
+    fn kem_derive_base(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
         match alg {
-            KemType::DhKem25519 => {
+            KemAlgorithm::DhKem25519 => {
                 if sk.len() != 32 {
                     return Err(Error::KemInvalidSecretKey);
                 }
@@ -101,7 +99,7 @@ impl HpkeCrypto for HpkeRustCrypto {
                 let sk = X25519StaticSecret::from(sk_array);
                 Ok(X25519PublicKey::from(&sk).as_bytes().to_vec())
             }
-            KemType::DhKemP256 => {
+            KemAlgorithm::DhKemP256 => {
                 let sk = SecretKey::from_bytes(sk).map_err(|_| Error::KemInvalidSecretKey)?;
                 Ok(EncodedPoint::encode(
                     PublicKey::from_secret_scalar(&sk.to_secret_scalar()),
@@ -114,17 +112,17 @@ impl HpkeCrypto for HpkeRustCrypto {
         }
     }
 
-    fn kem_key_gen(alg: KemType) -> Result<Vec<u8>, Error> {
+    fn kem_key_gen(alg: KemAlgorithm, prng: &mut Self::HpkePrng) -> Result<Vec<u8>, Error> {
         match alg {
-            KemType::DhKem25519 => Ok(X25519StaticSecret::new(&mut OsRng).to_bytes().to_vec()),
-            KemType::DhKemP256 => Ok(SecretKey::random(&mut OsRng).to_bytes().as_slice().into()),
+            KemAlgorithm::DhKem25519 => Ok(X25519StaticSecret::new(prng).to_bytes().to_vec()),
+            KemAlgorithm::DhKemP256 => Ok(SecretKey::random(prng).to_bytes().as_slice().into()),
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }
 
-    fn kem_validate_sk(alg: KemType, sk: &[u8]) -> Result<Vec<u8>, Error> {
+    fn kem_validate_sk(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
         match alg {
-            KemType::DhKemP256 => SecretKey::from_bytes(sk)
+            KemAlgorithm::DhKemP256 => SecretKey::from_bytes(sk)
                 .map_err(|_| Error::KemInvalidSecretKey)
                 .map(|_| sk.into()),
             _ => Err(Error::UnknownKemAlgorithm),
@@ -132,32 +130,32 @@ impl HpkeCrypto for HpkeRustCrypto {
     }
 
     fn aead_seal(
-        alg: AeadType,
+        alg: AeadAlgorithm,
         key: &[u8],
         nonce: &[u8],
         aad: &[u8],
         msg: &[u8],
     ) -> Result<Vec<u8>, Error> {
         match alg {
-            AeadType::Aes128Gcm => aes128_seal(key, nonce, aad, msg),
-            AeadType::Aes256Gcm => aes256_seal(key, nonce, aad, msg),
-            AeadType::ChaCha20Poly1305 => chacha_seal(key, nonce, aad, msg),
-            AeadType::HpkeExport => Err(Error::UnknownAeadAlgorithm),
+            AeadAlgorithm::Aes128Gcm => aes128_seal(key, nonce, aad, msg),
+            AeadAlgorithm::Aes256Gcm => aes256_seal(key, nonce, aad, msg),
+            AeadAlgorithm::ChaCha20Poly1305 => chacha_seal(key, nonce, aad, msg),
+            AeadAlgorithm::HpkeExport => Err(Error::UnknownAeadAlgorithm),
         }
     }
 
     fn aead_open(
-        alg: AeadType,
+        alg: AeadAlgorithm,
         key: &[u8],
         nonce: &[u8],
         aad: &[u8],
         msg: &[u8],
     ) -> Result<Vec<u8>, Error> {
         match alg {
-            AeadType::Aes128Gcm => aes128_open(alg, key, nonce, aad, msg),
-            AeadType::Aes256Gcm => aes256_open(alg, key, nonce, aad, msg),
-            AeadType::ChaCha20Poly1305 => chacha_open(alg, key, nonce, aad, msg),
-            AeadType::HpkeExport => Err(Error::UnknownAeadAlgorithm),
+            AeadAlgorithm::Aes128Gcm => aes128_open(alg, key, nonce, aad, msg),
+            AeadAlgorithm::Aes256Gcm => aes256_open(alg, key, nonce, aad, msg),
+            AeadAlgorithm::ChaCha20Poly1305 => chacha_open(alg, key, nonce, aad, msg),
+            AeadAlgorithm::HpkeExport => Err(Error::UnknownAeadAlgorithm),
         }
     }
 
@@ -187,7 +185,10 @@ impl HpkeCrypto for HpkeRustCrypto {
     // PRNG for testing.
     #[cfg(feature = "deterministic-prng")]
     fn prng() -> Self::HpkePrng {
-        HpkeFakePrng { rng: vec![0u8; 256] }
+        HpkeFakePrng {
+            rng: vec![0u8; 256],
+            real_rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
+        }
     }
 
     #[cfg(feature = "deterministic-prng")]
@@ -235,11 +236,24 @@ impl RngCore for HpkeFakePrng {
         unimplemented!()
     }
 
-    fn fill_bytes(&mut self, _: &mut [u8]) {
-        unimplemented!()
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        // This uses real randomness.
+        let mut rng = self.real_rng.write().unwrap();
+        rng.fill_bytes(dest)
     }
 
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        let mut rng = self.real_rng.write().unwrap();
+        rng.try_fill_bytes(dest)
+    }
+}
+#[cfg(feature = "deterministic-prng")]
+impl CryptoRng for HpkeFakePrng {}
+
+#[cfg(feature = "deterministic-prng")]
+impl HpkeTestRng for HpkeFakePrng {
+    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        // Here we fake our randomness for testing.
         println!("rand (need {}): {:?}", dest.len(), self.rng);
         if dest.len() > self.rng.len() {
             return Err(rand::Error::new(Error::InsufficientRandomness));
@@ -248,5 +262,3 @@ impl RngCore for HpkeFakePrng {
         Ok(())
     }
 }
-#[cfg(feature = "deterministic-prng")]
-impl CryptoRng for HpkeFakePrng {}

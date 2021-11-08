@@ -1,6 +1,6 @@
 extern crate hpke_rs as hpke;
 
-use hpke_rust_crypto::HpkeRustCrypto;
+use hpke_rs_rust_crypto::HpkeRustCrypto;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use serde::{self, Deserialize, Serialize};
 use std::convert::TryInto;
@@ -9,7 +9,7 @@ use std::io::BufReader;
 
 use hpke::prelude::*;
 use hpke::test_util::{hex_to_bytes, hex_to_bytes_option, vec_to_option_slice};
-use hpke_crypto_trait::types::*;
+use hpke_rs_crypto::types::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_snake_case)]
@@ -73,11 +73,11 @@ fn test_kat() {
 
     tests.into_par_iter().for_each(|test| {
         let mode: HpkeMode = test.mode.try_into().unwrap();
-        let kem_id: KemType = test.kem_id.try_into().unwrap();
-        let kdf_id: KdfType = test.kdf_id.try_into().unwrap();
-        let aead_id: AeadType = test.aead_id.try_into().unwrap();
+        let kem_id: KemAlgorithm = test.kem_id.try_into().unwrap();
+        let kdf_id: KdfAlgorithm = test.kdf_id.try_into().unwrap();
+        let aead_id: AeadAlgorithm = test.aead_id.try_into().unwrap();
 
-        if kem_id != KemType::DhKem25519 && kem_id != KemType::DhKemP256 {
+        if kem_id != KemAlgorithm::DhKem25519 && kem_id != KemAlgorithm::DhKemP256 {
             println!(" > KEM {:?} not implemented yet", kem_id);
             return;
         }
@@ -241,11 +241,11 @@ fn test_serialization() {
     for mode in 0u8..4 {
         let hpke_mode = HpkeMode::try_from(mode).unwrap();
         for aead_mode in 1u16..4 {
-            let aead_mode = AeadType::try_from(aead_mode).unwrap();
+            let aead_mode = AeadAlgorithm::try_from(aead_mode).unwrap();
             for kdf_mode in 1u16..4 {
-                let kdf_mode = KdfType::try_from(kdf_mode).unwrap();
+                let kdf_mode = KdfAlgorithm::try_from(kdf_mode).unwrap();
                 for &kem_mode in &[0x10u16, 0x20] {
-                    let kem_mode = KemType::try_from(kem_mode).unwrap();
+                    let kem_mode = KemAlgorithm::try_from(kem_mode).unwrap();
 
                     let hpke =
                         Hpke::<HpkeRustCrypto>::new(hpke_mode, kem_mode, kdf_mode, aead_mode);

@@ -1,5 +1,5 @@
 use hkdf::Hkdf;
-use hpke_crypto_trait::error::Error;
+use hpke_rs_crypto::error::Error;
 use sha2::{Sha256, Sha384, Sha512};
 
 macro_rules! implement_hkdfs {

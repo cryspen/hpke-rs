@@ -1,10 +1,15 @@
 [package]
-name = "hpke_evercrypt"
+name = "hpke-rs-evercrypt"
 version = "0.1.0"
 edition = "2021"
+license = "MPL-2.0"
+documentation = "https://docs.rs/hpke-rs-evercrypt"
+description = "Crypto backend for HPKE using formally verified code from Evercrypt."
+readme = "Readme.md"
+repository = "https://github.com/franziskuskiefer/hpke-rs"
 
 [dependencies]
-hpke_crypto_trait = { path = "../traits" }
+hpke-rs-crypto = { path = "../traits" }
 # Evercrypt
 evercrypt = { version = "0.0.10", features = ["serialization"] }
 # Randomness

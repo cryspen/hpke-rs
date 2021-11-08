@@ -1,10 +1,15 @@
 [package]
-name = "hpke_rust_crypto"
+name = "hpke-rs-rust-crypto"
 version = "0.1.0"
 edition = "2021"
+license = "MPL-2.0"
+documentation = "https://docs.rs/hpke-rs-rust-crypto"
+description = "Crypto backend for HPKE using native Rust crypto."
+readme = "Readme.md"
+repository = "https://github.com/franziskuskiefer/hpke-rs"
 
 [dependencies]
-hpke_crypto_trait = { path = "../traits" }
+hpke-rs-crypto = { path = "../traits" }
 # Rust crypto
 hkdf = { version = "0.11" }
 sha2 = { version = "0.9" }

@@ -1,23 +1,19 @@
-//! # HPKE Crypto Traits
-//!
-//! The [`hpke-rs`] can be used with different cryptography backends to perform
-//! the actual cryptographic operations.
-//! This crate defines traits that have to be passed into HPKE functions that
-//! implement the cryptographic primitives needed.
+#![doc = include_str!("../README.md")]
 
 use error::Error;
-use types::{AeadType, KemType};
+use types::{AeadAlgorithm, KemAlgorithm};
 
 pub mod error;
 pub mod types;
 
 // re-export trait
-pub use rand::RngCore;
+pub use rand::{CryptoRng, RngCore};
 
 /// The [`HpkeCrypto`] trait defines the necessary cryptographic functions used
 /// in the HPKE implementation.
 pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
-    type HpkePrng: rand::RngCore + rand::CryptoRng;
+    /// The PRNG implementation returned in [`HpkeCrypto::prng()`].
+    type HpkePrng: rand::RngCore + rand::CryptoRng + HpkeTestRng;
 
     /// Get a stateful PRNG.
     /// Note that this will create a new PRNG state.
@@ -29,40 +25,40 @@ pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
 
     /// Get the length of the output digest.
     #[inline(always)]
-    fn kdf_digest_length(alg: types::KdfType) -> usize {
+    fn kdf_digest_length(alg: types::KdfAlgorithm) -> usize {
         match alg {
-            types::KdfType::HkdfSha256 => 32,
-            types::KdfType::HkdfSha384 => 48,
-            types::KdfType::HkdfSha512 => 64,
+            types::KdfAlgorithm::HkdfSha256 => 32,
+            types::KdfAlgorithm::HkdfSha384 => 48,
+            types::KdfAlgorithm::HkdfSha512 => 64,
         }
     }
 
     /// KDF Extract
-    fn kdf_extract(alg: types::KdfType, salt: &[u8], ikm: &[u8]) -> Vec<u8>;
+    fn kdf_extract(alg: types::KdfAlgorithm, salt: &[u8], ikm: &[u8]) -> Vec<u8>;
 
     /// KDF Expand
     fn kdf_expand(
-        alg: types::KdfType,
+        alg: types::KdfAlgorithm,
         prk: &[u8],
         info: &[u8],
         output_size: usize,
     ) -> Result<Vec<u8>, Error>;
 
     /// KEM Derive
-    fn kem_derive(alg: KemType, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error>;
+    fn kem_derive(alg: KemAlgorithm, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error>;
 
     /// KEM Derive with base
-    fn kem_derive_base(alg: KemType, sk: &[u8]) -> Result<Vec<u8>, Error>;
+    fn kem_derive_base(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error>;
 
     /// KEM Key generation
-    fn kem_key_gen(alg: KemType) -> Result<Vec<u8>, Error>;
+    fn kem_key_gen(alg: KemAlgorithm, prng: &mut Self::HpkePrng) -> Result<Vec<u8>, Error>;
 
     /// Validate a secret key for its correctness.
-    fn kem_validate_sk(alg: KemType, sk: &[u8]) -> Result<Vec<u8>, Error>;
+    fn kem_validate_sk(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error>;
 
     /// AEAD encrypt.
     fn aead_seal(
-        alg: AeadType,
+        alg: AeadAlgorithm,
         key: &[u8],
         nonce: &[u8],
         aad: &[u8],
@@ -71,7 +67,7 @@ pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
 
     /// AEAD decrypt.
     fn aead_open(
-        alg: AeadType,
+        alg: AeadAlgorithm,
         key: &[u8],
         nonce: &[u8],
         aad: &[u8],
@@ -81,36 +77,42 @@ pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
     /// Get key length for AEAD.
     ///
     /// Note that this function returns `0` for export only keys of unknown size.
-    fn aead_key_length(alg: AeadType) -> usize {
+    fn aead_key_length(alg: AeadAlgorithm) -> usize {
         match alg {
-            AeadType::Aes128Gcm => 16,
-            AeadType::Aes256Gcm => 32,
-            AeadType::ChaCha20Poly1305 => 32,
-            AeadType::HpkeExport => 0,
+            AeadAlgorithm::Aes128Gcm => 16,
+            AeadAlgorithm::Aes256Gcm => 32,
+            AeadAlgorithm::ChaCha20Poly1305 => 32,
+            AeadAlgorithm::HpkeExport => 0,
         }
     }
 
     /// Get key length for AEAD.
     ///
     /// Note that this function returns `0` for export only nonces of unknown size.
-    fn aead_nonce_length(alg: AeadType) -> usize {
+    fn aead_nonce_length(alg: AeadAlgorithm) -> usize {
         match alg {
-            AeadType::Aes128Gcm => 12,
-            AeadType::Aes256Gcm => 12,
-            AeadType::ChaCha20Poly1305 => 12,
-            AeadType::HpkeExport => 0,
+            AeadAlgorithm::Aes128Gcm => 12,
+            AeadAlgorithm::Aes256Gcm => 12,
+            AeadAlgorithm::ChaCha20Poly1305 => 12,
+            AeadAlgorithm::HpkeExport => 0,
         }
     }
 
     /// Get key length for AEAD.
     ///
     /// Note that this function returns `0` for export only tags of unknown size.
-    fn aead_tag_length(alg: AeadType) -> usize {
+    fn aead_tag_length(alg: AeadAlgorithm) -> usize {
         match alg {
-            AeadType::Aes128Gcm => 16,
-            AeadType::Aes256Gcm => 16,
-            AeadType::ChaCha20Poly1305 => 16,
-            AeadType::HpkeExport => 0,
+            AeadAlgorithm::Aes128Gcm => 16,
+            AeadAlgorithm::Aes256Gcm => 16,
+            AeadAlgorithm::ChaCha20Poly1305 => 16,
+            AeadAlgorithm::HpkeExport => 0,
         }
     }
+}
+
+/// PRNG extension for testing that is supposed to return pre-configured bytes.
+pub trait HpkeTestRng {
+    /// Like [`RngCore::try_fill_bytes`] but the result is expected to be known.
+    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error>;
 }
