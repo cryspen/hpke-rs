@@ -3,11 +3,13 @@
 extern crate hpke_rs as hpke;
 
 use hpke::prelude::*;
-use hpke_rs_crypto::types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm};
+use hpke_rs_crypto::{
+    types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm},
+    HpkeCrypto, RngCore,
+};
 use hpke_rs_evercrypt::HpkeEvercrypt;
 use hpke_rs_rust_crypto::HpkeRustCrypto;
 use lazy_static::lazy_static;
-use rand::{rngs::OsRng, RngCore};
 
 lazy_static! {
     static ref TEST_CASES: Vec<(Mode, KemAlgorithm, KdfAlgorithm, AeadAlgorithm)> = {
@@ -52,9 +54,9 @@ macro_rules! generate_test_case {
             let plain_txt = b"HPKE self test plain text";
             let exporter_context = b"HPKE self test exporter context";
             let mut psk = [0u8; 32];
-            OsRng.fill_bytes(&mut psk);
+            $provider::prng().fill_bytes(&mut psk);
             let mut psk_id = [0u8; 32];
-            OsRng.fill_bytes(&mut psk_id);
+            $provider::prng().fill_bytes(&mut psk_id);
             let (psk, psk_id): (Option<&[u8]>, Option<&[u8]>) = match $hpke_mode {
                 Mode::Base | Mode::Auth => (None, None),
                 Mode::Psk | Mode::AuthPsk => (Some(&psk), Some(&psk_id)),
