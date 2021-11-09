@@ -31,6 +31,8 @@ rayon = "1.5"
 hpke-rs = { path = ".", features = ["hpke-test", "hazmat"] }
 hpke-rs-rust-crypto = { path = "./rust_crypto_provider", features = ["deterministic-prng"] }
 hpke-rs-evercrypt = { path = "./evercrypt_provider" }
+rand = { version = "0.8" }
+getrandom = { version = "0.2", features = ["js"] }
 pretty_env_logger = "0.4"
 criterion = { version = "0.3", features = ["html_reports"] }
 
