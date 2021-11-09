@@ -21,6 +21,7 @@ default = []
 serialization = ["serde", "serde_json", "tls_codec", "tls_codec/serde_serialize"]
 hazmat = []
 hpke-test = []
+hpke-test-prng = [] # ⚠️ Enable testing PRNG - DO NOT USE
 
 [dev-dependencies]
 serde_json = "1.0"
@@ -33,3 +34,8 @@ hpke-rs-evercrypt = { path = "./evercrypt_provider" }
 rand = { version = "0.8" }
 getrandom = { version = "0.2", features = ["js"] }
 pretty_env_logger = "0.4"
+criterion = { version = "0.3", features = ["html_reports"] }
+
+[[bench]]
+name = "bench"
+harness = false

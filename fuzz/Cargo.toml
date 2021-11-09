@@ -18,7 +18,7 @@ path = ".."
 [dependencies.hpke-rs-crypto]
 path = "../traits"
 
-[dependencies.hpke_rust_crypto]
+[dependencies.hpke-rs-rust-crypto]
 path = "../rust_crypto_provider"
 
 # Prevent this from interfering with workspaces

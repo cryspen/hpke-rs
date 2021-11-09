@@ -89,8 +89,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>, skip_aes: bool)
         );
 
         // Init HPKE with the given mode and ciphersuite.
-        let hpke = Hpke::<Crypto>::new(mode, kem_id, kdf_id, aead_id);
-        hpke.seed(&[0u8; 64]).unwrap(); // We need to add randomness to the fake PRNG
+        let mut hpke = Hpke::<Crypto>::new(mode, kem_id, kdf_id, aead_id);
 
         // Set up sender and receiver.
         let pk_rm = HpkePublicKey::new(hex_to_bytes(&test.pkRm));
@@ -164,26 +163,32 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>, skip_aes: bool)
 
         // Setup sender and receiver with KAT randomness.
         // We first have to inject the randomness (ikmE).
-        let hpke_sender = Hpke::<Crypto>::new(mode, kem_id, kdf_id, aead_id);
-        hpke_sender.seed(&ikm_e).expect("Error injecting ikm_e");
-        let (enc, _sender_context_kat) = hpke_sender
-            .setup_sender(&pk_rm, &info, psk, psk_id, sk_sm)
-            .unwrap();
-        let receiver_context = hpke
-            .setup_receiver(&enc, &sk_rm, &info, psk, psk_id, pk_sm)
-            .unwrap();
-        assert_eq!(enc, kat_enc);
-        assert_eq!(receiver_context.key(), receiver_context_kat.key());
-        assert_eq!(receiver_context.nonce(), receiver_context_kat.nonce());
-        assert_eq!(
-            receiver_context.exporter_secret(),
-            receiver_context_kat.exporter_secret()
-        );
-        receiver_context_kat = receiver_context;
-        assert_eq!(receiver_context_kat.key(), key);
-        assert_eq!(receiver_context_kat.nonce(), nonce);
-        assert_eq!(receiver_context_kat.exporter_secret(), exporter_secret);
-        assert_eq!(receiver_context_kat.sequence_number(), 0);
+
+        #[cfg(feature = "hpke-test-prng")]
+        {
+            log::trace!("Testing with known ikmE ...");
+            let hpke_sender = Hpke::<Crypto>::new(mode, kem_id, kdf_id, aead_id);
+            // This only works when seeding the PRNG with ikmE.
+            hpke_sender.seed(&ikm_e).expect("Error injecting ikm_e");
+            let (enc, _sender_context_kat) = hpke_sender
+                .setup_sender(&pk_rm, &info, psk, psk_id, sk_sm)
+                .unwrap();
+            let receiver_context = hpke
+                .setup_receiver(&enc, &sk_rm, &info, psk, psk_id, pk_sm)
+                .unwrap();
+            assert_eq!(enc, kat_enc);
+            assert_eq!(receiver_context.key(), receiver_context_kat.key());
+            assert_eq!(receiver_context.nonce(), receiver_context_kat.nonce());
+            assert_eq!(
+                receiver_context.exporter_secret(),
+                receiver_context_kat.exporter_secret()
+            );
+            receiver_context_kat = receiver_context;
+            assert_eq!(receiver_context_kat.key(), key);
+            assert_eq!(receiver_context_kat.nonce(), nonce);
+            assert_eq!(receiver_context_kat.exporter_secret(), exporter_secret);
+            assert_eq!(receiver_context_kat.sequence_number(), 0);
+        }
 
         // Setup sender and receiver for self tests.
         let (enc, mut sender_context) = hpke
@@ -195,9 +200,9 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>, skip_aes: bool)
 
         // Encrypt
         for (_i, encryption) in test.encryptions.iter().enumerate() {
-            // We need to add randomness to the fake PRNG
-            hpke.seed(&[0u8; 64]).unwrap();
-            // println!("Test encryption {} ...", _i);
+            // Cloning the Hpke object renews the test PRNG.
+            hpke = hpke.clone();
+            println!("Test encryption {} ...", _i);
             let aad = hex_to_bytes(&encryption.aad);
             let ptxt = hex_to_bytes(&encryption.pt);
             let ctxt_kat = hex_to_bytes(&encryption.ct);
@@ -227,8 +232,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>, skip_aes: bool)
 
         // Test KAT on direct_ctx for exporters
         for (_i, export) in test.exports.iter().enumerate() {
-            hpke.seed(&[0u8; 64]).unwrap(); // We need to add randomness to the fake PRNG
-                                            // println!("Test exporter {} ...", _i);
+            println!("Test exporter {} ...", _i);
             let export_context = hex_to_bytes(&export.exporter_context);
             let export_value = hex_to_bytes(&export.exported_value);
             let length = export.L;

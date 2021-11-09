@@ -185,8 +185,10 @@ impl HpkeCrypto for HpkeRustCrypto {
     // PRNG for testing.
     #[cfg(feature = "deterministic-prng")]
     fn prng() -> Self::HpkePrng {
+        let mut fake_rng = vec![0u8; 256];
+        rand_chacha::ChaCha20Rng::from_entropy().fill_bytes(&mut fake_rng);
         HpkeFakePrng {
-            rng: vec![0u8; 256],
+            rng: fake_rng,
             real_rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
         }
     }
@@ -259,5 +261,12 @@ impl HpkeTestRng for HpkeFakePrng {
         }
         dest.clone_from_slice(&self.rng.split_off(self.rng.len() - dest.len()));
         Ok(())
+    }
+}
+
+#[cfg(not(feature = "deterministic-prng"))]
+impl HpkeTestRng for HpkeRustCryptoPrng {
+    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        self.try_fill_bytes(dest)
     }
 }

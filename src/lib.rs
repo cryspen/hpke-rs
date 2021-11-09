@@ -68,9 +68,9 @@
 
 use std::sync::RwLock;
 
-#[cfg(feature = "hpke-test")]
+#[cfg(feature = "hpke-test-prng")]
 use hpke_rs_crypto::HpkeTestRng;
-#[cfg(not(feature = "hpke-test"))]
+#[cfg(not(feature = "hpke-test-prng"))]
 use hpke_rs_crypto::RngCore;
 use hpke_rs_crypto::{
     types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm},
@@ -240,16 +240,16 @@ type Plaintext = Vec<u8>;
 /// The HPKE context.
 /// Note that the RFC currently doesn't define this.
 /// Also see <https://github.com/cfrg/draft-irtf-cfrg-hpke/issues/161>.
-pub struct Context<'a, Crypto: 'static + HpkeCrypto> {
+pub struct Context<Crypto: 'static + HpkeCrypto> {
     key: Vec<u8>,
     nonce: Vec<u8>,
     exporter_secret: Vec<u8>,
     sequence_number: u32,
-    hpke: &'a Hpke<Crypto>,
+    hpke: Hpke<Crypto>,
 }
 
 #[cfg(feature = "hazmat")]
-impl<'a, Crypto: HpkeCrypto> std::fmt::Debug for Context<'a, Crypto> {
+impl<Crypto: HpkeCrypto> std::fmt::Debug for Context<Crypto> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -260,7 +260,7 @@ impl<'a, Crypto: HpkeCrypto> std::fmt::Debug for Context<'a, Crypto> {
 }
 
 #[cfg(not(feature = "hazmat"))]
-impl<'a, Crypto: HpkeCrypto> std::fmt::Debug for Context<'a, Crypto> {
+impl<Crypto: HpkeCrypto> std::fmt::Debug for Context<Crypto> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -270,7 +270,7 @@ impl<'a, Crypto: HpkeCrypto> std::fmt::Debug for Context<'a, Crypto> {
     }
 }
 
-impl<'a, Crypto: HpkeCrypto> Context<'a, Crypto> {
+impl<Crypto: HpkeCrypto> Context<Crypto> {
     /// 5.2. Encryption and Decryption
     ///
     /// Takes the associated data and the plain text as byte slices and returns
@@ -368,6 +368,8 @@ impl<'a, Crypto: HpkeCrypto> Context<'a, Crypto> {
 /// To use HPKE first instantiate the configuration with
 /// `let hpke = Hpke::new(mode, kem_mode, kdf_mode, aead_mode)`.
 /// Now one can use the `hpke` configuration.
+///
+/// Note that cloning does NOT clone the PRNG state.
 #[derive(Debug)]
 pub struct Hpke<Crypto: 'static + HpkeCrypto> {
     mode: Mode,
@@ -375,6 +377,18 @@ pub struct Hpke<Crypto: 'static + HpkeCrypto> {
     kdf_id: KdfAlgorithm,
     aead_id: AeadAlgorithm,
     prng: RwLock<Crypto::HpkePrng>,
+}
+
+impl<Crypto: 'static + HpkeCrypto> Clone for Hpke<Crypto> {
+    fn clone(&self) -> Self {
+        Self {
+            mode: self.mode.clone(),
+            kem_id: self.kem_id.clone(),
+            kdf_id: self.kdf_id.clone(),
+            aead_id: self.aead_id.clone(),
+            prng: RwLock::new(Crypto::prng()),
+        }
+    }
 }
 
 impl<Crypto: HpkeCrypto> std::fmt::Display for Hpke<Crypto> {
@@ -439,7 +453,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
         };
         Ok((
             enc,
-            self.key_schedule(
+            self.clone().key_schedule(
                 &zz,
                 info,
                 psk.unwrap_or_default(),
@@ -477,7 +491,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
                 kem::auth_decaps::<Crypto>(self.kem_id, enc, &sk_r.value, pk_s)?
             }
         };
-        self.key_schedule(
+        self.clone().key_schedule(
             &zz,
             info,
             psk.unwrap_or_default(),
@@ -618,39 +632,8 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
         util::concat(&[&[self.mode as u8], &psk_id_hash, &info_hash])
     }
 
-    /// 5.1. Creating the Encryption Context
+    /// Creating the Encryption Context
     /// Generate the HPKE context from the given input.
-    ///
-    /// ```text
-    /// default_psk = ""
-    /// default_psk_id = ""
-    ///
-    /// def VerifyPSKInputs(mode, psk, psk_id):
-    ///   got_psk = (psk != default_psk)
-    ///   got_psk_id = (psk_id != default_psk_id)
-    ///   if got_psk != got_psk_id:
-    ///     raise Exception("Inconsistent PSK inputs")
-    ///
-    ///   if got_psk and (mode in [mode_base, mode_auth]):
-    ///     raise Exception("PSK input provided when not needed")
-    ///   if (not got_psk) and (mode in [mode_psk, mode_auth_psk]):
-    ///     raise Exception("Missing required PSK input")
-    ///
-    /// def KeySchedule(mode, shared_secret, info, psk, psk_id):
-    ///   VerifyPSKInputs(mode, psk, psk_id)
-    ///
-    ///   psk_id_hash = LabeledExtract("", "psk_id_hash", psk_id)
-    ///   info_hash = LabeledExtract("", "info_hash", info)
-    ///   key_schedule_context = concat(mode, psk_id_hash, info_hash)
-    ///
-    ///   secret = LabeledExtract(shared_secret, "secret", psk)
-    ///
-    ///   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
-    ///   base_nonce = LabeledExpand(secret, "base_nonce", key_schedule_context, Nn)
-    ///   exporter_secret = LabeledExpand(secret, "exp", key_schedule_context, Nh)
-    ///
-    ///   return Context(key, base_nonce, 0, exporter_secret)
-    /// ```
     pub fn key_schedule(
         &self,
         shared_secret: &[u8],
@@ -697,7 +680,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
             nonce: base_nonce,
             exporter_secret,
             sequence_number: 0,
-            hpke: self,
+            hpke: self.clone(),
         })
     }
 
@@ -726,10 +709,10 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
         let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
         let mut out = vec![0u8; len];
 
-        #[cfg(feature = "hpke-test")]
+        #[cfg(feature = "hpke-test-prng")]
         prng.try_fill_test_bytes(&mut out)
             .map_err(|_| HpkeError::InsufficientRandomness)?;
-        #[cfg(not(feature = "hpke-test"))]
+        #[cfg(not(feature = "hpke-test-prng"))]
         prng.try_fill_bytes(&mut out)
             .map_err(|_| HpkeError::InsufficientRandomness)?;
 
@@ -936,7 +919,7 @@ pub mod test_util {
     use hpke_rs_crypto::HpkeCrypto;
 
     // TODO: don't build for release
-    impl<'a, Crypto: HpkeCrypto> super::Context<'_, Crypto> {
+    impl<'a, Crypto: HpkeCrypto> super::Context<Crypto> {
         /// Get a reference to the key in the context.
         #[doc(hidden)]
         pub fn key(&self) -> &[u8] {
@@ -1027,12 +1010,3 @@ impl From<hpke_rs_crypto::error::Error> for HpkeError {
         }
     }
 }
-
-// impl From<kem::Error> for HpkeError {
-//     fn from(e: kem::Error) -> Self {
-//         match e {
-//             kem::Error::UnknownMode => HpkeError::UnknownMode,
-//             _ => HpkeError::CryptoError,
-//         }
-//     }
-// }

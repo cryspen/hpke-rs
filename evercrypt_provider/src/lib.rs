@@ -137,8 +137,10 @@ impl HpkeCrypto for HpkeEvercrypt {
     type HpkePrng = HpkeEvercryptPrng;
 
     fn prng() -> Self::HpkePrng {
+        let mut fake_rng = vec![0u8; 256];
+        rand_chacha::ChaCha20Rng::from_entropy().fill_bytes(&mut fake_rng);
         HpkeEvercryptPrng {
-            fake_rng: Vec::new(),
+            fake_rng,
             rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
         }
     }

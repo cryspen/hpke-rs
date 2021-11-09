@@ -42,8 +42,6 @@ macro_rules! generate_test_case {
         #[test]
         fn $name() {
             let hpke = Hpke::<$provider>::new($hpke_mode, $kem_mode, $kdf_mode, $aead_mode);
-            hpke.seed(&[0u8; 256])
-                .expect("Error seeding HPKE test PRNG.");
             println!("Self test {}", hpke);
 
             // Self test seal and open with random keys.

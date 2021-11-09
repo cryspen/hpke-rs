@@ -6,8 +6,8 @@
 
 An implementation of [HPKE] with flexible crypto backends.
 
-
 From the RFC:
+
 > This scheme provides a variant of public-key encryption of arbitrary-sized plaintexts for a recipient public key. It also includes three authenticated variants, including one which authenticates possession of a pre-shared key, and two optional ones which authenticate possession of a KEM private key.
 
 This version is compatible with draft-12, which is expected to be equivalent to the RFC.
@@ -46,12 +46,6 @@ Instead it expects an implementation of the [HpkeCrypto] trait.
 
 Because [Evercrypt] does not support all platforms and algorithms at this point it is possible to use an alternative cryptography backend.
 
-In order to use the alternative rust crypto backend,
-([hkdf], [sha2], [p256], [p384], [x25519-dalek-ng], [chacha20poly1305], [aes-gcm])
-the default features have to disabled and the `rust-crypto` feature has to be enabled.
-```ignore
-cargo build --no-default-features --features="rust-crypto"
-```
 
 [maturity-badge]: https://img.shields.io/badge/maturity-beta-orange.svg?style=for-the-badge
 [github-actions-badge]: https://img.shields.io/github/workflow/status/franziskuskiefer/hpke-rs/Build%20&%20Test?label=build%20%26%20tests&logo=github&style=for-the-badge
@@ -62,15 +56,6 @@ cargo build --no-default-features --features="rust-crypto"
 [crate-link]: https://crates.io/crates/hpke-rs
 [docs-main-badge]: https://img.shields.io/badge/docs-main-blue.svg?style=for-the-badge
 [docs-main-link]: https://www.franziskuskiefer.de/hpke-rs/hpke_rs/index.html
-[Evercrypt]: https://github.com/franziskuskiefer/evercrypt-rust
-[HPKE]: https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html
-
-[hkdf]: https://docs.rs/hkdf/
-[sha2]: https://docs.rs/sha2
-[p256]: https://docs.rs/p256
-[p384]: https://docs.rs/p384
-[x25519-dalek-ng]: https://docs.rs/x25519-dalek-ng
-[chacha20poly1305]: https://docs.rs/chacha20poly1305
-[aes-gcm]: https://docs.rs/aes-gcm
-
-[HpkeCrypto]: ./tratis/
+[evercrypt]: https://github.com/franziskuskiefer/evercrypt-rust
+[hpke]: https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html
+[hpkecrypto]: ./tratis/
