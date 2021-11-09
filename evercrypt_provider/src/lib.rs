@@ -1,6 +1,4 @@
-//! # Evercrypt Provider
-//!
-//! An implementation of the HPKE crypto trait using evercrypt.
+#![doc = include_str!("../Readme.md")]
 
 use std::sync::RwLock;
 
@@ -18,6 +16,7 @@ pub struct HpkeEvercrypt {}
 
 /// The PRNG for the Evercrypt Provider.
 pub struct HpkeEvercryptPrng {
+    #[cfg(feature = "deterministic-prng")]
     fake_rng: Vec<u8>,
     rng: RwLock<rand_chacha::ChaCha20Rng>,
 }
@@ -137,17 +136,19 @@ impl HpkeCrypto for HpkeEvercrypt {
     type HpkePrng = HpkeEvercryptPrng;
 
     fn prng() -> Self::HpkePrng {
-        let mut fake_rng = vec![0u8; 256];
-        rand_chacha::ChaCha20Rng::from_entropy().fill_bytes(&mut fake_rng);
+        #[cfg(feature = "deterministic-prng")]
+        {
+            let mut fake_rng = vec![0u8; 256];
+            rand_chacha::ChaCha20Rng::from_entropy().fill_bytes(&mut fake_rng);
+            HpkeEvercryptPrng {
+                fake_rng,
+                rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
+            }
+        }
+        #[cfg(not(feature = "deterministic-prng"))]
         HpkeEvercryptPrng {
-            fake_rng,
             rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
         }
-    }
-
-    fn seed(mut prng: Self::HpkePrng, seed: &[u8]) -> Self::HpkePrng {
-        prng.fake_rng = seed.to_vec();
-        prng
     }
 }
 
@@ -203,6 +204,7 @@ impl RngCore for HpkeEvercryptPrng {
 impl CryptoRng for HpkeEvercryptPrng {}
 
 impl HpkeTestRng for HpkeEvercryptPrng {
+    #[cfg(feature = "deterministic-prng")]
     fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
         // Here we fake our randomness for testing.
         if dest.len() > self.fake_rng.len() {
@@ -211,4 +213,15 @@ impl HpkeTestRng for HpkeEvercryptPrng {
         dest.clone_from_slice(&self.fake_rng.split_off(self.fake_rng.len() - dest.len()));
         Ok(())
     }
+    #[cfg(not(feature = "deterministic-prng"))]
+    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        self.rng.write().unwrap().try_fill_bytes(dest)
+    }
+
+    #[cfg(feature = "deterministic-prng")]
+    fn seed(&mut self, seed: &[u8]) {
+        self.fake_rng = seed.to_vec();
+    }
+    #[cfg(not(feature = "deterministic-prng"))]
+    fn seed(&mut self, _: &[u8]) {}
 }

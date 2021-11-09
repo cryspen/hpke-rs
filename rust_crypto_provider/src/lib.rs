@@ -1,6 +1,4 @@
-//! # Pure Rust Crypto Provider
-//!
-//! An implementation of the HPKE crypto trait using pure Rust crypto primitives.
+#![doc = include_str!("../Readme.md")]
 
 use std::sync::RwLock;
 
@@ -23,16 +21,10 @@ use crate::hkdf::*;
 pub struct HpkeRustCrypto {}
 
 /// The PRNG for the Rust Crypto Provider.
-#[cfg(not(feature = "deterministic-prng"))]
 pub struct HpkeRustCryptoPrng {
     rng: RwLock<rand_chacha::ChaCha20Rng>,
-}
-
-/// ⚠️ Fake PRNG for testing.
-#[cfg(feature = "deterministic-prng")]
-pub struct HpkeFakePrng {
-    rng: Vec<u8>,
-    real_rng: RwLock<rand_chacha::ChaCha20Rng>,
+    #[cfg(feature = "deterministic-prng")]
+    fake_rng: Vec<u8>,
 }
 
 impl HpkeCrypto for HpkeRustCrypto {
@@ -113,9 +105,12 @@ impl HpkeCrypto for HpkeRustCrypto {
     }
 
     fn kem_key_gen(alg: KemAlgorithm, prng: &mut Self::HpkePrng) -> Result<Vec<u8>, Error> {
+        let mut rng = prng.rng.write().unwrap();
         match alg {
-            KemAlgorithm::DhKem25519 => Ok(X25519StaticSecret::new(prng).to_bytes().to_vec()),
-            KemAlgorithm::DhKemP256 => Ok(SecretKey::random(prng).to_bytes().as_slice().into()),
+            KemAlgorithm::DhKem25519 => Ok(X25519StaticSecret::new(&mut *rng).to_bytes().to_vec()),
+            KemAlgorithm::DhKemP256 => {
+                Ok(SecretKey::random(&mut *rng).to_bytes().as_slice().into())
+            }
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }
@@ -159,48 +154,25 @@ impl HpkeCrypto for HpkeRustCrypto {
         }
     }
 
-    #[cfg(not(feature = "deterministic-prng"))]
     type HpkePrng = HpkeRustCryptoPrng;
 
-    #[cfg(not(feature = "deterministic-prng"))]
     fn prng() -> Self::HpkePrng {
+        #[cfg(feature = "deterministic-prng")]
+        {
+            let mut fake_rng = vec![0u8; 256];
+            rand_chacha::ChaCha20Rng::from_entropy().fill_bytes(&mut fake_rng);
+            HpkeRustCryptoPrng {
+                fake_rng,
+                rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
+            }
+        }
+        #[cfg(not(feature = "deterministic-prng"))]
         HpkeRustCryptoPrng {
             rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
         }
     }
-
-    #[cfg(not(feature = "deterministic-prng"))]
-    fn seed(prng: Self::HpkePrng, _: &[u8]) -> Self::HpkePrng {
-        // no-op
-        // TODO: use the additional randomness
-        prng
-    }
-
-    // === For testing a different PRNG is provided ===
-
-    // PRNG for testing.
-    #[cfg(feature = "deterministic-prng")]
-    type HpkePrng = HpkeFakePrng;
-
-    // PRNG for testing.
-    #[cfg(feature = "deterministic-prng")]
-    fn prng() -> Self::HpkePrng {
-        let mut fake_rng = vec![0u8; 256];
-        rand_chacha::ChaCha20Rng::from_entropy().fill_bytes(&mut fake_rng);
-        HpkeFakePrng {
-            rng: fake_rng,
-            real_rng: RwLock::new(rand_chacha::ChaCha20Rng::from_entropy()),
-        }
-    }
-
-    #[cfg(feature = "deterministic-prng")]
-    fn seed(mut prng: Self::HpkePrng, seed: &[u8]) -> Self::HpkePrng {
-        prng.rng = seed.to_vec();
-        prng
-    }
 }
 
-#[cfg(not(feature = "deterministic-prng"))]
 impl RngCore for HpkeRustCryptoPrng {
     fn next_u32(&mut self) -> u32 {
         let mut rng = self.rng.write().unwrap();
@@ -222,51 +194,29 @@ impl RngCore for HpkeRustCryptoPrng {
         rng.try_fill_bytes(dest)
     }
 }
-#[cfg(not(feature = "deterministic-prng"))]
+
 impl CryptoRng for HpkeRustCryptoPrng {}
 
-// === The following PRNG implementation is used for testing to inject known
-//     randomness.
-
-#[cfg(feature = "deterministic-prng")]
-impl RngCore for HpkeFakePrng {
-    fn next_u32(&mut self) -> u32 {
-        unimplemented!()
-    }
-
-    fn next_u64(&mut self) -> u64 {
-        unimplemented!()
-    }
-
-    fn fill_bytes(&mut self, dest: &mut [u8]) {
-        // This uses real randomness.
-        let mut rng = self.real_rng.write().unwrap();
-        rng.fill_bytes(dest)
-    }
-
-    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
-        let mut rng = self.real_rng.write().unwrap();
-        rng.try_fill_bytes(dest)
-    }
-}
-#[cfg(feature = "deterministic-prng")]
-impl CryptoRng for HpkeFakePrng {}
-
-#[cfg(feature = "deterministic-prng")]
-impl HpkeTestRng for HpkeFakePrng {
+impl HpkeTestRng for HpkeRustCryptoPrng {
+    #[cfg(feature = "deterministic-prng")]
     fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
         // Here we fake our randomness for testing.
-        if dest.len() > self.rng.len() {
+        if dest.len() > self.fake_rng.len() {
             return Err(rand::Error::new(Error::InsufficientRandomness));
         }
-        dest.clone_from_slice(&self.rng.split_off(self.rng.len() - dest.len()));
+        dest.clone_from_slice(&self.fake_rng.split_off(self.fake_rng.len() - dest.len()));
         Ok(())
     }
-}
 
-#[cfg(not(feature = "deterministic-prng"))]
-impl HpkeTestRng for HpkeRustCryptoPrng {
-    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
-        self.try_fill_bytes(dest)
+    #[cfg(feature = "deterministic-prng")]
+    fn seed(&mut self, seed: &[u8]) {
+        self.fake_rng = seed.to_vec();
     }
+    #[cfg(not(feature = "deterministic-prng"))]
+    fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        self.rng.write().unwrap().try_fill_bytes(dest)
+    }
+
+    #[cfg(not(feature = "deterministic-prng"))]
+    fn seed(&mut self, _: &[u8]) {}
 }

@@ -1,7 +1,6 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-use hpke_rs_crypto::{types::KemAlgorithm, HpkeCrypto, RngCore};
+use hpke_rs_crypto::{types::KemAlgorithm, HpkeCrypto};
 use hpke_rs_rust_crypto::*;
-use rand::rngs::OsRng;
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function(&format!("P256 Derive"), |b| {
@@ -29,9 +28,9 @@ fn criterion_benchmark(c: &mut Criterion) {
                     &mut HpkeRustCrypto::prng(),
                 )
                 .unwrap();
-                (sk.clone())
+                sk.clone()
             },
-            |(sk)| {
+            |sk| {
                 let _pk = HpkeRustCrypto::kem_derive_base(KemAlgorithm::DhKemP256, &sk).unwrap();
             },
             BatchSize::SmallInput,

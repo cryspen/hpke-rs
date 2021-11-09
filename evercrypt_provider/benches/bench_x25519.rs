@@ -1,7 +1,6 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-use hpke_rs_crypto::{types::*, HpkeCrypto, RngCore};
+use hpke_rs_crypto::{types::*, HpkeCrypto};
 use hpke_rs_evercrypt::*;
-use rand::rngs::OsRng;
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function(&format!("x25519 Derive"), |b| {
@@ -29,9 +28,9 @@ fn criterion_benchmark(c: &mut Criterion) {
                     &mut HpkeEvercrypt::prng(),
                 )
                 .unwrap();
-                (sk.clone())
+                sk.clone()
             },
-            |(sk)| {
+            |sk| {
                 let _pk = HpkeEvercrypt::kem_derive_base(KemAlgorithm::DhKem25519, &sk).unwrap();
             },
             BatchSize::SmallInput,

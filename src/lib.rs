@@ -1,61 +1,4 @@
-//! # Hybrid Public Key Encryption (HPKE).
-//! <https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html>
-//!
-//! From the RFC:
-//! > This scheme provides a variant of public-key encryption of arbitrary-sized plaintexts for a recipient public key. It also includes three authenticated variants, including one which authenticates possession of a pre-shared key, and two optional ones which authenticate possession of a KEM private key.
-//!
-//! ## Cryptographic Provider
-//! This crate does not implement its own cryptographic primitives.
-//! Instead it uses cryptographic libraries or provider that implement the necessary
-//! primitives.
-//!
-//! ### Evercrypt
-//! This is the default provider.
-//! Here we use the [Evercrypt Rust](https://github.com/franziskuskiefer/evercrypt-rust/)
-//! bindings for the formally verified cryptography library [Evercrypt](https://github.com/project-everest/hacl-star).
-//!
-//! ### Rust Crypto
-//! In order to use native rust crypto,
-//! i.e. [hkdf], [sha2], [p256], [p384], [x25519-dalek-ng], [chacha20poly1305], [aes-gcm],
-//! the default features have to disabled and the `rust-crypto` feature has to be enabled.
-//! ```ignore
-//! cargo build --no-default-features --features="rust-crypto"
-//! ```
-//!
-//! ## Supported algorithms
-//!
-//! Key encapsulation Mechanisms
-//! * P-256
-//! * P-384 (rust-crypto only)
-//! * X25519
-//!
-//! Key derivation functions
-//! * HKDF-SHA256
-//! * HKDF-SHA384
-//! * HKDF-SHA512
-//!
-//! AEADs
-//! * AES-GCM-128
-//! * AES-GCM-256
-//! * ChaCha20Poly1305
-//!
-//! ## A note on randomness
-//! This crate either relies on the crypto provider to generate randomness or uses
-//! [`rand::rngs::OsRng`] for generating randomness.
-//! The latter is cryptographically secure but not ideal because it taps into the
-//! OS entropy source directly, which might block or return bad entropy when
-//! queried too rapidly.
-//! This should change in future.
-//! See [#25](https://github.com/franziskuskiefer/hpke-rs/issues/25) for more information.
-//!
-//! [hkdf]: https://docs.rs/hkdf/
-//! [sha2]: https://docs.rs/sha2
-//! [p256]: https://docs.rs/p256
-//! [p384]: https://docs.rs/p384
-//! [x25519-dalek-ng]: https://docs.rs/x25519-dalek-ng
-//! [chacha20poly1305]: https://docs.rs/chacha20poly1305
-//! [aes-gcm]: https://docs.rs/aes-gcm
-
+#![doc = include_str!("../Readme.md")]
 #![forbid(unsafe_code, unused_must_use, unstable_features)]
 #![deny(
     trivial_casts,
@@ -718,16 +661,6 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
 
         Ok(out)
     }
-
-    /// Set an additional seed for the PRNG.
-    /// It shouldn't be necessary to call this function.
-    /// Right now this replaces the existing PRNG with a new one with the given seed.
-    /// In future we might want to mix the seed into the existing PRNG.
-    pub fn seed(&self, seed: &[u8]) -> Result<(), HpkeError> {
-        let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
-        *prng = Crypto::seed(Crypto::prng(), seed);
-        Ok(())
-    }
 }
 
 impl HpkeKeyPair {
@@ -916,10 +849,19 @@ impl tls_codec::Deserialize for &HpkePublicKey {
 /// Test util module. Should be moved really.
 #[cfg(feature = "hpke-test")]
 pub mod test_util {
-    use hpke_rs_crypto::HpkeCrypto;
+    use crate::HpkeError;
+    use hpke_rs_crypto::{HpkeCrypto, HpkeTestRng};
 
-    // TODO: don't build for release
-    impl<'a, Crypto: HpkeCrypto> super::Context<Crypto> {
+    impl<Crypto: HpkeCrypto> super::Hpke<Crypto> {
+        /// Set PRNG state for testing.
+        pub fn seed(&self, seed: &[u8]) -> Result<(), HpkeError> {
+            let mut prng = self.prng.write().map_err(|_| HpkeError::LockPoisoned)?;
+            prng.seed(seed);
+            Ok(())
+        }
+    }
+
+    impl<Crypto: HpkeCrypto> super::Context<Crypto> {
         /// Get a reference to the key in the context.
         #[doc(hidden)]
         pub fn key(&self) -> &[u8] {

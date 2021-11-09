@@ -44,9 +44,6 @@ This version is compatible with draft-12, which is expected to be equivalent to 
 This crate does not implement the cryptographic primitives used itself.
 Instead it expects an implementation of the [HpkeCrypto] trait.
 
-Because [Evercrypt] does not support all platforms and algorithms at this point it is possible to use an alternative cryptography backend.
-
-
 [maturity-badge]: https://img.shields.io/badge/maturity-beta-orange.svg?style=for-the-badge
 [github-actions-badge]: https://img.shields.io/github/workflow/status/franziskuskiefer/hpke-rs/Build%20&%20Test?label=build%20%26%20tests&logo=github&style=for-the-badge
 [github-actions-link]: https://github.com/franziskuskiefer/hpke-rs/actions/workflows/rust.yml?query=branch%3Amain
@@ -58,4 +55,4 @@ Because [Evercrypt] does not support all platforms and algorithms at this point 
 [docs-main-link]: https://www.franziskuskiefer.de/hpke-rs/hpke_rs/index.html
 [evercrypt]: https://github.com/franziskuskiefer/evercrypt-rust
 [hpke]: https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html
-[hpkecrypto]: ./tratis/
+[hpkecrypto]: https://docs.rs/hpke-rs-crypto

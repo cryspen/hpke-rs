@@ -19,10 +19,6 @@ pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
     /// Note that this will create a new PRNG state.
     fn prng() -> Self::HpkePrng;
 
-    /// Inject randomness in form of a seed into the PRNG state.
-    /// ❗️ It should not be necessary to actually call this function!
-    fn seed(prng: Self::HpkePrng, seed: &[u8]) -> Self::HpkePrng;
-
     /// Get the length of the output digest.
     #[inline(always)]
     fn kdf_digest_length(alg: types::KdfAlgorithm) -> usize {
@@ -115,4 +111,7 @@ pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
 pub trait HpkeTestRng {
     /// Like [`RngCore::try_fill_bytes`] but the result is expected to be known.
     fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error>;
+
+    /// Set the randomness state of this test PRNG.
+    fn seed(&mut self, seed: &[u8]);
 }
