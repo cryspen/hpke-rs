@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+#![doc = include_str!("../Readme.md")]
 
 use error::Error;
 use types::{AeadAlgorithm, KemAlgorithm};
