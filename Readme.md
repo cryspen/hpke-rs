@@ -1,8 +1,11 @@
+# HPKE
+
 ![Maturity Level][maturity-badge]
 [![Build & Test][github-actions-badge]][github-actions-link]
 [![ARM Build][drone-badge]][drone-link]
 [![crates.io][crate-badge]][crate-link]
-[![Docs][docs-main-badge]][docs-main-link]
+[![Docs][docs-badge]][docs-link]
+![Rust Version][rustc-image]
 
 An implementation of [HPKE] with flexible crypto backends.
 
@@ -51,8 +54,9 @@ Instead it expects an implementation of the [HpkeCrypto] trait.
 [drone-link]: https://cloud.drone.io/franziskuskiefer/hpke-rs
 [crate-badge]: https://img.shields.io/crates/v/hpke-rs.svg?style=for-the-badge
 [crate-link]: https://crates.io/crates/hpke-rs
-[docs-main-badge]: https://img.shields.io/badge/docs-main-blue.svg?style=for-the-badge
-[docs-main-link]: https://www.franziskuskiefer.de/hpke-rs/hpke_rs/index.html
+[docs-badge]: https://img.shields.io/badge/docs-rs-blue.svg?style=for-the-badge
+[docs-link]: https://docs.rs/hpke-rs
 [evercrypt]: https://github.com/franziskuskiefer/evercrypt-rust
 [hpke]: https://cfrg.github.io/draft-irtf-cfrg-hpke/draft-irtf-cfrg-hpke.html
 [hpkecrypto]: https://docs.rs/hpke-rs-crypto
+[rustc-image]: https://img.shields.io/badge/rustc-1.56+-blue.svg?style=for-the-badge
