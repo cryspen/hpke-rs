@@ -1279,10 +1279,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">HpkeCrypto</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Hpke</span><span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">mode</span>: <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
-            <span class="ident">kem_id</span>: <span class="self">self</span>.<span class="ident">kem_id</span>.<span class="ident">clone</span>(),
-            <span class="ident">kdf_id</span>: <span class="self">self</span>.<span class="ident">kdf_id</span>.<span class="ident">clone</span>(),
-            <span class="ident">aead_id</span>: <span class="self">self</span>.<span class="ident">aead_id</span>.<span class="ident">clone</span>(),
+            <span class="ident">mode</span>: <span class="self">self</span>.<span class="ident">mode</span>,
+            <span class="ident">kem_id</span>: <span class="self">self</span>.<span class="ident">kem_id</span>,
+            <span class="ident">kdf_id</span>: <span class="self">self</span>.<span class="ident">kdf_id</span>,
+            <span class="ident">aead_id</span>: <span class="self">self</span>.<span class="ident">aead_id</span>,
             <span class="ident">prng</span>: <span class="ident">RwLock::new</span>(<span class="ident">Crypto::prng</span>()),
         }
     }
@@ -1484,7 +1484,7 @@
         <span class="ident">length</span>: <span class="ident">usize</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">HpkeError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">setup_receiver</span>(<span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="ident">info</span>, <span class="ident">psk</span>, <span class="ident">psk_id</span>, <span class="ident">pk_s</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">context</span>.<span class="ident">export</span>(<span class="ident">exporter_context</span>, <span class="ident">length</span>)<span class="question-mark">?</span>)
+        <span class="ident">context</span>.<span class="ident">export</span>(<span class="ident">exporter_context</span>, <span class="ident">length</span>)
     }
 
     <span class="doccomment">/// Verify PSKs.</span>
@@ -1886,19 +1886,19 @@
             <span class="ident">hpke_rs_crypto::error::Error::UnknownAeadAlgorithm</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError::UnknownMode</span>,
             <span class="ident">hpke_rs_crypto::error::Error::CryptoLibraryError</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">HpkeError::CryptoError</span>(<span class="ident">s</span>),
             <span class="ident">hpke_rs_crypto::error::Error::HpkeInvalidOutputLength</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">HpkeError::CryptoError</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid HPKE output length&quot;</span>))
+                <span class="ident">HpkeError::CryptoError</span>(<span class="string">&quot;Invalid HPKE output length&quot;</span>.<span class="ident">to_string</span>())
             }
             <span class="ident">hpke_rs_crypto::error::Error::UnknownKdfAlgorithm</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">HpkeError::CryptoError</span>(<span class="macro">format!</span>(<span class="string">&quot;Unknown KDF algorithm.&quot;</span>))
+                <span class="ident">HpkeError::CryptoError</span>(<span class="string">&quot;Unknown KDF algorithm.&quot;</span>.<span class="ident">to_string</span>())
             }
             <span class="ident">hpke_rs_crypto::error::Error::KemInvalidSecretKey</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">HpkeError::CryptoError</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid KEM secret key&quot;</span>))
+                <span class="ident">HpkeError::CryptoError</span>(<span class="string">&quot;Invalid KEM secret key&quot;</span>.<span class="ident">to_string</span>())
             }
             <span class="ident">hpke_rs_crypto::error::Error::KemInvalidPublicKey</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">HpkeError::CryptoError</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid KEM public key&quot;</span>))
+                <span class="ident">HpkeError::CryptoError</span>(<span class="string">&quot;Invalid KEM public key&quot;</span>.<span class="ident">to_string</span>())
             }
             <span class="ident">hpke_rs_crypto::error::Error::UnknownKemAlgorithm</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">HpkeError::CryptoError</span>(<span class="macro">format!</span>(<span class="string">&quot;Unknown KEM algorithm&quot;</span>))
+                <span class="ident">HpkeError::CryptoError</span>(<span class="string">&quot;Unknown KEM algorithm&quot;</span>.<span class="ident">to_string</span>())
             }
             <span class="ident">hpke_rs_crypto::error::Error::InsufficientRandomness</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">HpkeError::InsufficientRandomness</span>
