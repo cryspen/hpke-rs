@@ -1,0 +1,12 @@
+{
+  "name": "hpke",
+  "version": "0.1.0",
+  "files": [
+    "hpke_bg.wasm",
+    "hpke.js",
+    "hpke.d.ts"
+  ],
+  "module": "hpke.js",
+  "types": "hpke.d.ts",
+  "sideEffects": false
+}
