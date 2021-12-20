@@ -106,7 +106,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">PublicKey</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">ciphersuite</span>(<span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">ciphersuite</span>(<span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="ident">util::concat</span>(<span class="kw-2">&amp;</span>[<span class="string">b&quot;KEM&quot;</span>, <span class="kw-2">&amp;</span>(<span class="ident">alg</span> <span class="kw">as</span> <span class="ident">u16</span>).<span class="ident">to_be_bytes</span>()])
 }
 
@@ -114,13 +114,13 @@
     <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
     <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
         <span class="ident">KemAlgorithm::DhKemP256</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; {
             <span class="ident">dh_kem::encaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>), <span class="ident">randomness</span>)
         }
     }
@@ -130,13 +130,13 @@
     <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
     <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
         <span class="ident">KemAlgorithm::DhKemP256</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dh_kem::decaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>)),
+        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; <span class="ident">dh_kem::decaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>)),
     }
 }
 
@@ -145,13 +145,13 @@
     <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">sk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
         <span class="ident">KemAlgorithm::DhKemP256</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; {
             <span class="ident">dh_kem::auth_encaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="ident">sk_s</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>), <span class="ident">randomness</span>)
         }
     }
@@ -162,13 +162,13 @@
     <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">pk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
         <span class="ident">KemAlgorithm::DhKemP256</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; {
             <span class="ident">dh_kem::auth_decaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="ident">pk_s</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>))
         }
     }
@@ -177,13 +177,13 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">key_gen</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
     <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
     <span class="ident">prng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Crypto::HpkePrng</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">alg</span> {
         <span class="ident">KemAlgorithm::DhKemP256</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
         <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dh_kem::key_gen</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">prng</span>),
+        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; <span class="ident">dh_kem::key_gen</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">prng</span>),
     }
 }
 
@@ -193,7 +193,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">derive_key_pair</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
     <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
     <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="ident">dh_kem::derive_key_pair</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>), <span class="ident">ikm</span>)
 }
 </code></pre></div>

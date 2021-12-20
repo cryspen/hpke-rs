@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["hpke_rs"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.56.1/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"hpke_rs/enum.Mode.html\" title=\"enum hpke_rs::Mode\">Mode</a>","synthetic":false,"types":["hpke_rs::Mode"]}];
+implementors["hpke_rs"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.57.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"hpke_rs/enum.Mode.html\" title=\"enum hpke_rs::Mode\">Mode</a>","synthetic":false,"types":["hpke_rs::Mode"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

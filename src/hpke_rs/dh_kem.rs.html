@@ -190,7 +190,7 @@
     <span class="ident">pk</span>: <span class="ident">PublicKey</span>,
     <span class="ident">kem_context</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">prk</span> <span class="op">=</span> <span class="ident">labeled_extract</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>.<span class="ident">into</span>(), <span class="kw-2">&amp;</span>[], <span class="ident">suite_id</span>, <span class="string">&quot;eae_prk&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pk</span>);
     <span class="ident">labeled_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(
         <span class="ident">alg</span>.<span class="ident">into</span>(),
@@ -207,19 +207,19 @@
 <span class="doccomment">/// Because P256 public keys are already encoded before it is the identity</span>
 <span class="doccomment">/// function here as well.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">serialize</span>(<span class="ident">pk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">serialize</span>(<span class="ident">pk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="ident">pk</span>.<span class="ident">to_vec</span>()
 }
 
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
     <span class="ident">enc</span>.<span class="ident">to_vec</span>()
 }
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">key_gen</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
     <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
     <span class="ident">prng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Crypto::HpkePrng</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="ident">Crypto::kem_key_gen</span>(<span class="ident">alg</span>, <span class="ident">prng</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pk</span> <span class="op">=</span> <span class="ident">Crypto::kem_derive_base</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">sk</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((<span class="ident">sk</span>, <span class="ident">pk</span>))
@@ -229,11 +229,11 @@
     <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
     <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">dkp_prk</span> <span class="op">=</span> <span class="ident">labeled_extract</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>.<span class="ident">into</span>(), <span class="kw-2">&amp;</span>[], <span class="ident">suite_id</span>, <span class="string">&quot;dkp_prk&quot;</span>, <span class="ident">ikm</span>);
 
     <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKem25519</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">labeled_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(
+        <span class="ident">KemAlgorithm::DhKem25519</span> =&gt; <span class="ident">labeled_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(
             <span class="ident">alg</span>.<span class="ident">into</span>(),
             <span class="kw-2">&amp;</span><span class="ident">dkp_prk</span>,
             <span class="ident">suite_id</span>,
@@ -241,7 +241,7 @@
             <span class="kw-2">&amp;</span>[],
             <span class="ident">alg</span>.<span class="ident">private_key_len</span>(),
         )<span class="question-mark">?</span>,
-        <span class="ident">KemAlgorithm::DhKemP256</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">KemAlgorithm::DhKemP256</span> =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctr</span> <span class="op">=</span> <span class="number">0u8</span>;
             <span class="comment">// Do rejection sampling trying to find a valid key.</span>
             <span class="comment">// It is expected that there aren&#39;t too many iteration and that</span>
@@ -260,7 +260,7 @@
                         <span class="kw">break</span> <span class="ident">sk</span>;
                     }
                 }
-                <span class="kw">if</span> <span class="ident">ctr</span> <span class="op">=</span><span class="op">=</span> <span class="ident">u8::MAX</span> {
+                <span class="kw">if</span> <span class="ident">ctr</span> <span class="op">==</span> <span class="ident">u8::MAX</span> {
                     <span class="comment">// If we get here we lost. This should never happen.</span>
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::CryptoLibraryError</span>(
                         <span class="string">&quot;Unable to generate a valid P256 private key&quot;</span>.<span class="ident">to_string</span>(),
@@ -269,7 +269,7 @@
                 <span class="ident">ctr</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">_</span> =&gt; {
             <span class="macro">panic!</span>(<span class="string">&quot;This should be unreachable. Only x25519 and P256 KEMs are implemented&quot;</span>)
         }
     };
@@ -281,7 +281,7 @@
     <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="macro">debug_assert_eq!</span>(<span class="ident">randomness</span>.<span class="ident">len</span>(), <span class="ident">alg</span>.<span class="ident">private_key_len</span>());
     <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="ident">derive_key_pair</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">suite_id</span>, <span class="ident">randomness</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="kw-2">&amp;</span><span class="ident">sk_e</span>)<span class="question-mark">?</span>;
@@ -299,7 +299,7 @@
     <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">pk_e</span> <span class="op">=</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>);
     <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">pk_e</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>;
 
@@ -315,7 +315,7 @@
     <span class="ident">sk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="macro">debug_assert_eq!</span>(<span class="ident">randomness</span>.<span class="ident">len</span>(), <span class="ident">alg</span>.<span class="ident">private_key_len</span>());
     <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="ident">derive_key_pair</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">suite_id</span>, <span class="ident">randomness</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[
@@ -339,7 +339,7 @@
     <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">pk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">pk_e</span> <span class="op">=</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>);
     <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[
         <span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">pk_e</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>,
