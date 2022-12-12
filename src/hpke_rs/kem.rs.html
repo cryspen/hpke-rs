@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/kem.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>kem.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hpke_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/kem.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>kem.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hpke_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -103,105 +97,104 @@
 <span id="97">97</span>
 <span id="98">98</span>
 <span id="99">99</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">hpke_rs_crypto</span>::{<span class="ident">error::Error</span>, <span class="ident">types::KemAlgorithm</span>, <span class="ident">HpkeCrypto</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>hpke_rs_crypto::{error::Error, types::KemAlgorithm, HpkeCrypto};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::dh_kem</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util</span>;
+<span class="kw">use </span><span class="kw">crate</span>::dh_kem;
+<span class="kw">use </span><span class="kw">crate</span>::util;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">PrivateKey</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">PublicKey</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>PrivateKey = Vec&lt;u8&gt;;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>PublicKey = Vec&lt;u8&gt;;
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">ciphersuite</span>(<span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="ident">util::concat</span>(<span class="kw-2">&amp;</span>[<span class="string">b&quot;KEM&quot;</span>, <span class="kw-2">&amp;</span>(<span class="ident">alg</span> <span class="kw">as</span> <span class="ident">u16</span>).<span class="ident">to_be_bytes</span>()])
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>ciphersuite(alg: KemAlgorithm) -&gt; Vec&lt;u8&gt; {
+    util::concat(<span class="kw-2">&amp;</span>[<span class="string">b&quot;KEM&quot;</span>, <span class="kw-2">&amp;</span>(alg <span class="kw">as </span>u16).to_be_bytes()])
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">encaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKemP256</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; {
-            <span class="ident">dh_kem::encaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>), <span class="ident">randomness</span>)
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    pk_r: <span class="kw-2">&amp;</span>[u8],
+    randomness: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
+    <span class="kw">match </span>alg {
+        KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemP384
+        | KemAlgorithm::DhKemP521
+        | KemAlgorithm::DhKem25519
+        | KemAlgorithm::DhKem448 =&gt; {
+            dh_kem::encaps::&lt;Crypto&gt;(alg, pk_r, <span class="kw-2">&amp;</span>ciphersuite(alg), randomness)
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">decaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKemP256</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; <span class="ident">dh_kem::decaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>)),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    enc: <span class="kw-2">&amp;</span>[u8],
+    sk_r: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+    <span class="kw">match </span>alg {
+        KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemP384
+        | KemAlgorithm::DhKemP521
+        | KemAlgorithm::DhKem25519
+        | KemAlgorithm::DhKem448 =&gt; dh_kem::decaps::&lt;Crypto&gt;(alg, enc, sk_r, <span class="kw-2">&amp;</span>ciphersuite(alg)),
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">auth_encaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">sk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKemP256</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; {
-            <span class="ident">dh_kem::auth_encaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="ident">sk_s</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>), <span class="ident">randomness</span>)
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>auth_encaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    pk_r: <span class="kw-2">&amp;</span>[u8],
+    sk_s: <span class="kw-2">&amp;</span>[u8],
+    randomness: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
+    <span class="kw">match </span>alg {
+        KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemP384
+        | KemAlgorithm::DhKemP521
+        | KemAlgorithm::DhKem25519
+        | KemAlgorithm::DhKem448 =&gt; {
+            dh_kem::auth_encaps::&lt;Crypto&gt;(alg, pk_r, sk_s, <span class="kw-2">&amp;</span>ciphersuite(alg), randomness)
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">auth_decaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">pk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKemP256</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; {
-            <span class="ident">dh_kem::auth_decaps</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">enc</span>, <span class="ident">sk_r</span>, <span class="ident">pk_s</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>))
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>auth_decaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    enc: <span class="kw-2">&amp;</span>[u8],
+    sk_r: <span class="kw-2">&amp;</span>[u8],
+    pk_s: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+    <span class="kw">match </span>alg {
+        KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemP384
+        | KemAlgorithm::DhKemP521
+        | KemAlgorithm::DhKem25519
+        | KemAlgorithm::DhKem448 =&gt; {
+            dh_kem::auth_decaps::&lt;Crypto&gt;(alg, enc, sk_r, pk_s, <span class="kw-2">&amp;</span>ciphersuite(alg))
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">key_gen</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">prng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Crypto::HpkePrng</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKemP256</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP384</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKemP521</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem25519</span>
-        <span class="op">|</span> <span class="ident">KemAlgorithm::DhKem448</span> =&gt; <span class="ident">dh_kem::key_gen</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">prng</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>key_gen&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    prng: <span class="kw-2">&amp;mut </span>Crypto::HpkePrng,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
+    <span class="kw">match </span>alg {
+        KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemP384
+        | KemAlgorithm::DhKemP521
+        | KemAlgorithm::DhKem25519
+        | KemAlgorithm::DhKem448 =&gt; dh_kem::key_gen::&lt;Crypto&gt;(alg, prng),
     }
 }
 
-<span class="doccomment">/// Derive key pair from the input key material `ikm`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns (PublicKey, PrivateKey).</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">derive_key_pair</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="ident">dh_kem::derive_key_pair</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">ciphersuite</span>(<span class="ident">alg</span>), <span class="ident">ikm</span>)
+<span class="doccomment">/// Derive key pair from the input key material `ikm`.
+///
+/// Returns (PublicKey, PrivateKey).
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>derive_key_pair&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    ikm: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(PublicKey, PrivateKey), Error&gt; {
+    dh_kem::derive_key_pair::&lt;Crypto&gt;(alg, <span class="kw-2">&amp;</span>ciphersuite(alg), ikm)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["hpke_rs"] = [{"text":"impl Serialize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>","synthetic":false,"types":["hpke_rs::HpkePublicKey"]},{"text":"impl Serialize for &amp;<a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>","synthetic":false,"types":["hpke_rs::HpkePublicKey"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"hpke_rs":[["impl Serialize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>"],["impl Serialize for &amp;<a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

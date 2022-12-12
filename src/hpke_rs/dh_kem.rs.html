@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/dh_kem.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dh_kem.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hpke_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/dh_kem.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dh_kem.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hpke_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -181,183 +175,182 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
-</pre><pre class="rust"><code><span class="doccomment">//! DH KEM as described in §4.1. DH-Based KEM.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! DH KEM as described in §4.1. DH-Based KEM.
 
-<span class="kw">use</span> <span class="ident">hpke_rs_crypto</span>::{<span class="ident">error::Error</span>, <span class="ident">types::KemAlgorithm</span>, <span class="ident">HpkeCrypto</span>};
+</span><span class="kw">use </span>hpke_rs_crypto::{error::Error, types::KemAlgorithm, HpkeCrypto};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">kdf</span>::{<span class="ident">labeled_expand</span>, <span class="ident">labeled_extract</span>},
-    <span class="ident">kem</span>::<span class="kw-2">*</span>,
+<span class="kw">use </span><span class="kw">crate</span>::util::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{
+    kdf::{labeled_expand, labeled_extract},
+    kem::<span class="kw-2">*</span>,
 };
 
-<span class="kw">fn</span> <span class="ident">extract_and_expand</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">pk</span>: <span class="ident">PublicKey</span>,
-    <span class="ident">kem_context</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">prk</span> <span class="op">=</span> <span class="ident">labeled_extract</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>.<span class="ident">into</span>(), <span class="kw-2">&amp;</span>[], <span class="ident">suite_id</span>, <span class="string">&quot;eae_prk&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pk</span>);
-    <span class="ident">labeled_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(
-        <span class="ident">alg</span>.<span class="ident">into</span>(),
-        <span class="kw-2">&amp;</span><span class="ident">prk</span>,
-        <span class="ident">suite_id</span>,
+<span class="kw">fn </span>extract_and_expand&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    pk: PublicKey,
+    kem_context: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+    <span class="kw">let </span>prk = labeled_extract::&lt;Crypto&gt;(alg.into(), <span class="kw-2">&amp;</span>[], suite_id, <span class="string">&quot;eae_prk&quot;</span>, <span class="kw-2">&amp;</span>pk);
+    labeled_expand::&lt;Crypto&gt;(
+        alg.into(),
+        <span class="kw-2">&amp;</span>prk,
+        suite_id,
         <span class="string">&quot;shared_secret&quot;</span>,
-        <span class="ident">kem_context</span>,
-        <span class="ident">alg</span>.<span class="ident">shared_secret_len</span>(),
+        kem_context,
+        alg.shared_secret_len(),
     )
 }
 
-<span class="doccomment">/// Serialize public key.</span>
-<span class="doccomment">/// This is an identity function for X25519.</span>
-<span class="doccomment">/// Because P256 public keys are already encoded before it is the identity</span>
-<span class="doccomment">/// function here as well.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">serialize</span>(<span class="ident">pk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="ident">pk</span>.<span class="ident">to_vec</span>()
+<span class="doccomment">/// Serialize public key.
+/// This is an identity function for X25519.
+/// Because P256 public keys are already encoded before it is the identity
+/// function here as well.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>serialize(pk: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
+    pk.to_vec()
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="ident">enc</span>.<span class="ident">to_vec</span>()
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>deserialize(enc: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
+    enc.to_vec()
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">key_gen</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">prng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Crypto::HpkePrng</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="ident">Crypto::kem_key_gen</span>(<span class="ident">alg</span>, <span class="ident">prng</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pk</span> <span class="op">=</span> <span class="ident">Crypto::kem_derive_base</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">sk</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">sk</span>, <span class="ident">pk</span>))
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>key_gen&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    prng: <span class="kw-2">&amp;mut </span>Crypto::HpkePrng,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
+    <span class="kw">let </span>sk = Crypto::kem_key_gen(alg, prng)<span class="question-mark">?</span>;
+    <span class="kw">let </span>pk = Crypto::kem_derive_base(alg, <span class="kw-2">&amp;</span>sk)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((sk, pk))
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">derive_key_pair</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PublicKey</span>, <span class="ident">PrivateKey</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">dkp_prk</span> <span class="op">=</span> <span class="ident">labeled_extract</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>.<span class="ident">into</span>(), <span class="kw-2">&amp;</span>[], <span class="ident">suite_id</span>, <span class="string">&quot;dkp_prk&quot;</span>, <span class="ident">ikm</span>);
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>derive_key_pair&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+    ikm: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(PublicKey, PrivateKey), Error&gt; {
+    <span class="kw">let </span>dkp_prk = labeled_extract::&lt;Crypto&gt;(alg.into(), <span class="kw-2">&amp;</span>[], suite_id, <span class="string">&quot;dkp_prk&quot;</span>, ikm);
 
-    <span class="kw">let</span> <span class="ident">sk</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">alg</span> {
-        <span class="ident">KemAlgorithm::DhKem25519</span> =&gt; <span class="ident">labeled_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(
-            <span class="ident">alg</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">dkp_prk</span>,
-            <span class="ident">suite_id</span>,
+    <span class="kw">let </span>sk = <span class="kw">match </span>alg {
+        KemAlgorithm::DhKem25519 =&gt; labeled_expand::&lt;Crypto&gt;(
+            alg.into(),
+            <span class="kw-2">&amp;</span>dkp_prk,
+            suite_id,
             <span class="string">&quot;sk&quot;</span>,
             <span class="kw-2">&amp;</span>[],
-            <span class="ident">alg</span>.<span class="ident">private_key_len</span>(),
+            alg.private_key_len(),
         )<span class="question-mark">?</span>,
-        <span class="ident">KemAlgorithm::DhKemP256</span> =&gt; {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctr</span> <span class="op">=</span> <span class="number">0u8</span>;
-            <span class="comment">// Do rejection sampling trying to find a valid key.</span>
-            <span class="comment">// It is expected that there aren&#39;t too many iteration and that</span>
-            <span class="comment">// the loop will always terminate.</span>
-            <span class="kw">loop</span> {
-                <span class="kw">let</span> <span class="ident">candidate</span> <span class="op">=</span> <span class="ident">labeled_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(
-                    <span class="ident">alg</span>.<span class="ident">into</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">dkp_prk</span>,
-                    <span class="ident">suite_id</span>,
+        KemAlgorithm::DhKemP256 =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>ctr = <span class="number">0u8</span>;
+            <span class="comment">// Do rejection sampling trying to find a valid key.
+            // It is expected that there aren&#39;t too many iteration and that
+            // the loop will always terminate.
+            </span><span class="kw">loop </span>{
+                <span class="kw">let </span>candidate = labeled_expand::&lt;Crypto&gt;(
+                    alg.into(),
+                    <span class="kw-2">&amp;</span>dkp_prk,
+                    suite_id,
                     <span class="string">&quot;candidate&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">ctr</span>.<span class="ident">to_be_bytes</span>(),
-                    <span class="ident">alg</span>.<span class="ident">private_key_len</span>(),
+                    <span class="kw-2">&amp;</span>ctr.to_be_bytes(),
+                    alg.private_key_len(),
                 );
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">sk</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">candidate</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">sk</span>) <span class="op">=</span> <span class="ident">Crypto::kem_validate_sk</span>(<span class="ident">alg</span>, <span class="ident">sk</span>) {
-                        <span class="kw">break</span> <span class="ident">sk</span>;
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(sk) = <span class="kw-2">&amp;</span>candidate {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(sk) = Crypto::kem_validate_sk(alg, sk) {
+                        <span class="kw">break </span>sk;
                     }
                 }
-                <span class="kw">if</span> <span class="ident">ctr</span> <span class="op">==</span> <span class="ident">u8::MAX</span> {
-                    <span class="comment">// If we get here we lost. This should never happen.</span>
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::CryptoLibraryError</span>(
-                        <span class="string">&quot;Unable to generate a valid P256 private key&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="kw">if </span>ctr == u8::MAX {
+                    <span class="comment">// If we get here we lost. This should never happen.
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::CryptoLibraryError(
+                        <span class="string">&quot;Unable to generate a valid P256 private key&quot;</span>.to_string(),
                     ));
                 }
-                <span class="ident">ctr</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                ctr += <span class="number">1</span>;
             }
         }
-        <span class="kw">_</span> =&gt; {
+        <span class="kw">_ </span>=&gt; {
             <span class="macro">panic!</span>(<span class="string">&quot;This should be unreachable. Only x25519 and P256 KEMs are implemented&quot;</span>)
         }
     };
-    <span class="prelude-val">Ok</span>((<span class="ident">Crypto::kem_derive_base</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">sk</span>)<span class="question-mark">?</span>, <span class="ident">sk</span>))
+    <span class="prelude-val">Ok</span>((Crypto::kem_derive_base(alg, <span class="kw-2">&amp;</span>sk)<span class="question-mark">?</span>, sk))
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">encaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">randomness</span>.<span class="ident">len</span>(), <span class="ident">alg</span>.<span class="ident">private_key_len</span>());
-    <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="ident">derive_key_pair</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">suite_id</span>, <span class="ident">randomness</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="kw-2">&amp;</span><span class="ident">sk_e</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">pk_e</span>);
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>encaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    pk_r: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+    randomness: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
+    <span class="macro">debug_assert_eq!</span>(randomness.len(), alg.private_key_len());
+    <span class="kw">let </span>(pk_e, sk_e) = derive_key_pair::&lt;Crypto&gt;(alg, suite_id, randomness)<span class="question-mark">?</span>;
+    <span class="kw">let </span>dh_pk = Crypto::kem_derive(alg, pk_r, <span class="kw-2">&amp;</span>sk_e)<span class="question-mark">?</span>;
+    <span class="kw">let </span>enc = serialize(<span class="kw-2">&amp;</span>pk_e);
 
-    <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="ident">pk_r</span>);
-    <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>]);
+    <span class="kw">let </span>pk_rm = serialize(pk_r);
+    <span class="kw">let </span>kem_context = concat(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>enc, <span class="kw-2">&amp;</span>pk_rm]);
 
-    <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="ident">extract_and_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">zz</span>, <span class="ident">enc</span>))
+    <span class="kw">let </span>zz = extract_and_expand::&lt;Crypto&gt;(alg, dh_pk, <span class="kw-2">&amp;</span>kem_context, suite_id)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((zz, enc))
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">decaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">pk_e</span> <span class="op">=</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>);
-    <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">pk_e</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>decaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    enc: <span class="kw-2">&amp;</span>[u8],
+    sk_r: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+    <span class="kw">let </span>pk_e = deserialize(enc);
+    <span class="kw">let </span>dh_pk = Crypto::kem_derive(alg, <span class="kw-2">&amp;</span>pk_e, sk_r)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive_base</span>(<span class="ident">alg</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>);
-    <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>]);
+    <span class="kw">let </span>pk_rm = serialize(<span class="kw-2">&amp;</span>Crypto::kem_derive_base(alg, sk_r)<span class="question-mark">?</span>);
+    <span class="kw">let </span>kem_context = concat(<span class="kw-2">&amp;</span>[enc, <span class="kw-2">&amp;</span>pk_rm]);
 
-    <span class="ident">extract_and_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>)
+    extract_and_expand::&lt;Crypto&gt;(alg, dh_pk, <span class="kw-2">&amp;</span>kem_context, suite_id)
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">auth_encaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">pk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">sk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">randomness</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">randomness</span>.<span class="ident">len</span>(), <span class="ident">alg</span>.<span class="ident">private_key_len</span>());
-    <span class="kw">let</span> (<span class="ident">pk_e</span>, <span class="ident">sk_e</span>) <span class="op">=</span> <span class="ident">derive_key_pair</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">suite_id</span>, <span class="ident">randomness</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[
-        <span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="kw-2">&amp;</span><span class="ident">sk_e</span>)<span class="question-mark">?</span>,
-        <span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="ident">pk_r</span>, <span class="ident">sk_s</span>)<span class="question-mark">?</span>,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>auth_encaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    pk_r: <span class="kw-2">&amp;</span>[u8],
+    sk_s: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+    randomness: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
+    <span class="macro">debug_assert_eq!</span>(randomness.len(), alg.private_key_len());
+    <span class="kw">let </span>(pk_e, sk_e) = derive_key_pair::&lt;Crypto&gt;(alg, suite_id, randomness)<span class="question-mark">?</span>;
+    <span class="kw">let </span>dh_pk = concat(<span class="kw-2">&amp;</span>[
+        <span class="kw-2">&amp;</span>Crypto::kem_derive(alg, pk_r, <span class="kw-2">&amp;</span>sk_e)<span class="question-mark">?</span>,
+        <span class="kw-2">&amp;</span>Crypto::kem_derive(alg, pk_r, sk_s)<span class="question-mark">?</span>,
     ]);
 
-    <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">pk_e</span>);
-    <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="ident">pk_r</span>);
-    <span class="kw">let</span> <span class="ident">pk_sm</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive_base</span>(<span class="ident">alg</span>, <span class="ident">sk_s</span>)<span class="question-mark">?</span>);
+    <span class="kw">let </span>enc = serialize(<span class="kw-2">&amp;</span>pk_e);
+    <span class="kw">let </span>pk_rm = serialize(pk_r);
+    <span class="kw">let </span>pk_sm = serialize(<span class="kw-2">&amp;</span>Crypto::kem_derive_base(alg, sk_s)<span class="question-mark">?</span>);
 
-    <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>, <span class="kw-2">&amp;</span><span class="ident">pk_sm</span>]);
+    <span class="kw">let </span>kem_context = concat(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>enc, <span class="kw-2">&amp;</span>pk_rm, <span class="kw-2">&amp;</span>pk_sm]);
 
-    <span class="kw">let</span> <span class="ident">zz</span> <span class="op">=</span> <span class="ident">extract_and_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">zz</span>, <span class="ident">enc</span>))
+    <span class="kw">let </span>zz = extract_and_expand::&lt;Crypto&gt;(alg, dh_pk, <span class="kw-2">&amp;</span>kem_context, suite_id)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((zz, enc))
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">auth_decaps</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KemAlgorithm</span>,
-    <span class="ident">enc</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">sk_r</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">pk_s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">pk_e</span> <span class="op">=</span> <span class="ident">deserialize</span>(<span class="ident">enc</span>);
-    <span class="kw">let</span> <span class="ident">dh_pk</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[
-        <span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="ident">pk_e</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>,
-        <span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive</span>(<span class="ident">alg</span>, <span class="ident">pk_s</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>auth_decaps&lt;Crypto: HpkeCrypto&gt;(
+    alg: KemAlgorithm,
+    enc: <span class="kw-2">&amp;</span>[u8],
+    sk_r: <span class="kw-2">&amp;</span>[u8],
+    pk_s: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+    <span class="kw">let </span>pk_e = deserialize(enc);
+    <span class="kw">let </span>dh_pk = concat(<span class="kw-2">&amp;</span>[
+        <span class="kw-2">&amp;</span>Crypto::kem_derive(alg, <span class="kw-2">&amp;</span>pk_e, sk_r)<span class="question-mark">?</span>,
+        <span class="kw-2">&amp;</span>Crypto::kem_derive(alg, pk_s, sk_r)<span class="question-mark">?</span>,
     ]);
 
-    <span class="kw">let</span> <span class="ident">pk_rm</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">Crypto::kem_derive_base</span>(<span class="ident">alg</span>, <span class="ident">sk_r</span>)<span class="question-mark">?</span>);
-    <span class="kw">let</span> <span class="ident">pk_sm</span> <span class="op">=</span> <span class="ident">serialize</span>(<span class="ident">pk_s</span>);
-    <span class="kw">let</span> <span class="ident">kem_context</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="ident">enc</span>, <span class="kw-2">&amp;</span><span class="ident">pk_rm</span>, <span class="kw-2">&amp;</span><span class="ident">pk_sm</span>]);
+    <span class="kw">let </span>pk_rm = serialize(<span class="kw-2">&amp;</span>Crypto::kem_derive_base(alg, sk_r)<span class="question-mark">?</span>);
+    <span class="kw">let </span>pk_sm = serialize(pk_s);
+    <span class="kw">let </span>kem_context = concat(<span class="kw-2">&amp;</span>[enc, <span class="kw-2">&amp;</span>pk_rm, <span class="kw-2">&amp;</span>pk_sm]);
 
-    <span class="ident">extract_and_expand</span>::<span class="op">&lt;</span><span class="ident">Crypto</span><span class="op">&gt;</span>(<span class="ident">alg</span>, <span class="ident">dh_pk</span>, <span class="kw-2">&amp;</span><span class="ident">kem_context</span>, <span class="ident">suite_id</span>)
+    extract_and_expand::&lt;Crypto&gt;(alg, dh_pk, <span class="kw-2">&amp;</span>kem_context, suite_id)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

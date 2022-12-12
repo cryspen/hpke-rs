@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["hpke_rs"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"hpke_rs/struct.HpkePrivateKey.html\" title=\"struct hpke_rs::HpkePrivateKey\">HpkePrivateKey</a>","synthetic":false,"types":["hpke_rs::HpkePrivateKey"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"hpke_rs":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.65.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"hpke_rs/struct.HpkePrivateKey.html\" title=\"struct hpke_rs::HpkePrivateKey\">HpkePrivateKey</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

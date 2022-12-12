@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["hpke_rs"] = [{"text":"impl Zeroize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePrivateKey.html\" title=\"struct hpke_rs::HpkePrivateKey\">HpkePrivateKey</a>","synthetic":false,"types":["hpke_rs::HpkePrivateKey"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"hpke_rs":[["impl Zeroize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePrivateKey.html\" title=\"struct hpke_rs::HpkePrivateKey\">HpkePrivateKey</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

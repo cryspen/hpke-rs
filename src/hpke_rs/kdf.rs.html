@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/kdf.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>kdf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hpke_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/kdf.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>kdf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../hpke_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hpke_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -34,36 +28,35 @@
 <span id="28">28</span>
 <span id="29">29</span>
 <span id="30">30</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">hpke_rs_crypto</span>::{<span class="ident">error::Error</span>, <span class="ident">types::KdfAlgorithm</span>, <span class="ident">HpkeCrypto</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>hpke_rs_crypto::{error::Error, types::KdfAlgorithm, HpkeCrypto};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::concat</span>;
+<span class="kw">use </span><span class="kw">crate</span>::util::concat;
 
-<span class="kw">const</span> <span class="ident">HPKE_VERSION</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;HPKE-v1&quot;</span>;
+<span class="kw">const </span>HPKE_VERSION: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;HPKE-v1&quot;</span>;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">labeled_extract</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KdfAlgorithm</span>,
-    <span class="ident">salt</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">ikm</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">labeled_ikm</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="ident">HPKE_VERSION</span>, <span class="ident">suite_id</span>, <span class="ident">label</span>.<span class="ident">as_bytes</span>(), <span class="ident">ikm</span>]);
-    <span class="ident">Crypto::kdf_extract</span>(<span class="ident">alg</span>, <span class="ident">salt</span>, <span class="kw-2">&amp;</span><span class="ident">labeled_ikm</span>)
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>labeled_extract&lt;Crypto: HpkeCrypto&gt;(
+    alg: KdfAlgorithm,
+    salt: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+    label: <span class="kw-2">&amp;</span>str,
+    ikm: <span class="kw-2">&amp;</span>[u8],
+) -&gt; Vec&lt;u8&gt; {
+    <span class="kw">let </span>labeled_ikm = concat(<span class="kw-2">&amp;</span>[HPKE_VERSION, suite_id, label.as_bytes(), ikm]);
+    Crypto::kdf_extract(alg, salt, <span class="kw-2">&amp;</span>labeled_ikm)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">labeled_expand</span><span class="op">&lt;</span><span class="ident">Crypto</span>: <span class="ident">HpkeCrypto</span><span class="op">&gt;</span>(
-    <span class="ident">alg</span>: <span class="ident">KdfAlgorithm</span>,
-    <span class="ident">prk</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">suite_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    <span class="ident">info</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">len</span>: <span class="ident">usize</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">len</span> <span class="op">&lt;</span> <span class="number">256</span>);
-    <span class="kw">let</span> <span class="ident">len_bytes</span> <span class="op">=</span> (<span class="ident">len</span> <span class="kw">as</span> <span class="ident">u16</span>).<span class="ident">to_be_bytes</span>();
-    <span class="kw">let</span> <span class="ident">labeled_info</span> <span class="op">=</span> <span class="ident">concat</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">len_bytes</span>, <span class="ident">HPKE_VERSION</span>, <span class="ident">suite_id</span>, <span class="ident">label</span>.<span class="ident">as_bytes</span>(), <span class="ident">info</span>]);
-    <span class="ident">Crypto::kdf_expand</span>(<span class="ident">alg</span>, <span class="ident">prk</span>, <span class="kw-2">&amp;</span><span class="ident">labeled_info</span>, <span class="ident">len</span>)
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>labeled_expand&lt;Crypto: HpkeCrypto&gt;(
+    alg: KdfAlgorithm,
+    prk: <span class="kw-2">&amp;</span>[u8],
+    suite_id: <span class="kw-2">&amp;</span>[u8],
+    label: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    info: <span class="kw-2">&amp;</span>[u8],
+    len: usize,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+    <span class="macro">debug_assert!</span>(len &lt; <span class="number">256</span>);
+    <span class="kw">let </span>len_bytes = (len <span class="kw">as </span>u16).to_be_bytes();
+    <span class="kw">let </span>labeled_info = concat(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>len_bytes, HPKE_VERSION, suite_id, label.as_bytes(), info]);
+    Crypto::kdf_expand(alg, prk, <span class="kw-2">&amp;</span>labeled_info, len)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hpke_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
