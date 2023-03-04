@@ -1,6 +1,6 @@
 [package]
 name = "hpke-rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Franziskus Kiefer <franziskuskiefer@gmail.com>"]
 edition = "2021"
 license = "MPL-2.0"
@@ -31,14 +31,11 @@ lazy_static = "1.4"
 rayon = "1.5"
 hpke-rs = { path = ".", features = ["hpke-test", "hazmat"] }
 hpke-rs-rust-crypto = { version = "0.1.1", path = "./rust_crypto_provider", features = ["deterministic-prng"] }
-hpke-rs-evercrypt = { version = "0.1.1", path = "./evercrypt_provider", features = ["deterministic-prng"] }
+# hpke-rs-evercrypt = { version = "0.1.1", path = "./evercrypt_provider", features = ["deterministic-prng"] }
 rand = { version = "0.8" }
 getrandom = { version = "0.2", features = ["js"] }
 pretty_env_logger = "0.4"
 criterion = { version = "0.4", features = ["html_reports"] }
-
-[patch.crates-io.tls_codec]
-git = "https://github.com/RustCrypto/formats.git"
 
 [[bench]]
 name = "bench"
