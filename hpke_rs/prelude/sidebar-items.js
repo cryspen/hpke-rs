@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["TryFrom","Simple and safe type conversions that may fail in a controlled way under some circumstances. It is the reciprocal of [`TryInto`]."]]};
+window.SIDEBAR_ITEMS = {"trait":["TryFrom"]};
