@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"hpke_rs":[["impl Serialize for &amp;<a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>"],["impl Serialize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>"]]
+"hpke_rs":[["impl Serialize for <a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>"],["impl Serialize for &amp;<a class=\"struct\" href=\"hpke_rs/struct.HpkePublicKey.html\" title=\"struct hpke_rs::HpkePublicKey\">HpkePublicKey</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
