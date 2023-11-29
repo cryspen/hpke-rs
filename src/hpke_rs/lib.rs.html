@@ -994,6 +994,14 @@
 <a href="#994" id="994">994</a>
 <a href="#995" id="995">995</a>
 <a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
 </pre></div><pre class="rust"><code><span class="attr">#![doc = <span class="macro">include_str!</span>(<span class="string">&quot;../Readme.md&quot;</span>)]
 #![forbid(unsafe_code, unused_must_use, unstable_features)]
 #![deny(
@@ -1004,8 +1012,18 @@
     unused_extern_crates,
     unused_qualifications
 )]
+#![cfg_attr(not(test), no_std)]
 
-</span><span class="kw">use </span>std::sync::RwLock;
+</span><span class="kw">extern crate </span>alloc;
+<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">extern crate </span>std;
+
+<span class="kw">use </span>alloc::{
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;hpke-test-prng&quot;</span>)]
 </span><span class="kw">use </span>hpke_rs_crypto::HpkeTestRng;
@@ -1075,15 +1093,13 @@
 
     <span class="doccomment">/// Unable to collect enough randomness.
     </span>InsufficientRandomness,
-
-    <span class="doccomment">/// A concurrency issue with an [`RwLock`].
-    </span>LockPoisoned,
 }
 
-<span class="kw">impl </span>std::error::Error <span class="kw">for </span>HpkeError {}
+<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>HpkeError {}
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>HpkeError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+<span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>HpkeError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;HPKE Error: {:?}&quot;</span>, <span class="self">self</span>)
     }
 }
@@ -1155,8 +1171,8 @@
     </span>AuthPsk = <span class="number">0x03</span>,
 }
 
-<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Mode {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+<span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>Mode {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
     }
 }
@@ -1198,8 +1214,8 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
-</span><span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; std::fmt::Debug <span class="kw">for </span>Context&lt;Crypto&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+</span><span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; core::fmt::Debug <span class="kw">for </span>Context&lt;Crypto&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(
             f,
             <span class="string">&quot;Context {{\n  key: {:?}\n  nonce: {:?}\n exporter_secret: {:?}\n seq no: {:?}\n}}&quot;</span>,
@@ -1209,8 +1225,8 @@
 }
 
 <span class="attr">#[cfg(not(feature = <span class="string">&quot;hazmat&quot;</span>))]
-</span><span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; std::fmt::Debug <span class="kw">for </span>Context&lt;Crypto&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+</span><span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; core::fmt::Debug <span class="kw">for </span>Context&lt;Crypto&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(
             f,
             <span class="string">&quot;Context {{\n  key: {:?}\n  nonce: {:?}\n exporter_secret: {:?}\n seq no: {:?}\n}}&quot;</span>,
@@ -1327,7 +1343,7 @@
     kem_id: KemAlgorithm,
     kdf_id: KdfAlgorithm,
     aead_id: AeadAlgorithm,
-    prng: RwLock&lt;Crypto::HpkePrng&gt;,
+    prng: Crypto::HpkePrng,
 }
 
 <span class="kw">impl</span>&lt;Crypto: <span class="lifetime">&#39;static </span>+ HpkeCrypto&gt; Clone <span class="kw">for </span>Hpke&lt;Crypto&gt; {
@@ -1337,13 +1353,13 @@
             kem_id: <span class="self">self</span>.kem_id,
             kdf_id: <span class="self">self</span>.kdf_id,
             aead_id: <span class="self">self</span>.aead_id,
-            prng: RwLock::new(Crypto::prng()),
+            prng: Crypto::prng(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; std::fmt::Display <span class="kw">for </span>Hpke&lt;Crypto&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+<span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; core::fmt::Display <span class="kw">for </span>Hpke&lt;Crypto&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(
             f,
             <span class="string">&quot;{}_{}_{}_{}&quot;</span>,
@@ -1368,7 +1384,7 @@
             kem_id,
             kdf_id,
             aead_id,
-            prng: RwLock::new(Crypto::prng()),
+            prng: Crypto::prng(),
         }
     }
 
@@ -1387,7 +1403,7 @@
     /// The encapsulated secret is returned together with the context.
     /// If the secret key is missing in an authenticated mode, an error is returned.
     </span><span class="kw">pub fn </span>setup_sender(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pk_r: <span class="kw-2">&amp;</span>HpkePublicKey,
         info: <span class="kw-2">&amp;</span>[u8],
         psk: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
@@ -1474,7 +1490,7 @@
     /// Returns the encapsulated secret and the ciphertext, or an error.
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>seal(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pk_r: <span class="kw-2">&amp;</span>HpkePublicKey,
         info: <span class="kw-2">&amp;</span>[u8],
         aad: <span class="kw-2">&amp;</span>[u8],
@@ -1530,7 +1546,7 @@
     /// exporter context and length.
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>send_export(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pk_r: <span class="kw-2">&amp;</span>HpkePublicKey,
         info: <span class="kw-2">&amp;</span>[u8],
         psk: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
@@ -1670,9 +1686,8 @@
     /// This is equivalent to `derive_key_pair(random_vector(sk.len()))`
     ///
     /// Returns an `HpkeKeyPair`.
-    </span><span class="kw">pub fn </span>generate_key_pair(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HpkeKeyPair, HpkeError&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>prng = <span class="self">self</span>.prng.write().map_err(|<span class="kw">_</span>| HpkeError::LockPoisoned)<span class="question-mark">?</span>;
-        <span class="kw">let </span>(sk, pk) = kem::key_gen::&lt;Crypto&gt;(<span class="self">self</span>.kem_id, <span class="kw-2">&amp;mut </span>prng)<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>generate_key_pair(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HpkeKeyPair, HpkeError&gt; {
+        <span class="kw">let </span>(sk, pk) = kem::key_gen::&lt;Crypto&gt;(<span class="self">self</span>.kem_id, <span class="kw-2">&amp;mut </span><span class="self">self</span>.prng)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(HpkeKeyPair::new(sk, pk))
     }
 
@@ -1686,8 +1701,8 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>random(<span class="kw-2">&amp;</span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, HpkeError&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>prng = <span class="self">self</span>.prng.write().map_err(|<span class="kw">_</span>| HpkeError::LockPoisoned)<span class="question-mark">?</span>;
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>random(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, HpkeError&gt; {
+        <span class="kw">let </span>prng = <span class="kw-2">&amp;mut </span><span class="self">self</span>.prng;
         <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="macro">vec!</span>[<span class="number">0u8</span>; len];
 
         <span class="attr">#[cfg(feature = <span class="string">&quot;hpke-test-prng&quot;</span>)]
@@ -1790,8 +1805,8 @@
 }
 
 <span class="attr">#[cfg(not(feature = <span class="string">&quot;hazmat&quot;</span>))]
-</span><span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>HpkePrivateKey {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+</span><span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>HpkePrivateKey {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
         f.debug_struct(<span class="string">&quot;HpkePrivateKey&quot;</span>)
             .field(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;</span>)
             .finish()
@@ -1799,8 +1814,8 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
-</span><span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>HpkePrivateKey {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+</span><span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>HpkePrivateKey {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
         f.debug_struct(<span class="string">&quot;HpkePrivateKey&quot;</span>)
             .field(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.value)
             .finish()
@@ -1887,14 +1902,15 @@
 <span class="doccomment">/// Test util module. Should be moved really.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;hpke-test&quot;</span>)]
 </span><span class="kw">pub mod </span>test_util {
+    <span class="kw">use </span>alloc::{format, string::String, vec, vec::Vec};
+
     <span class="kw">use </span><span class="kw">crate</span>::HpkeError;
     <span class="kw">use </span>hpke_rs_crypto::{HpkeCrypto, HpkeTestRng};
 
     <span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; <span class="kw">super</span>::Hpke&lt;Crypto&gt; {
         <span class="doccomment">/// Set PRNG state for testing.
-        </span><span class="kw">pub fn </span>seed(<span class="kw-2">&amp;</span><span class="self">self</span>, seed: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), HpkeError&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>prng = <span class="self">self</span>.prng.write().map_err(|<span class="kw">_</span>| HpkeError::LockPoisoned)<span class="question-mark">?</span>;
-            prng.seed(seed);
+        </span><span class="kw">pub fn </span>seed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), HpkeError&gt; {
+            <span class="self">self</span>.prng.seed(seed);
             <span class="prelude-val">Ok</span>(())
         }
     }

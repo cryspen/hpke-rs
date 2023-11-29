@@ -19,7 +19,11 @@
 <a href="#19" id="19">19</a>
 <a href="#20" id="20">20</a>
 <a href="#21" id="21">21</a>
-</pre></div><pre class="rust"><code><span class="attr">#[inline]
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
+
+<span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>concat(values: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8]]) -&gt; Vec&lt;u8&gt; {
     values.join(<span class="kw-2">&amp;</span>[][..])
 }

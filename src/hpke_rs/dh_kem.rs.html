@@ -175,9 +175,13 @@
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! DH KEM as described in §4.1. DH-Based KEM.
 
-</span><span class="kw">use </span>hpke_rs_crypto::{error::Error, types::KemAlgorithm, HpkeCrypto};
+</span><span class="kw">use </span>alloc::{string::ToString, vec::Vec};
+
+<span class="kw">use </span>hpke_rs_crypto::{error::Error, types::KemAlgorithm, HpkeCrypto};
 
 <span class="kw">use </span><span class="kw">crate</span>::util::<span class="kw-2">*</span>;
 <span class="kw">use crate</span>::{
