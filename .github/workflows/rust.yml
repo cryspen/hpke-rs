@@ -37,7 +37,7 @@ jobs:
     - name: Run tests all features
       run: cargo test --verbose --all-features
       # RC Provider
-    - name: Build Debug all features
+    - name: Build Debug RC provider all features
       working-directory: rust_crypto_provider
       run: cargo build --verbose --all-features
     # Apple Silicon
