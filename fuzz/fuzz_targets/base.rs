@@ -8,6 +8,7 @@ fuzz_target!(|data: &[u8]| {
     let mut hpke = Hpke::<hpke_rs_rust_crypto::HpkeRustCrypto>::new(
         HpkeMode::Base,
         KemAlgorithm::DhKemP256,
+        KemAlgorithm::DhKemK256,
         KdfAlgorithm::HkdfSha256,
         AeadAlgorithm::Aes128Gcm,
     );

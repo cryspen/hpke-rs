@@ -94,8 +94,36 @@ pub(super) fn derive_key_pair<Crypto: HpkeCrypto>(
                 ctr += 1;
             }
         }
+        KemAlgorithm::DhKemK256 => {
+            let mut ctr = 0u8;
+            // Do rejection sampling trying to find a valid key.
+            // It is expected that there aren't too many iteration and that
+            // the loop will always terminate.
+            loop {
+                let candidate = labeled_expand::<Crypto>(
+                    alg.into(),
+                    &dkp_prk,
+                    suite_id,
+                    "candidate",
+                    &ctr.to_be_bytes(),
+                    alg.private_key_len(),
+                );
+                if let Ok(sk) = &candidate {
+                    if let Ok(sk) = Crypto::kem_validate_sk(alg, sk) {
+                        break sk;
+                    }
+                }
+                if ctr == u8::MAX {
+                    // If we get here we lost. This should never happen.
+                    return Err(Error::CryptoLibraryError(
+                        "Unable to generate a valid K256 private key".to_string(),
+                    ));
+                }
+                ctr += 1;
+            }
+        }
         _ => {
-            panic!("This should be unreachable. Only x25519 and P256 KEMs are implemented")
+            panic!("This should be unreachable. Only x25519, P256, and K256 KEMs are implemented")
         }
     };
     Ok((Crypto::kem_derive_base(alg, &sk)?, sk))
