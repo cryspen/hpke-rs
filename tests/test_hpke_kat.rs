@@ -260,7 +260,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 #[test]
 fn test_kat() {
     let _ = pretty_env_logger::try_init();
-    let file = "tests/test_vectors.json";
+    let file = "tests/k256.json";
     let file = match File::open(file) {
         Ok(f) => f,
         Err(_) => panic!("Couldn't open file {}.", file),
