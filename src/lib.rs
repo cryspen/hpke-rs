@@ -523,7 +523,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
         psk_id: Option<&[u8]>,
         pk_s: Option<&HpkePublicKey>,
     ) -> Result<Plaintext, HpkeError> {
-        let mut context = self.setup_receiver(enc, sk_r, info, psk, psk_id, pk_s)?;
+        let mut context = self.setup_receiver(enc, sk_r, info, psk, psk_id, pk_s).unwrap();
         context.open(aad, ct)
     }
 

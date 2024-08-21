@@ -66,7 +66,7 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         let aead_id: AeadAlgorithm = test.aead_id.try_into().unwrap();
 
         if Crypto::supports_kem(kem_id).is_err() {
-            log::trace!(
+            println!(
                 " > KEM {:?} not implemented yet for {}",
                 kem_id,
                 Crypto::name()
@@ -75,7 +75,7 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         }
 
         if Crypto::supports_aead(aead_id).is_err() {
-            log::trace!(
+            println!(
                 " > AEAD {:?} not implemented yet for {}",
                 aead_id,
                 Crypto::name()
@@ -84,7 +84,7 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         }
 
         if Crypto::supports_kdf(kdf_id).is_err() {
-            log::trace!(
+            println!(
                 " > KDF {:?} not implemented yet for {}",
                 kdf_id,
                 Crypto::name()
@@ -92,12 +92,9 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             return;
         }
 
-        log::trace!(
+        println!(
             "Testing mode {:?} with ciphersuite {:?}_{:?}_{:?}",
-            mode,
-            kem_id,
-            kdf_id,
-            aead_id
+            mode, kem_id, kdf_id, aead_id
         );
 
         // Init HPKE with the given mode and ciphersuite.
@@ -145,7 +142,7 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
                 psk.unwrap_or_default(),
                 psk_id.unwrap_or_default(),
             )
-            .unwrap();
+            .unwrap_or_else(|err| panic!("key schedule failed with {ciphersuite_string}: {err}"));
 
         // Check setup info
         // Note that key and nonce are empty for exporter only key derivation.
@@ -163,22 +160,28 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         assert_eq!(pk_em, my_pk_e);
         if let (Some(sk_sm), Some(pk_sm)) = (sk_sm, pk_sm) {
             let (my_sk_s, my_pk_s) = hpke.derive_key_pair(&ikm_s).unwrap().into_keys();
-            assert_eq!(sk_sm, &my_sk_s);
-            assert_eq!(pk_sm, &my_pk_s);
+            assert_eq!(
+                sk_sm, &my_sk_s,
+                "derive key returned different sks for {ciphersuite_string}"
+            );
+            assert_eq!(
+                pk_sm, &my_pk_s,
+                "derive key returned different pks for {ciphersuite_string}"
+            );
         }
 
         // Setup KAT receiver.
         let kat_enc = hex_to_bytes(&test.enc);
         let mut receiver_context_kat = hpke
             .setup_receiver(&kat_enc, &sk_rm, &info, psk, psk_id, pk_sm)
-            .unwrap();
+            .unwrap_or_else(|err| panic!("setup_receiver failed for {ciphersuite_string}: {err}"));
 
         // Setup sender and receiver with KAT randomness.
         // We first have to inject the randomness (ikmE).
 
         #[cfg(feature = "prng")]
         {
-            log::trace!("Testing with known ikmE ...");
+            println!("Testing with known ikmE ...");
             let mut hpke_sender = Hpke::<Crypto>::new(mode, kem_id, kdf_id, aead_id);
             // This only works when seeding the PRNG with ikmE.
             hpke_sender.seed(&ikm_e).expect("Error injecting ikm_e");
@@ -221,7 +224,9 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 
             // Test context API self-test
             let ctxt_out = sender_context.seal(&aad, &ptxt).unwrap();
-            let ptxt_out = receiver_context.open(&aad, &ctxt_out).unwrap();
+            let ptxt_out = receiver_context
+                .open(&aad, &ctxt_out)
+                .unwrap_or_else(|err| panic!("open failed for {ciphersuite_string}: {err}"));
             assert_eq!(ptxt_out, ptxt);
 
             // Test single-shot API self-test
@@ -256,7 +261,6 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 }
 
 pub fn test_kat<Crypto: HpkeCrypto + 'static>() {
-    let _ = pretty_env_logger::try_init();
     let mut reader = TEST_JSON;
     let tests: Vec<HpkeTestVector> = match serde_json::from_reader(&mut reader) {
         Ok(r) => r,
