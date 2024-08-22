@@ -1,7 +1,12 @@
 [package]
 name = "hpke-rs-tests"
 version = "0.1.0"
+authors = [ "Cryspen" ]
 edition = "2021"
+license = "MPL-2.0"
+readme = "Readme.md"
+description = "Tests for crypto providers"
+repository = "https://github.com/franziskuskiefer/hpke-rs"
 
 [dependencies]
 hpke-rs = { version = "0.2.0", features = [
