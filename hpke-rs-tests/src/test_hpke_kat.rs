@@ -65,6 +65,8 @@ pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         let kdf_id: KdfAlgorithm = test.kdf_id.try_into().unwrap();
         let aead_id: AeadAlgorithm = test.aead_id.try_into().unwrap();
 
+        let ciphersuite_string = format!("{mode}/{kem_id}/{kdf_id}/{aead_id}");
+
         if Crypto::supports_kem(kem_id).is_err() {
             println!(
                 " > KEM {:?} not implemented yet for {}",
