@@ -166,9 +166,6 @@ pub(super) fn auth_decaps<Crypto: HpkeCrypto>(
     suite_id: &[u8],
 ) -> Result<Vec<u8>, Error> {
     let pk_e = deserialize(enc);
-    std::println!("alg:  {alg:?}");
-    std::println!("pk_e: {pk_e:?}");
-    std::println!("pk_s: {pk_s:?}");
     let dh_pk = concat(&[
         &Crypto::kem_derive(alg, &pk_e, sk_r).unwrap(),
         &Crypto::kem_derive(alg, pk_s, sk_r).unwrap(),
