@@ -167,11 +167,11 @@ pub(super) fn auth_decaps<Crypto: HpkeCrypto>(
 ) -> Result<Vec<u8>, Error> {
     let pk_e = deserialize(enc);
     let dh_pk = concat(&[
-        &Crypto::kem_derive(alg, &pk_e, sk_r).unwrap(),
-        &Crypto::kem_derive(alg, pk_s, sk_r).unwrap(),
+        &Crypto::kem_derive(alg, &pk_e, sk_r)?,
+        &Crypto::kem_derive(alg, pk_s, sk_r)?,
     ]);
 
-    let pk_rm = serialize(&Crypto::kem_derive_base(alg, sk_r).unwrap());
+    let pk_rm = serialize(&Crypto::kem_derive_base(alg, sk_r)?);
     let pk_sm = serialize(pk_s);
     let kem_context = concat(&[enc, &pk_rm, &pk_sm]);
 
