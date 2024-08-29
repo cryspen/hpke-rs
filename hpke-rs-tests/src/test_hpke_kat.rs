@@ -272,12 +272,11 @@ pub fn test_kat<Crypto: HpkeCrypto + 'static>() {
     let now = Instant::now();
     kat::<Crypto>(tests.clone());
     let time = now.elapsed();
-    log::info!("Test vectors with Rust Crypto took: {}s", time.as_secs());
-
-    // let now = Instant::now();
-    // kat::<HpkeEvercrypt>(tests);
-    // let time = now.elapsed();
-    // log::info!("Test vectors with Evercrypt took: {}s", time.as_secs());
+    log::info!(
+        "Test vectors with {} took: {}s",
+        Crypto::name(),
+        time.as_secs()
+    );
 }
 
 #[macro_export]

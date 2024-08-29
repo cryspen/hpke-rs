@@ -22,7 +22,7 @@ std = []
 serialization = ["serde", "tls_codec", "tls_codec/serde", "std"]
 hazmat = []
 hpke-test = ["std"]
-hpke-test-prng = []                                                     # ⚠️ Enable testing PRNG - DO NOT USE
+hpke-test-prng = []                                              # ⚠️ Enable testing PRNG - DO NOT USE
 
 [dev-dependencies]
 hpke-rs-crypto = { version = "0.2.0", path = "./traits", features = ["std"] }
@@ -38,6 +38,7 @@ hpke-rs-rust-crypto = { version = "0.2.0", path = "./rust_crypto_provider", feat
 rand = { version = "0.8" }
 pretty_env_logger = "0.5"
 criterion = { version = "0.5", features = ["html_reports"] }
+hpke-rs-tests = { path = "./hpke-rs-tests", version = "*" }
 
 [[bench]]
 name = "bench"
