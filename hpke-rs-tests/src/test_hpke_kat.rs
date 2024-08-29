@@ -1,21 +1,19 @@
-extern crate hpke_rs as hpke;
-
-// use hpke_rs_evercrypt::HpkeEvercrypt;
-use hpke_rs_rust_crypto::HpkeRustCrypto;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use serde::{self, Deserialize, Serialize};
 use std::convert::TryInto;
-use std::fs::File;
-use std::io::BufReader;
 use std::time::Instant;
 
-use hpke::prelude::*;
-use hpke::test_util::{hex_to_bytes, hex_to_bytes_option, vec_to_option_slice};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use serde::{Deserialize, Serialize};
+
+use hpke_rs::prelude::{Hpke, HpkeMode, HpkePrivateKey, HpkePublicKey};
 use hpke_rs_crypto::{types::*, HpkeCrypto};
+
+use crate::util::{hex_to_bytes, hex_to_bytes_option, vec_to_option_slice};
+
+static TEST_JSON: &[u8] = include_bytes!("test_vectors.json");
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[allow(non_snake_case)]
-struct HpkeTestVector {
+pub struct HpkeTestVector {
     mode: u8,
     kem_id: u16,
     kdf_id: u16,
@@ -60,15 +58,17 @@ struct ExportsKAT {
     exported_value: String,
 }
 
-fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
+pub fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
     tests.into_par_iter().for_each(|test| {
         let mode: HpkeMode = test.mode.try_into().unwrap();
         let kem_id: KemAlgorithm = test.kem_id.try_into().unwrap();
         let kdf_id: KdfAlgorithm = test.kdf_id.try_into().unwrap();
         let aead_id: AeadAlgorithm = test.aead_id.try_into().unwrap();
 
+        let ciphersuite_string = format!("{mode}/{kem_id}/{kdf_id}/{aead_id}");
+
         if Crypto::supports_kem(kem_id).is_err() {
-            log::trace!(
+            println!(
                 " > KEM {:?} not implemented yet for {}",
                 kem_id,
                 Crypto::name()
@@ -77,7 +77,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         }
 
         if Crypto::supports_aead(aead_id).is_err() {
-            log::trace!(
+            println!(
                 " > AEAD {:?} not implemented yet for {}",
                 aead_id,
                 Crypto::name()
@@ -86,7 +86,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         }
 
         if Crypto::supports_kdf(kdf_id).is_err() {
-            log::trace!(
+            println!(
                 " > KDF {:?} not implemented yet for {}",
                 kdf_id,
                 Crypto::name()
@@ -94,12 +94,9 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             return;
         }
 
-        log::trace!(
+        println!(
             "Testing mode {:?} with ciphersuite {:?}_{:?}_{:?}",
-            mode,
-            kem_id,
-            kdf_id,
-            aead_id
+            mode, kem_id, kdf_id, aead_id
         );
 
         // Init HPKE with the given mode and ciphersuite.
@@ -147,7 +144,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
                 psk.unwrap_or_default(),
                 psk_id.unwrap_or_default(),
             )
-            .unwrap();
+            .unwrap_or_else(|err| panic!("key schedule failed with {ciphersuite_string}: {err}"));
 
         // Check setup info
         // Note that key and nonce are empty for exporter only key derivation.
@@ -165,22 +162,28 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         assert_eq!(pk_em, my_pk_e);
         if let (Some(sk_sm), Some(pk_sm)) = (sk_sm, pk_sm) {
             let (my_sk_s, my_pk_s) = hpke.derive_key_pair(&ikm_s).unwrap().into_keys();
-            assert_eq!(sk_sm, &my_sk_s);
-            assert_eq!(pk_sm, &my_pk_s);
+            assert_eq!(
+                sk_sm, &my_sk_s,
+                "derive key returned different sks for {ciphersuite_string}"
+            );
+            assert_eq!(
+                pk_sm, &my_pk_s,
+                "derive key returned different pks for {ciphersuite_string}"
+            );
         }
 
         // Setup KAT receiver.
         let kat_enc = hex_to_bytes(&test.enc);
         let mut receiver_context_kat = hpke
             .setup_receiver(&kat_enc, &sk_rm, &info, psk, psk_id, pk_sm)
-            .unwrap();
+            .unwrap_or_else(|err| panic!("setup_receiver failed for {ciphersuite_string}: {err}"));
 
         // Setup sender and receiver with KAT randomness.
         // We first have to inject the randomness (ikmE).
 
-        #[cfg(feature = "hpke-test-prng")]
+        #[cfg(feature = "prng")]
         {
-            log::trace!("Testing with known ikmE ...");
+            println!("Testing with known ikmE ...");
             let mut hpke_sender = Hpke::<Crypto>::new(mode, kem_id, kdf_id, aead_id);
             // This only works when seeding the PRNG with ikmE.
             hpke_sender.seed(&ikm_e).expect("Error injecting ikm_e");
@@ -223,7 +226,9 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 
             // Test context API self-test
             let ctxt_out = sender_context.seal(&aad, &ptxt).unwrap();
-            let ptxt_out = receiver_context.open(&aad, &ctxt_out).unwrap();
+            let ptxt_out = receiver_context
+                .open(&aad, &ctxt_out)
+                .unwrap_or_else(|err| panic!("open failed for {ciphersuite_string}: {err}"));
             assert_eq!(ptxt_out, ptxt);
 
             // Test single-shot API self-test
@@ -257,80 +262,78 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
     });
 }
 
-#[test]
-fn test_kat() {
-    let _ = pretty_env_logger::try_init();
-    let file = "tests/test_vectors.json";
-    let file = match File::open(file) {
-        Ok(f) => f,
-        Err(_) => panic!("Couldn't open file {}.", file),
-    };
-    let reader = BufReader::new(file);
-    let tests: Vec<HpkeTestVector> = match serde_json::from_reader(reader) {
+pub fn test_kat<Crypto: HpkeCrypto + 'static>() {
+    let mut reader = TEST_JSON;
+    let tests: Vec<HpkeTestVector> = match serde_json::from_reader(&mut reader) {
         Ok(r) => r,
         Err(e) => panic!("Error reading file.\n{:?}", e),
     };
 
     let now = Instant::now();
-    kat::<HpkeRustCrypto>(tests.clone());
+    kat::<Crypto>(tests.clone());
     let time = now.elapsed();
-    log::info!("Test vectors with Rust Crypto took: {}s", time.as_secs());
-
-    // let now = Instant::now();
-    // kat::<HpkeEvercrypt>(tests);
-    // let time = now.elapsed();
-    // log::info!("Test vectors with Evercrypt took: {}s", time.as_secs());
+    log::info!(
+        "Test vectors with {} took: {}s",
+        Crypto::name(),
+        time.as_secs()
+    );
 }
 
-#[cfg(feature = "serialization")]
-#[cfg(feature = "hazmat")]
-#[test]
-fn test_serialization() {
-    use hpke::HpkeKeyPair;
+#[macro_export]
+macro_rules! kat_fun {
+    ($provider:ty) => {
+        #[test]
+        fn test_kat() {
+            $crate::test_hpke_kat::test_kat::<$provider>();
+        }
 
-    // XXX: Make these individual tests.
-    for mode in 0u8..4 {
-        let hpke_mode = HpkeMode::try_from(mode).unwrap();
-        for aead_mode in 1u16..4 {
-            let aead_mode = AeadAlgorithm::try_from(aead_mode).unwrap();
-            for kdf_mode in 1u16..4 {
-                let kdf_mode = KdfAlgorithm::try_from(kdf_mode).unwrap();
-                for &kem_mode in &[0x10u16, 0x20] {
-                    let kem_mode = KemAlgorithm::try_from(kem_mode).unwrap();
+        #[test]
+        fn test_serialization() {
+            use $crate::hpke_rs::prelude::{
+                Hpke, HpkeKeyPair, HpkeMode, HpkePrivateKey, HpkePublicKey,
+            };
+            use $crate::hpke_rs_crypto::types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm};
+            use $crate::serde_json;
 
-                    let mut hpke =
-                        Hpke::<HpkeRustCrypto>::new(hpke_mode, kem_mode, kdf_mode, aead_mode);
+            // XXX: Make these individual tests.
+            for mode in 0u8..4 {
+                let hpke_mode = HpkeMode::try_from(mode).unwrap();
+                for aead_mode in 1u16..4 {
+                    let aead_mode = AeadAlgorithm::try_from(aead_mode).unwrap();
+                    for kdf_mode in 1u16..4 {
+                        let kdf_mode = KdfAlgorithm::try_from(kdf_mode).unwrap();
+                        for &kem_mode in &[0x10u16, 0x20] {
+                            let kem_mode = KemAlgorithm::try_from(kem_mode).unwrap();
 
-                    // JSON: Public, Private, KeyPair
-                    let key_pair = hpke.generate_key_pair().unwrap();
+                            let mut hpke =
+                                Hpke::<$provider>::new(hpke_mode, kem_mode, kdf_mode, aead_mode);
 
-                    let serialized_key_pair = serde_json::to_string(&key_pair).unwrap();
-                    let deserialized_key_pair: HpkeKeyPair =
-                        serde_json::from_str(&serialized_key_pair).unwrap();
+                            // JSON: Public, Private, KeyPair
+                            let key_pair = hpke.generate_key_pair().unwrap();
 
-                    let (sk, pk) = key_pair.into_keys();
+                            let serialized_key_pair = serde_json::to_string(&key_pair).unwrap();
+                            let deserialized_key_pair: HpkeKeyPair =
+                                serde_json::from_str(&serialized_key_pair).unwrap();
 
-                    let serialized_sk = serde_json::to_string(&sk).unwrap();
-                    let deserialized_sk: HpkePrivateKey =
-                        serde_json::from_str(&serialized_sk).unwrap();
-                    let serialized_pk = serde_json::to_string(&pk).unwrap();
-                    let deserialized_pk: HpkePublicKey =
-                        serde_json::from_str(&serialized_pk).unwrap();
+                            let (sk, pk) = key_pair.into_keys();
 
-                    let (des_sk, des_pk) = deserialized_key_pair.into_keys();
+                            let serialized_sk = serde_json::to_string(&sk).unwrap();
+                            let deserialized_sk: HpkePrivateKey =
+                                serde_json::from_str(&serialized_sk).unwrap();
+                            let serialized_pk = serde_json::to_string(&pk).unwrap();
+                            let deserialized_pk: HpkePublicKey =
+                                serde_json::from_str(&serialized_pk).unwrap();
 
-                    assert_eq!(pk, des_pk);
-                    assert_eq!(pk, deserialized_pk);
-                    assert_eq!(sk.as_slice(), des_sk.as_slice());
-                    assert_eq!(sk.as_slice(), deserialized_sk.as_slice());
+                            let (des_sk, des_pk) = deserialized_key_pair.into_keys();
+
+                            assert_eq!(pk, des_pk);
+                            assert_eq!(pk, deserialized_pk);
+                            assert_eq!(sk.as_slice(), des_sk.as_slice());
+                            assert_eq!(sk.as_slice(), deserialized_sk.as_slice());
+                        }
+                    }
                 }
             }
         }
-    }
-
-    // let mode: Mode = Mode::Base;
-    // let kem_id: kem::Mode = kem::Mode::DhKemP256;
-    // let kdf_id: kdf::Mode = kdf::Mode::HkdfSha256;
-    // let aead_id: aead::Mode = aead::Mode::AesGcm128;
-    // let hpke = Hpke::new(mode, kem_id, kdf_id, aead_id);
+    };
 }

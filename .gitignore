@@ -6,5 +6,6 @@ evercrypt_provider/target
 no-std-support-check/target
 rust_crypto_provider/target
 traits/target/
+hpke-rs-tests/target
 .DS_Store
 /.idea
