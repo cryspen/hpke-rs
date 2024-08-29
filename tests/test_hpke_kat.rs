@@ -2,7 +2,7 @@ extern crate hpke_rs as hpke;
 
 // use hpke_rs_evercrypt::HpkeEvercrypt;
 use hpke_rs_rust_crypto::HpkeRustCrypto;
-// use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use serde::{self, Deserialize, Serialize};
 use std::convert::TryInto;
 use std::fs::File;
@@ -62,8 +62,11 @@ struct ExportsKAT {
 
 fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
     // Replace into_par_iter() with into_iter() to run tests sequentially.
-    // tests.into_par_iter().for_each(|test| {
-    tests.into_iter().for_each(|test| {
+    tests.into_par_iter().for_each(|test| {
+        println!(
+            "Testing mode {:?} with ciphersuite {:?}_{:?}_{:?}",
+            test.mode, test.kem_id, test.kdf_id, test.aead_id
+        );
         let mode: HpkeMode = test.mode.try_into().unwrap();
         let kem_id: KemAlgorithm = test.kem_id.try_into().unwrap();
         let kdf_id: KdfAlgorithm = test.kdf_id.try_into().unwrap();
@@ -153,9 +156,9 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 
         // Check setup info
         // Note that key and nonce are empty for exporter only key derivation.
-        // assert_eq!(direct_ctx.key(), key);
-        // assert_eq!(direct_ctx.nonce(), nonce);
-        // assert_eq!(direct_ctx.exporter_secret(), exporter_secret);
+        assert_eq!(direct_ctx.key(), key);
+        assert_eq!(direct_ctx.nonce(), nonce);
+        assert_eq!(direct_ctx.exporter_secret(), exporter_secret);
         assert_eq!(direct_ctx.sequence_number(), 0);
 
         // Test key pair derivation.
@@ -274,7 +277,7 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 #[test]
 fn test_kat() {
     let _ = pretty_env_logger::try_init();
-    let file = "tests/test_vectors_k256.json";
+    let file = "tests/test_vectors.json";
     let file = match File::open(file) {
         Ok(f) => f,
         Err(_) => panic!("Couldn't open file {}.", file),
