@@ -277,26 +277,28 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
 #[test]
 fn test_kat() {
     let _ = pretty_env_logger::try_init();
-    let file = "tests/test_vectors.json";
-    let file = match File::open(file) {
-        Ok(f) => f,
-        Err(_) => panic!("Couldn't open file {}.", file),
-    };
-    let reader = BufReader::new(file);
-    let tests: Vec<HpkeTestVector> = match serde_json::from_reader(reader) {
-        Ok(r) => r,
-        Err(e) => panic!("Error reading file.\n{:?}", e),
-    };
+    let files = vec!["tests/test_vectors.json", "tests/test_vectors_k256.json"];
+    for file in files {
+        let file = match File::open(file) {
+            Ok(f) => f,
+            Err(_) => panic!("Couldn't open file {}.", file),
+        };
+        let reader = BufReader::new(file);
+        let tests: Vec<HpkeTestVector> = match serde_json::from_reader(reader) {
+            Ok(r) => r,
+            Err(e) => panic!("Error reading file.\n{:?}", e),
+        };
 
-    let now = Instant::now();
-    kat::<HpkeRustCrypto>(tests.clone());
-    let time = now.elapsed();
-    log::info!("Test vectors with Rust Crypto took: {}s", time.as_secs());
+        let now = Instant::now();
+        kat::<HpkeRustCrypto>(tests.clone());
+        let time = now.elapsed();
+        log::info!("Test vectors with Rust Crypto took: {}s", time.as_secs());
 
-    // let now = Instant::now();
-    // kat::<HpkeEvercrypt>(tests);
-    // let time = now.elapsed();
-    // log::info!("Test vectors with Evercrypt took: {}s", time.as_secs());
+        // let now = Instant::now();
+        // kat::<HpkeEvercrypt>(tests);
+        // let time = now.elapsed();
+        // log::info!("Test vectors with Evercrypt took: {}s", time.as_secs());
+    }
 }
 
 #[cfg(feature = "serialization")]
