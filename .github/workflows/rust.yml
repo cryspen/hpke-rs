@@ -17,6 +17,7 @@ jobs:
       matrix:
         os:
           - macos-13
+          - macos-latest
           - ubuntu-latest
           - windows-latest
 
