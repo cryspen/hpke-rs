@@ -44,9 +44,6 @@ jobs:
     # Apple Silicon
     - if: matrix.os == 'macos-13'
       run: |
-        brew install pkg-config
-        sudo rm -Rf /Library/Developer/CommandLineTools/SDKs/*
-        sudo xcode-select -s /Applications/Xcode_12.4.app
         rustup target install aarch64-apple-darwin
         rustup target install aarch64-apple-ios
     - name: Build
