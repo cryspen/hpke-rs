@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hpke_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hpke_rs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1002,7 +1002,7 @@
 <a href="#1002" id="1002">1002</a>
 <a href="#1003" id="1003">1003</a>
 <a href="#1004" id="1004">1004</a>
-</pre></div><pre class="rust"><code><span class="attr">#![doc = <span class="macro">include_str!</span>(<span class="string">&quot;../Readme.md&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#![doc = <span class="macro">include_str!</span>(<span class="string">"../Readme.md"</span>)]
 #![forbid(unsafe_code, unused_must_use, unstable_features)]
 #![deny(
     trivial_casts,
@@ -1015,7 +1015,7 @@
 #![cfg_attr(not(test), no_std)]
 
 </span><span class="kw">extern crate </span>alloc;
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="kw">use </span>alloc::{
@@ -1025,16 +1025,16 @@
     vec::Vec,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;hpke-test-prng&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hpke-test-prng"</span>)]
 </span><span class="kw">use </span>hpke_rs_crypto::HpkeTestRng;
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;hpke-test-prng&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"hpke-test-prng"</span>))]
 </span><span class="kw">use </span>hpke_rs_crypto::RngCore;
 <span class="kw">use </span>hpke_rs_crypto::{
     types::{AeadAlgorithm, KdfAlgorithm, KemAlgorithm},
     HpkeCrypto,
 };
 <span class="kw">use </span>prelude::kdf::{labeled_expand, labeled_extract};
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>zeroize::Zeroize;
 
@@ -1051,8 +1051,8 @@
 </span><span class="kw">mod </span>test_kdf;
 
 <span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.0.7&quot;</span>,
-    note = <span class="string">&quot;Please use HpkeError instead. This alias will be removed with the first stable  0.1 release.&quot;
+    since = <span class="string">"0.0.7"</span>,
+    note = <span class="string">"Please use HpkeError instead. This alias will be removed with the first stable  0.1 release."
 </span>)]
 #[allow(dead_code)]
 #[allow(clippy::upper_case_acronyms)]
@@ -1095,18 +1095,18 @@
     </span>InsufficientRandomness,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>HpkeError {}
 
 <span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>HpkeError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;HPKE Error: {:?}&quot;</span>, <span class="self">self</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"HPKE Error: {:?}"</span>, <span class="self">self</span>)
     }
 }
 
 <span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.0.7&quot;</span>,
-    note = <span class="string">&quot;Please use HpkePublicKey instead. This alias will be removed with the first stable  0.1 release.&quot;
+    since = <span class="string">"0.0.7"</span>,
+    note = <span class="string">"Please use HpkePublicKey instead. This alias will be removed with the first stable  0.1 release."
 </span>)]
 #[allow(clippy::upper_case_acronyms)]
 #[allow(missing_docs)]
@@ -1114,14 +1114,14 @@
 
 <span class="doccomment">/// An HPKE public key is a byte vector.
 </span><span class="attr">#[derive(Debug, PartialEq, Clone, Default)]
-#[cfg_attr(feature = <span class="string">&quot;serialization&quot;</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"serialization"</span>, derive(Serialize, Deserialize))]
 </span><span class="kw">pub struct </span>HpkePublicKey {
     value: Vec&lt;u8&gt;,
 }
 
 <span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.0.7&quot;</span>,
-    note = <span class="string">&quot;Please use HpkePrivateKey instead. This alias will be removed with the first stable  0.1 release.&quot;
+    since = <span class="string">"0.0.7"</span>,
+    note = <span class="string">"Please use HpkePrivateKey instead. This alias will be removed with the first stable  0.1 release."
 </span>)]
 #[allow(clippy::upper_case_acronyms)]
 #[allow(missing_docs)]
@@ -1130,15 +1130,15 @@
 <span class="doccomment">/// An HPKE private key is a byte vector.
 </span><span class="attr">#[derive(Default, Zeroize)]
 #[zeroize(drop)] </span><span class="comment">// XXX: Change to `ZeroizeOnDrop` when moving to 1.5
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serialization&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;hazmat&quot;</span>, derive(Clone))]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"serialization"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"hazmat"</span>, derive(Clone))]
 </span><span class="kw">pub struct </span>HpkePrivateKey {
     value: Vec&lt;u8&gt;,
 }
 
 <span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.0.7&quot;</span>,
-    note = <span class="string">&quot;Please use HpkeKeyPair instead. This alias will be removed with the first stable  0.1 release.&quot;
+    since = <span class="string">"0.0.7"</span>,
+    note = <span class="string">"Please use HpkeKeyPair instead. This alias will be removed with the first stable  0.1 release."
 </span>)]
 #[allow(clippy::upper_case_acronyms)]
 #[allow(missing_docs)]
@@ -1146,8 +1146,8 @@
 
 <span class="doccomment">/// An HPKE key pair has an HPKE private and public key.
 </span><span class="attr">#[derive(Debug, Default)]
-#[cfg_attr(feature = <span class="string">&quot;serialization&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;hazmat&quot;</span>, derive(Clone))]
+#[cfg_attr(feature = <span class="string">"serialization"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"hazmat"</span>, derive(Clone))]
 </span><span class="kw">pub struct </span>HpkeKeyPair {
     private_key: HpkePrivateKey,
     public_key: HpkePublicKey,
@@ -1155,7 +1155,7 @@
 
 <span class="doccomment">/// HPKE supports four modes.
 </span><span class="attr">#[derive(PartialEq, Copy, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serialization&quot;</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"serialization"</span>, derive(Serialize, Deserialize))]
 #[repr(u8)]
 </span><span class="kw">pub enum </span>Mode {
     <span class="doccomment">/// HPKE Base mode.
@@ -1173,7 +1173,7 @@
 
 <span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>Mode {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+        <span class="macro">write!</span>(f, <span class="string">"{:?}"</span>, <span class="self">self</span>)
     }
 }
 
@@ -1203,9 +1203,9 @@
 </span><span class="kw">type </span>Plaintext = Vec&lt;u8&gt;;
 
 <span class="doccomment">/// The HPKE context.
-/// Note that the RFC currently doesn&#39;t define this.
+/// Note that the RFC currently doesn't define this.
 /// Also see &lt;https://github.com/cfrg/draft-irtf-cfrg-hpke/issues/161&gt;.
-</span><span class="kw">pub struct </span>Context&lt;Crypto: <span class="lifetime">&#39;static </span>+ HpkeCrypto&gt; {
+</span><span class="kw">pub struct </span>Context&lt;Crypto: <span class="lifetime">'static </span>+ HpkeCrypto&gt; {
     key: Vec&lt;u8&gt;,
     nonce: Vec&lt;u8&gt;,
     exporter_secret: Vec&lt;u8&gt;,
@@ -1213,24 +1213,24 @@
     hpke: Hpke&lt;Crypto&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hazmat"</span>)]
 </span><span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; core::fmt::Debug <span class="kw">for </span>Context&lt;Crypto&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;Context {{\n  key: {:?}\n  nonce: {:?}\n exporter_secret: {:?}\n seq no: {:?}\n}}&quot;</span>,
+            <span class="string">"Context {{\n  key: {:?}\n  nonce: {:?}\n exporter_secret: {:?}\n seq no: {:?}\n}}"</span>,
             <span class="self">self</span>.key, <span class="self">self</span>.nonce, <span class="self">self</span>.exporter_secret, <span class="self">self</span>.sequence_number
         )
     }
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;hazmat&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"hazmat"</span>))]
 </span><span class="kw">impl</span>&lt;Crypto: HpkeCrypto&gt; core::fmt::Debug <span class="kw">for </span>Context&lt;Crypto&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;Context {{\n  key: {:?}\n  nonce: {:?}\n exporter_secret: {:?}\n seq no: {:?}\n}}&quot;</span>,
-            <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;
+            <span class="string">"Context {{\n  key: {:?}\n  nonce: {:?}\n exporter_secret: {:?}\n seq no: {:?}\n}}"</span>,
+            <span class="kw-2">&amp;</span><span class="string">"***"</span>, <span class="kw-2">&amp;</span><span class="string">"***"</span>, <span class="kw-2">&amp;</span><span class="string">"***"</span>, <span class="kw-2">&amp;</span><span class="string">"***"
         </span>)
     }
 }
@@ -1291,18 +1291,18 @@
     ///
     /// ```text
     /// def Context.Export(exporter_context, L):
-    ///  return LabeledExpand(self.exporter_secret, &quot;sec&quot;, exporter_context, L)
+    ///  return LabeledExpand(self.exporter_secret, "sec", exporter_context, L)
     ///```
     </span><span class="kw">pub fn </span>export(<span class="kw-2">&amp;</span><span class="self">self</span>, exporter_context: <span class="kw-2">&amp;</span>[u8], length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, HpkeError&gt; {
         labeled_expand::&lt;Crypto&gt;(
             <span class="self">self</span>.hpke.kdf_id,
             <span class="kw-2">&amp;</span><span class="self">self</span>.exporter_secret,
             <span class="kw-2">&amp;</span><span class="self">self</span>.hpke.ciphersuite(),
-            <span class="string">&quot;sec&quot;</span>,
+            <span class="string">"sec"</span>,
             exporter_context,
             length,
         )
-        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">&quot;Crypto error: {}&quot;</span>, e)))
+        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">"Crypto error: {}"</span>, e)))
     }
 
     <span class="doccomment">/// def Context&lt;ROLE&gt;.ComputeNonce(seq):
@@ -1338,7 +1338,7 @@
 ///
 /// Note that cloning does NOT clone the PRNG state.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Hpke&lt;Crypto: <span class="lifetime">&#39;static </span>+ HpkeCrypto&gt; {
+</span><span class="kw">pub struct </span>Hpke&lt;Crypto: <span class="lifetime">'static </span>+ HpkeCrypto&gt; {
     mode: Mode,
     kem_id: KemAlgorithm,
     kdf_id: KdfAlgorithm,
@@ -1346,7 +1346,7 @@
     prng: Crypto::HpkePrng,
 }
 
-<span class="kw">impl</span>&lt;Crypto: <span class="lifetime">&#39;static </span>+ HpkeCrypto&gt; Clone <span class="kw">for </span>Hpke&lt;Crypto&gt; {
+<span class="kw">impl</span>&lt;Crypto: <span class="lifetime">'static </span>+ HpkeCrypto&gt; Clone <span class="kw">for </span>Hpke&lt;Crypto&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             mode: <span class="self">self</span>.mode,
@@ -1362,7 +1362,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;{}_{}_{}_{}&quot;</span>,
+            <span class="string">"{}_{}_{}_{}"</span>,
             <span class="self">self</span>.mode.to_string().to_lowercase(),
             <span class="self">self</span>.kem_id.to_string().to_lowercase(),
             <span class="self">self</span>.kdf_id.to_string().to_lowercase(),
@@ -1398,7 +1398,7 @@
     /// **Note** that this API expects the public key to be encoded.
     /// This differs from the RFC.
     /// But the public keys will be present in encoded form rather than raw form
-    /// such that it doesn&#39;t make sense to deserialize before passing it in.
+    /// such that it doesn't make sense to deserialize before passing it in.
     ///
     /// The encapsulated secret is returned together with the context.
     /// If the secret key is missing in an authenticated mode, an error is returned.
@@ -1444,7 +1444,7 @@
     /// **Note** that this API expects the public key to be encoded.
     /// This differs from the RFC.
     /// But the public keys will be present in encoded form rather than raw form
-    /// such that it doesn&#39;t make sense to deserialize before passing it in.
+    /// such that it doesn't make sense to deserialize before passing it in.
     ///
     /// The context based on the decapsulated values and, if present, the PSK is
     /// returned.
@@ -1485,7 +1485,7 @@
     /// **Note** that this API expects the public key to be encoded.
     /// This differs from the RFC.
     /// But the public keys will be present in encoded form rather than raw form
-    /// such that it doesn&#39;t make sense to deserialize before passing it in.
+    /// such that it doesn't make sense to deserialize before passing it in.
     ///
     /// Returns the encapsulated secret and the ciphertext, or an error.
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
@@ -1512,7 +1512,7 @@
     /// **Note** that this API expects the public key to be encoded.
     /// This differs from the RFC.
     /// But the public keys will be present in encoded form rather than raw form
-    /// such that it doesn&#39;t make sense to deserialize before passing it in.
+    /// such that it doesn't make sense to deserialize before passing it in.
     ///
     /// Returns the decrypted plain text, or an error.
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
@@ -1540,7 +1540,7 @@
     /// **Note** that this API expects the public key to be encoded.
     /// This differs from the RFC.
     /// But the public keys will be present in encoded form rather than raw form
-    /// such that it doesn&#39;t make sense to deserialize before passing it in.
+    /// such that it doesn't make sense to deserialize before passing it in.
     ///
     /// Returns the encapsulated secret and the exporter secret for the given
     /// exporter context and length.
@@ -1568,7 +1568,7 @@
     /// **Note** that this API expects the public key to be encoded.
     /// This differs from the RFC.
     /// But the public keys will be present in encoded form rather than raw form
-    /// such that it doesn&#39;t make sense to deserialize before passing it in.
+    /// such that it doesn't make sense to deserialize before passing it in.
     ///
     /// Returns the exporter secret for the given exporter context and length.
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
@@ -1614,7 +1614,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>ciphersuite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
         util::concat(<span class="kw-2">&amp;</span>[
-            <span class="string">b&quot;HPKE&quot;</span>,
+            <span class="string">b"HPKE"</span>,
             <span class="kw-2">&amp;</span>(<span class="self">self</span>.kem_id <span class="kw">as </span>u16).to_be_bytes(),
             <span class="kw-2">&amp;</span>(<span class="self">self</span>.kdf_id <span class="kw">as </span>u16).to_be_bytes(),
             <span class="kw-2">&amp;</span>(<span class="self">self</span>.aead_id <span class="kw">as </span>u16).to_be_bytes(),
@@ -1624,8 +1624,8 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>key_schedule_context(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>[u8], psk_id: <span class="kw-2">&amp;</span>[u8], suite_id: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
         <span class="kw">let </span>psk_id_hash =
-            labeled_extract::&lt;Crypto&gt;(<span class="self">self</span>.kdf_id, <span class="kw-2">&amp;</span>[<span class="number">0</span>], suite_id, <span class="string">&quot;psk_id_hash&quot;</span>, psk_id);
-        <span class="kw">let </span>info_hash = labeled_extract::&lt;Crypto&gt;(<span class="self">self</span>.kdf_id, <span class="kw-2">&amp;</span>[<span class="number">0</span>], suite_id, <span class="string">&quot;info_hash&quot;</span>, info);
+            labeled_extract::&lt;Crypto&gt;(<span class="self">self</span>.kdf_id, <span class="kw-2">&amp;</span>[<span class="number">0</span>], suite_id, <span class="string">"psk_id_hash"</span>, psk_id);
+        <span class="kw">let </span>info_hash = labeled_extract::&lt;Crypto&gt;(<span class="self">self</span>.kdf_id, <span class="kw-2">&amp;</span>[<span class="number">0</span>], suite_id, <span class="string">"info_hash"</span>, info);
         util::concat(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[<span class="self">self</span>.mode <span class="kw">as </span>u8], <span class="kw-2">&amp;</span>psk_id_hash, <span class="kw-2">&amp;</span>info_hash])
     }
 
@@ -1642,35 +1642,35 @@
         <span class="kw">let </span>suite_id = <span class="self">self</span>.ciphersuite();
         <span class="kw">let </span>key_schedule_context = <span class="self">self</span>.key_schedule_context(info, psk_id, <span class="kw-2">&amp;</span>suite_id);
         <span class="kw">let </span>secret =
-            labeled_extract::&lt;Crypto&gt;(<span class="self">self</span>.kdf_id, shared_secret, <span class="kw-2">&amp;</span>suite_id, <span class="string">&quot;secret&quot;</span>, psk);
+            labeled_extract::&lt;Crypto&gt;(<span class="self">self</span>.kdf_id, shared_secret, <span class="kw-2">&amp;</span>suite_id, <span class="string">"secret"</span>, psk);
 
         <span class="kw">let </span>key = labeled_expand::&lt;Crypto&gt;(
             <span class="self">self</span>.kdf_id,
             <span class="kw-2">&amp;</span>secret,
             <span class="kw-2">&amp;</span>suite_id,
-            <span class="string">&quot;key&quot;</span>,
+            <span class="string">"key"</span>,
             <span class="kw-2">&amp;</span>key_schedule_context,
             Crypto::aead_key_length(<span class="self">self</span>.aead_id),
         )
-        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">&quot;Crypto error: {}&quot;</span>, e)))<span class="question-mark">?</span>;
+        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">"Crypto error: {}"</span>, e)))<span class="question-mark">?</span>;
         <span class="kw">let </span>base_nonce = labeled_expand::&lt;Crypto&gt;(
             <span class="self">self</span>.kdf_id,
             <span class="kw-2">&amp;</span>secret,
             <span class="kw-2">&amp;</span>suite_id,
-            <span class="string">&quot;base_nonce&quot;</span>,
+            <span class="string">"base_nonce"</span>,
             <span class="kw-2">&amp;</span>key_schedule_context,
             Crypto::aead_nonce_length(<span class="self">self</span>.aead_id),
         )
-        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">&quot;Crypto error: {}&quot;</span>, e)))<span class="question-mark">?</span>;
+        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">"Crypto error: {}"</span>, e)))<span class="question-mark">?</span>;
         <span class="kw">let </span>exporter_secret = labeled_expand::&lt;Crypto&gt;(
             <span class="self">self</span>.kdf_id,
             <span class="kw-2">&amp;</span>secret,
             <span class="kw-2">&amp;</span>suite_id,
-            <span class="string">&quot;exp&quot;</span>,
+            <span class="string">"exp"</span>,
             <span class="kw-2">&amp;</span>key_schedule_context,
             Crypto::kdf_digest_length(<span class="self">self</span>.kdf_id),
         )
-        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">&quot;Crypto error: {}&quot;</span>, e)))<span class="question-mark">?</span>;
+        .map_err(|e| HpkeError::CryptoError(<span class="macro">format!</span>(<span class="string">"Crypto error: {}"</span>, e)))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(Context {
             key,
@@ -1705,10 +1705,10 @@
         <span class="kw">let </span>prng = <span class="kw-2">&amp;mut </span><span class="self">self</span>.prng;
         <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="macro">vec!</span>[<span class="number">0u8</span>; len];
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;hpke-test-prng&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"hpke-test-prng"</span>)]
         </span>prng.try_fill_test_bytes(<span class="kw-2">&amp;mut </span>out)
             .map_err(|<span class="kw">_</span>| HpkeError::InsufficientRandomness)<span class="question-mark">?</span>;
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;hpke-test-prng&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"hpke-test-prng"</span>))]
         </span>prng.try_fill_bytes(<span class="kw-2">&amp;mut </span>out)
             .map_err(|<span class="kw">_</span>| HpkeError::InsufficientRandomness)<span class="question-mark">?</span>;
 
@@ -1770,7 +1770,7 @@
     }
 
     <span class="doccomment">/// Get the raw key as byte slice.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"hazmat"</span>)]
     </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.value
     }
@@ -1804,20 +1804,20 @@
     </span>}
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;hazmat&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"hazmat"</span>))]
 </span><span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>HpkePrivateKey {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;HpkePrivateKey&quot;</span>)
-            .field(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;***&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
+        f.debug_struct(<span class="string">"HpkePrivateKey"</span>)
+            .field(<span class="string">"value"</span>, <span class="kw-2">&amp;</span><span class="string">"***"</span>)
             .finish()
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hazmat"</span>)]
 </span><span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>HpkePrivateKey {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;HpkePrivateKey&quot;</span>)
-            .field(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.value)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
+        f.debug_struct(<span class="string">"HpkePrivateKey"</span>)
+            .field(<span class="string">"value"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.value)
             .finish()
     }
 }
@@ -1847,7 +1847,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">impl </span>tls_codec::Size <span class="kw">for </span>HpkePublicKey {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>tls_serialized_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
@@ -1855,7 +1855,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">impl </span>tls_codec::Serialize <span class="kw">for </span>HpkePublicKey {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>tls_serialize&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;usize, tls_codec::Error&gt; {
@@ -1863,7 +1863,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">impl </span>tls_codec::Size <span class="kw">for </span><span class="kw-2">&amp;</span>HpkePublicKey {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>tls_serialized_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
@@ -1871,7 +1871,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">impl </span>tls_codec::Serialize <span class="kw">for </span><span class="kw-2">&amp;</span>HpkePublicKey {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>tls_serialize&lt;W: std::io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;usize, tls_codec::Error&gt; {
@@ -1879,7 +1879,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">impl </span>tls_codec::Deserialize <span class="kw">for </span>HpkePublicKey {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>tls_deserialize&lt;R: std::io::Read&gt;(bytes: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, tls_codec::Error&gt; {
@@ -1889,18 +1889,18 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serialization&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serialization"</span>)]
 </span><span class="kw">impl </span>tls_codec::Deserialize <span class="kw">for </span><span class="kw-2">&amp;</span>HpkePublicKey {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>tls_deserialize&lt;R: std::io::Read&gt;(<span class="kw">_</span>: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, tls_codec::Error&gt; {
         <span class="prelude-val">Err</span>(tls_codec::Error::DecodingError(
-            <span class="string">&quot;Error trying to deserialize a reference.&quot;</span>.to_string(),
+            <span class="string">"Error trying to deserialize a reference."</span>.to_string(),
         ))
     }
 }
 
 <span class="doccomment">/// Test util module. Should be moved really.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;hpke-test&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"hpke-test"</span>)]
 </span><span class="kw">pub mod </span>test_util {
     <span class="kw">use </span>alloc::{format, string::String, vec, vec::Vec};
 
@@ -1942,7 +1942,7 @@
     </span><span class="kw">pub fn </span>bytes_to_hex(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>hex = String::new();
         <span class="kw">for </span><span class="kw-2">&amp;</span>b <span class="kw">in </span>bytes {
-            hex += <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:02X}&quot;</span>, b);
+            hex += <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:02X}"</span>, b);
         }
         hex
     }
@@ -1986,19 +1986,19 @@
             hpke_rs_crypto::error::Error::UnknownAeadAlgorithm =&gt; HpkeError::UnknownMode,
             hpke_rs_crypto::error::Error::CryptoLibraryError(s) =&gt; HpkeError::CryptoError(s),
             hpke_rs_crypto::error::Error::HpkeInvalidOutputLength =&gt; {
-                HpkeError::CryptoError(<span class="string">&quot;Invalid HPKE output length&quot;</span>.to_string())
+                HpkeError::CryptoError(<span class="string">"Invalid HPKE output length"</span>.to_string())
             }
             hpke_rs_crypto::error::Error::UnknownKdfAlgorithm =&gt; {
-                HpkeError::CryptoError(<span class="string">&quot;Unknown KDF algorithm.&quot;</span>.to_string())
+                HpkeError::CryptoError(<span class="string">"Unknown KDF algorithm."</span>.to_string())
             }
             hpke_rs_crypto::error::Error::KemInvalidSecretKey =&gt; {
-                HpkeError::CryptoError(<span class="string">&quot;Invalid KEM secret key&quot;</span>.to_string())
+                HpkeError::CryptoError(<span class="string">"Invalid KEM secret key"</span>.to_string())
             }
             hpke_rs_crypto::error::Error::KemInvalidPublicKey =&gt; {
-                HpkeError::CryptoError(<span class="string">&quot;Invalid KEM public key&quot;</span>.to_string())
+                HpkeError::CryptoError(<span class="string">"Invalid KEM public key"</span>.to_string())
             }
             hpke_rs_crypto::error::Error::UnknownKemAlgorithm =&gt; {
-                HpkeError::CryptoError(<span class="string">&quot;Unknown KEM algorithm&quot;</span>.to_string())
+                HpkeError::CryptoError(<span class="string">"Unknown KEM algorithm"</span>.to_string())
             }
             hpke_rs_crypto::error::Error::InsufficientRandomness =&gt; {
                 HpkeError::InsufficientRandomness
