@@ -245,7 +245,7 @@
             <span class="kw-2">&amp;</span>[],
             alg.private_key_len(),
         )<span class="question-mark">?</span>,
-        KemAlgorithm::DhKemP256 =&gt; {
+        KemAlgorithm::DhKemP256 | KemAlgorithm::DhKemK256 =&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>ctr = <span class="number">0u8</span>;
             <span class="comment">// Do rejection sampling trying to find a valid key.
             // It is expected that there aren't too many iteration and that
@@ -267,14 +267,14 @@
                 <span class="kw">if </span>ctr == u8::MAX {
                     <span class="comment">// If we get here we lost. This should never happen.
                     </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::CryptoLibraryError(
-                        <span class="string">"Unable to generate a valid P256 private key"</span>.to_string(),
+                        <span class="string">"Unable to generate a valid private key"</span>.to_string(),
                     ));
                 }
                 ctr += <span class="number">1</span>;
             }
         }
         <span class="kw">_ </span>=&gt; {
-            <span class="macro">panic!</span>(<span class="string">"This should be unreachable. Only x25519 and P256 KEMs are implemented"</span>)
+            <span class="macro">panic!</span>(<span class="string">"This should be unreachable. Only x25519, P256, and K256 KEMs are implemented"</span>)
         }
     };
     <span class="prelude-val">Ok</span>((Crypto::kem_derive_base(alg, <span class="kw-2">&amp;</span>sk)<span class="question-mark">?</span>, sk))

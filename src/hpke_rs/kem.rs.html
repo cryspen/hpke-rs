@@ -99,6 +99,11 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
 
 <span class="kw">use </span>hpke_rs_crypto::{error::Error, types::KemAlgorithm, HpkeCrypto};
@@ -121,6 +126,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
     <span class="kw">match </span>alg {
         KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemK256
         | KemAlgorithm::DhKemP384
         | KemAlgorithm::DhKemP521
         | KemAlgorithm::DhKem25519
@@ -137,6 +143,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
     <span class="kw">match </span>alg {
         KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemK256
         | KemAlgorithm::DhKemP384
         | KemAlgorithm::DhKemP521
         | KemAlgorithm::DhKem25519
@@ -152,6 +159,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
     <span class="kw">match </span>alg {
         KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemK256
         | KemAlgorithm::DhKemP384
         | KemAlgorithm::DhKemP521
         | KemAlgorithm::DhKem25519
@@ -169,6 +177,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
     <span class="kw">match </span>alg {
         KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemK256
         | KemAlgorithm::DhKemP384
         | KemAlgorithm::DhKemP521
         | KemAlgorithm::DhKem25519
@@ -184,6 +193,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;), Error&gt; {
     <span class="kw">match </span>alg {
         KemAlgorithm::DhKemP256
+        | KemAlgorithm::DhKemK256
         | KemAlgorithm::DhKemP384
         | KemAlgorithm::DhKemP521
         | KemAlgorithm::DhKem25519
