@@ -10,9 +10,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: dtolnay/rust-toolchain@master
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
+          components: rustc, rust-std, cargo, llvm-tools, llvm-tools-preview
       - uses: baptiste0928/cargo-install@v3
         with:
           crate: grcov
