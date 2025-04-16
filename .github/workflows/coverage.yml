@@ -13,6 +13,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
+      - uses: baptiste0928/cargo-install@v3
+        with:
+          crate: grcov
       - uses: Swatinem/rust-cache@v2
       - name: Run profiling tests
         run: |
