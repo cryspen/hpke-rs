@@ -21,11 +21,10 @@ fn test_aes_gcm_128_self() {
         HpkeRustCrypto::aead_open(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, &ctxt).unwrap();
     assert_eq!(&ptxt, msg);
 
-    // assert error on Libcrux provider
-    HpkeLibcrux::aead_seal(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, msg)
-        .expect_err("Unsupported algorithm");
-    HpkeLibcrux::aead_open(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, &ctxt)
-        .expect_err("Unsupported algorithm");
+    // test libcrux crypto provider
+    let ctxt = HpkeLibcrux::aead_seal(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, msg).unwrap();
+    let ptxt = HpkeLibcrux::aead_open(AeadAlgorithm::Aes128Gcm, &key, &nonce, &aad, &ctxt).unwrap();
+    assert_eq!(&ptxt, msg);
 }
 
 #[test]
