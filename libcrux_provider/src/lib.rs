@@ -145,10 +145,9 @@ impl HpkeCrypto for HpkeLibcrux {
     ) -> Result<Vec<u8>, Error> {
         let alg = aead_alg(alg)?;
 
-
         use libcrux_traits::aead::typed_refs::Aead as _;
 
-        // set up buffers for ptxt, ctxt and tag
+        // set up buffer for ctxt and tag
         let mut msg_ctx: Vec<u8> = alloc::vec![0; msg.len() + alg.tag_len()];
         let (ctxt, tag) = msg_ctx.split_at_mut(msg.len());
 
