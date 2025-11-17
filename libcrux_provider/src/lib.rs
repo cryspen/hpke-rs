@@ -136,6 +136,7 @@ impl HpkeCrypto for HpkeLibcrux {
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }
+
     fn aead_seal(
         alg: AeadAlgorithm,
         key: &[u8],
