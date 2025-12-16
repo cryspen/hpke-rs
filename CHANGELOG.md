@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-12-16
+
+- [#103](https://github.com/cryspen/hpke-rs/pull/103) Use correct algorithm ID for XWing and deprecate old one.
+
 ## [0.4.0] - 2025-12-01
 
 - Updated dependencies
