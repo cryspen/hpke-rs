@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2025-12-16
 
-- Update dependencies
+- [#105](https://github.com/cryspen/hpke-rs/pull/105) Update dependencies
 
 ## [0.3.0] - 2025-07-01
 
