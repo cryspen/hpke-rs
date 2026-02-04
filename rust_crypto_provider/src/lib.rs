@@ -75,15 +75,19 @@ impl HpkeCrypto for HpkeRustCrypto {
                 if pk.len() != 32 {
                     return Err(Error::KemInvalidPublicKey);
                 }
-                assert!(pk.len() == 32);
-                assert!(sk.len() == 32);
                 let sk_array: [u8; 32] = sk.try_into().map_err(|_| Error::KemInvalidSecretKey)?;
                 let pk_array: [u8; 32] = pk.try_into().map_err(|_| Error::KemInvalidPublicKey)?;
                 let sk = X25519StaticSecret::from(sk_array);
-                Ok(sk
-                    .diffie_hellman(&X25519PublicKey::from(pk_array))
-                    .as_bytes()
-                    .to_vec())
+                let shared_secret = sk.diffie_hellman(&X25519PublicKey::from(pk_array));
+
+                // RFC 9180 Section 7.1.4: For X25519 and X448, recipients MUST check
+                // whether the Diffie-Hellman shared secret is the all-zero value and
+                // abort if so. This prevents attacks using low-order points.
+                if shared_secret.as_bytes().iter().all(|&b| b == 0) {
+                    return Err(Error::KemInvalidPublicKey);
+                }
+
+                Ok(shared_secret.as_bytes().to_vec())
             }
             KemAlgorithm::DhKemP256 => {
                 let sk = p256SecretKey::from_slice(sk).map_err(|_| Error::KemInvalidSecretKey)?;

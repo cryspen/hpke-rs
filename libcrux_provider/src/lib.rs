@@ -51,18 +51,29 @@ impl HpkeCrypto for HpkeLibcrux {
     }
 
     fn dh(alg: KemAlgorithm, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
-        let alg = kem_key_type_to_ecdh_alg(alg)?;
+        let ecdh_alg = kem_key_type_to_ecdh_alg(alg)?;
 
-        libcrux_ecdh::derive(alg, pk, sk)
+        let shared_secret = libcrux_ecdh::derive(ecdh_alg, pk, sk)
             .map_err(|e| Error::CryptoLibraryError(format!("ECDH derive error: {:?}", e)))
             .map(|mut p| {
-                if alg == libcrux_ecdh::Algorithm::P256 {
+                if ecdh_alg == libcrux_ecdh::Algorithm::P256 {
                     p.truncate(32);
                     p
                 } else {
                     p
                 }
-            })
+            })?;
+
+        // RFC 9180 Section 7.1.4: For X25519 and X448, recipients MUST check
+        // whether the Diffie-Hellman shared secret is the all-zero value and
+        // abort if so. This prevents attacks using low-order points.
+        if ecdh_alg == libcrux_ecdh::Algorithm::X25519
+            && shared_secret.iter().all(|&b| b == 0)
+        {
+            return Err(Error::KemInvalidPublicKey);
+        }
+
+        Ok(shared_secret)
     }
 
     fn secret_to_public(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
