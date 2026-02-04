@@ -75,6 +75,8 @@ impl HpkeCrypto for HpkeRustCrypto {
                 if pk.len() != 32 {
                     return Err(Error::KemInvalidPublicKey);
                 }
+                assert!(pk.len() == 32);
+                assert!(sk.len() == 32);
                 let sk_array: [u8; 32] = sk.try_into().map_err(|_| Error::KemInvalidSecretKey)?;
                 let pk_array: [u8; 32] = pk.try_into().map_err(|_| Error::KemInvalidPublicKey)?;
                 let sk = X25519StaticSecret::from(sk_array);
