@@ -422,7 +422,10 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
         {
             return Err(HpkeError::MessageLimitReached);
         }
-        self.sequence_number += 1;
+        self.sequence_number = self
+            .sequence_number
+            .checked_add(1)
+            .ok_or(HpkeError::MessageLimitReached)?;
         Ok(())
     }
 }
