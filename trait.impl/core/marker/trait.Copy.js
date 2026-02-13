@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["hpke_rs",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"hpke_rs/enum.Mode.html\" title=\"enum hpke_rs::Mode\">Mode</a>"]]]]);
+    var implementors = Object.fromEntries([["hpke_rs",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.1/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"hpke_rs/enum.Mode.html\" title=\"enum hpke_rs::Mode\">Mode</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
