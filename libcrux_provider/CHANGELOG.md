@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-02-13
+
+### Changed
+- [#129](https://github.com/cryspen/hpke-rs/pull/129): Update libcrux dependencies
+- [#122](https://github.com/cryspen/hpke-rs/pull/122): Update rand dependencies
+
 ## [0.5.1] - 2026-02-02
 
 - [#114](https://github.com/cryspen/libcrux/pull/114): Update dependencies `libcrux-ecdh`, `libcrux-aead`, `libcrux-sha3`, `libcrux-kem`, `libcrux-hkdf`, `libcrux-traits`

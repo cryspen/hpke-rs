@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-02-13
+
 ### Added
 
 - [#127](https://github.com/cryspen/hpke-rs/pull/127): Add support for ML-KEM-768 (`KemAlgorithm::MlKem768 = 0x0041`) and ML-KEM-1024 (`KemAlgorithm::MlKem1024 = 0x0042`) to the RustCrypto provider, and add X-Wing support to the RustCrypto provider using the `x-wing` and `ml-kem` crates.
@@ -15,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#127](https://github.com/cryspen/hpke-rs/pull/127): Fix `KemAlgorithm::TryFrom<u16>` mapping where `0x004D` incorrectly resolved to `XWingDraft06` instead of `XWingDraft06Obsolete`.
 - [#123](https://github.com/cryspen/hpke-rs/pull/123): Fix potential overflow in context counter and switch to use u64.
+- [#128](https://github.com/cryspen/hpke-rs/pull/128): Return errors when trying to use open/seal with export only ciphersuite and when using kdf export with an output that's too long (instead of truncating it)
+
+### Changed
+- [#128](https://github.com/cryspen/hpke-rs/pull/128): Added zeroize for Context and ephemeral private kem keys
 
 ## [0.5.1] - 2026-02-02
 
