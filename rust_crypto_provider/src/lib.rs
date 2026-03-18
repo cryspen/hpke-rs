@@ -138,7 +138,7 @@ impl HpkeCrypto for HpkeRustCrypto {
     ) -> Result<(Vec<u8>, Vec<u8>), Error> {
         // XXX: These are broken and pre-releases. Disabling them until they are stable.
         #[cfg(feature = "experimental")]
-        return pq_kem::kem_encaps(alg, pk_r, prng);
+        return pq_kem::kem_encaps(_alg, _pk_r, _prng);
 
         Err(Error::UnsupportedKemOperation)
     }
