@@ -12,10 +12,10 @@ env:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
     - name: Setup MacOS
       run: |
         rustup target install aarch64-apple-darwin

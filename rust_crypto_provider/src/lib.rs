@@ -5,10 +5,7 @@ extern crate alloc;
 
 use alloc::{string::String, vec::Vec};
 use core::fmt::Display;
-use ml_kem::{
-    kem::{Decapsulate, Encapsulate},
-    EncodedSizeUser, KemCore, MlKem1024Params,
-};
+use zeroize::Zeroize;
 
 use hpke_rs_crypto::{
     error::Error,
@@ -35,6 +32,9 @@ use x25519_dalek::{PublicKey as X25519PublicKey, StaticSecret as X25519StaticSec
 
 mod aead;
 mod hkdf;
+// XXX: These are broken and pre-releases. Disabling them until they are stable.
+#[cfg(feature = "experimental")]
+mod pq_kem;
 use crate::aead::*;
 use crate::hkdf::*;
 
@@ -47,6 +47,12 @@ pub struct HpkeRustCryptoPrng {
     rng: rand_chacha::ChaCha20Rng,
     #[cfg(feature = "deterministic-prng")]
     fake_rng: Vec<u8>,
+}
+
+impl Zeroize for HpkeRustCryptoPrng {
+    fn zeroize(&mut self) {
+        // ChaCha20Rng doesn't implement zeroize and fake_rng is just for testing.
+    }
 }
 
 impl HpkeCrypto for HpkeRustCrypto {
@@ -76,6 +82,7 @@ impl HpkeCrypto for HpkeRustCrypto {
     }
 
     fn dh(alg: KemAlgorithm, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
+        use subtle::ConstantTimeEq;
         match alg {
             KemAlgorithm::DhKem25519 => {
                 if sk.len() != 32 {
@@ -89,10 +96,15 @@ impl HpkeCrypto for HpkeRustCrypto {
                 let sk_array: [u8; 32] = sk.try_into().map_err(|_| Error::KemInvalidSecretKey)?;
                 let pk_array: [u8; 32] = pk.try_into().map_err(|_| Error::KemInvalidPublicKey)?;
                 let sk = X25519StaticSecret::from(sk_array);
-                Ok(sk
+                let shared_secret = sk
                     .diffie_hellman(&X25519PublicKey::from(pk_array))
                     .as_bytes()
-                    .to_vec())
+                    .to_vec();
+
+                if shared_secret.ct_eq(&[0u8; 32]).into() {
+                    return Err(Error::KemInvalidPublicKey);
+                }
+                Ok(shared_secret)
             }
             KemAlgorithm::DhKemP256 => {
                 let sk = p256SecretKey::from_slice(sk).map_err(|_| Error::KemInvalidSecretKey)?;
@@ -125,62 +137,35 @@ impl HpkeCrypto for HpkeRustCrypto {
         }
     }
 
-    fn kem_key_gen_derand(alg: KemAlgorithm, seed: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Error> {
-        match alg {
-            KemAlgorithm::MlKem1024 => {
-                let d: [u8; 32] = seed[0..32]
-                    .try_into()
-                    .map_err(|_| Error::InsufficientRandomness)?;
-                let z: [u8; 32] = seed[32..]
-                    .try_into()
-                    .map_err(|_| Error::InsufficientRandomness)?;
+    fn kem_key_gen_derand(_alg: KemAlgorithm, _seed: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Error> {
+        // XXX: These are broken and pre-releases. Disabling them until they are stable.
+        #[cfg(feature = "experimental")]
+        return pq_kem::kem_key_gen_derand(_alg, _seed);
 
-                let (sk, pk) = ml_kem::MlKem1024::generate_deterministic((&d).into(), (&z).into());
-                Ok((pk.as_bytes().to_vec(), sk.as_bytes().to_vec()))
-            }
-            _ => {
-                return Err(Error::UnsupportedKemOperation);
-            }
-        }
+        #[cfg(not(feature = "experimental"))]
+        Err(Error::UnsupportedKemOperation)
     }
 
     fn kem_encaps(
-        alg: KemAlgorithm,
-        pk_r: &[u8],
-        prng: &mut Self::HpkePrng,
+        _alg: KemAlgorithm,
+        _pk_r: &[u8],
+        _prng: &mut Self::HpkePrng,
     ) -> Result<(Vec<u8>, Vec<u8>), Error> {
-        match alg {
-            KemAlgorithm::MlKem1024 => {
-                let encaps_key = ml_kem::kem::EncapsulationKey::<MlKem1024Params>::from_bytes(
-                    pk_r.try_into().map_err(|_| Error::KemInvalidPublicKey)?,
-                );
-                encaps_key
-                    .encapsulate(prng)
-                    .map_err(|_| Error::CryptoLibraryError("KEM encapsulation failed".into()))
-                    .map(|(ct, sk)| (sk.to_vec(), ct.to_vec()))
-            }
-            _ => {
-                return Err(Error::UnsupportedKemOperation);
-            }
-        }
+        // XXX: These are broken and pre-releases. Disabling them until they are stable.
+        #[cfg(feature = "experimental")]
+        return pq_kem::kem_encaps(_alg, _pk_r, _prng);
+
+        #[cfg(not(feature = "experimental"))]
+        Err(Error::UnsupportedKemOperation)
     }
 
-    fn kem_decaps(alg: KemAlgorithm, ct: &[u8], sk_r: &[u8]) -> Result<Vec<u8>, Error> {
-        match alg {
-            KemAlgorithm::MlKem1024 => {
-                let decaps_key = ml_kem::kem::DecapsulationKey::<MlKem1024Params>::from_bytes(
-                    sk_r.try_into().map_err(|_| Error::KemInvalidSecretKey)?,
-                );
-                let ct = ct.try_into().map_err(|_| Error::KemInvalidCiphertext)?;
-                decaps_key
-                    .decapsulate(ct)
-                    .map_err(|_| Error::CryptoLibraryError("KEM decapsulation failed".into()))
-                    .map(|k| k.to_vec())
-            }
-            _ => {
-                return Err(Error::UnsupportedKemOperation);
-            }
-        }
+    fn kem_decaps(_alg: KemAlgorithm, _ct: &[u8], _sk_r: &[u8]) -> Result<Vec<u8>, Error> {
+        // XXX: These are broken and pre-releases. Disabling them until they are stable.
+        #[cfg(feature = "experimental")]
+        return pq_kem::kem_decaps(_alg, _ct, _sk_r);
+
+        #[cfg(not(feature = "experimental"))]
+        Err(Error::UnsupportedKemOperation)
     }
 
     fn secret_to_public(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
@@ -214,36 +199,43 @@ impl HpkeCrypto for HpkeRustCrypto {
         alg: KemAlgorithm,
         prng: &mut Self::HpkePrng,
     ) -> Result<(Vec<u8>, Vec<u8>), Error> {
-        let rng = &mut prng.rng;
         match alg {
             KemAlgorithm::DhKem25519 => {
+                let rng = &mut prng.rng;
                 let sk = X25519StaticSecret::random_from_rng(&mut *rng);
                 let pk = X25519PublicKey::from(&sk).as_bytes().to_vec();
                 let sk = sk.to_bytes().to_vec();
                 Ok((pk, sk))
             }
             KemAlgorithm::DhKemP256 => {
+                let rng = &mut prng.rng;
                 let sk = p256SecretKey::random(&mut *rng);
                 let pk = sk.public_key().to_encoded_point(false).as_bytes().into();
                 let sk = sk.to_bytes().as_slice().into();
                 Ok((pk, sk))
             }
             KemAlgorithm::DhKemP384 => {
+                let rng = &mut prng.rng;
                 let sk = p384SecretKey::random(&mut *rng);
                 let pk = sk.public_key().to_encoded_point(false).as_bytes().into();
                 let sk = sk.to_bytes().as_slice().into();
                 Ok((pk, sk))
             }
             KemAlgorithm::DhKemK256 => {
+                let rng = &mut prng.rng;
                 let sk = k256SecretKey::random(&mut *rng);
                 let pk = sk.public_key().to_encoded_point(false).as_bytes().into();
                 let sk = sk.to_bytes().as_slice().into();
                 Ok((pk, sk))
             }
-            KemAlgorithm::MlKem1024 => {
-                let (sk, pk) = ml_kem::MlKem1024::generate(rng);
-                Ok((pk.as_bytes().to_vec(), sk.as_bytes().to_vec()))
-            }
+            // XXX: These are broken and pre-releases. Disabling them until they
+            //      are stable.
+            #[allow(deprecated)]
+            #[cfg(feature = "experimental")]
+            KemAlgorithm::XWingDraft06
+            | KemAlgorithm::XWingDraft06Obsolete
+            | KemAlgorithm::MlKem768
+            | KemAlgorithm::MlKem1024 => pq_kem::kem_key_gen(alg, prng),
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }
@@ -322,8 +314,10 @@ impl HpkeCrypto for HpkeRustCrypto {
             KemAlgorithm::DhKem25519
             | KemAlgorithm::DhKemP256
             | KemAlgorithm::DhKemK256
-            | KemAlgorithm::DhKemP384
-            | KemAlgorithm::MlKem1024 => Ok(()),
+            | KemAlgorithm::DhKemP384 => Ok(()),
+            // XXX: These are broken and pre-releases. Disabling them until they are stable.
+            #[cfg(feature = "experimental")]
+            KemAlgorithm::XWingDraft06 | KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => Ok(()),
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }
@@ -379,6 +373,29 @@ impl RngCore for HpkeRustCryptoPrng {
 }
 
 impl CryptoRng for HpkeRustCryptoPrng {}
+
+// Implement rand_core 0.10 traits for compatibility with x-wing and ml-kem
+// crates which depend on rand_core 0.10.
+// The blanket impls in rand_core 0.10 automatically provide `Rng` (from
+// `TryRng<Error = Infallible>`) and `CryptoRng` (from `TryCryptoRng`).
+impl rand_core_new::TryRng for HpkeRustCryptoPrng {
+    type Error = core::convert::Infallible;
+
+    fn try_next_u32(&mut self) -> Result<u32, Self::Error> {
+        Ok(self.rng.next_u32())
+    }
+
+    fn try_next_u64(&mut self) -> Result<u64, Self::Error> {
+        Ok(self.rng.next_u64())
+    }
+
+    fn try_fill_bytes(&mut self, dst: &mut [u8]) -> Result<(), Self::Error> {
+        self.rng.fill_bytes(dst);
+        Ok(())
+    }
+}
+
+impl rand_core_new::TryCryptoRng for HpkeRustCryptoPrng {}
 
 impl HpkeTestRng for HpkeRustCryptoPrng {
     #[cfg(feature = "deterministic-prng")]

@@ -1,6 +1,6 @@
 [package]
 name = "hpke-rs-libcrux"
-version = "0.3.0"
+version = "0.6.1"
 authors = ["Franziskus Kiefer <franziskuskiefer@gmail.com>"]
 edition = "2021"
 license = "MPL-2.0"
@@ -10,21 +10,24 @@ readme = "Readme.md"
 repository = "https://github.com/cryspen/hpke-rs"
 
 [dependencies]
-hpke-rs-crypto = { version = "0.3.0", path = "../traits" }
-libcrux-ecdh = { version = "0.0.3", default-features = false }
-libcrux-hkdf = { version = "0.0.3" }
-libcrux-kem = { version = "0.0.3", default-features = false }
-libcrux-chacha20poly1305 = { version = "0.0.3" }
+hpke-rs-crypto = { version = "0.6.1", path = "../traits" }
+libcrux-ecdh = { version = "0.0.6", default-features = false }
+libcrux-hkdf = { version = "0.0.6" }
+libcrux-kem = { version = "0.0.7", default-features = false }
+libcrux-aead = { version = "0.0.7" }
+libcrux-traits = { version = "0.0.6", default-features = false }
 # Randomness
-rand = { version = "0.9", default-features = false }
-rand_core = { version = "0.9", features = ["os_rng"] }
-rand_chacha = { version = "0.9", default-features = false }
+rand = { version = "0.10", default-features = false, features = ["sys_rng"] }
+rand_core = { version = "0.10" }
+rand_chacha = { version = "0.10", default-features = false }
+zeroize = "1.8.2"
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 
 [features]
 deterministic-prng = [] # ⚠️ FOR TESTING ONLY.
+draft-connolly-cfrg-hpke-mlkem = []
 std = [
     "rand/std",
     "rand_chacha/std",

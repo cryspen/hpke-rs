@@ -2,8 +2,9 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 
-use alloc::{string::String, vec::Vec, format};
+use alloc::{format, string::String, vec::Vec};
 use core::fmt::Display;
+use zeroize::Zeroize;
 
 use hpke_rs_crypto::{
     error::Error,
@@ -11,7 +12,8 @@ use hpke_rs_crypto::{
     CryptoRng, HpkeCrypto, HpkeTestRng,
 };
 
-use rand_core::SeedableRng;
+use rand::{rngs::SysRng, Rng, SeedableRng};
+use rand_core::UnwrapErr;
 
 /// The Libcrux HPKE Provider
 #[derive(Debug)]
@@ -24,6 +26,12 @@ pub struct HpkeLibcruxPrng {
     rng: rand_chacha::ChaCha20Rng,
 }
 
+impl Zeroize for HpkeLibcruxPrng {
+    fn zeroize(&mut self) {
+        // ChaCha20Rng doesn't implement zeroize and fake_rng is just for testing.
+    }
+}
+
 impl HpkeCrypto for HpkeLibcrux {
     fn name() -> String {
         "Libcrux".into()
@@ -31,8 +39,10 @@ impl HpkeCrypto for HpkeLibcrux {
 
     fn kdf_extract(alg: KdfAlgorithm, salt: &[u8], ikm: &[u8]) -> Result<Vec<u8>, Error> {
         let alg = kdf_algorithm_to_libcrux_hkdf_algorithm(alg);
-        libcrux_hkdf::extract(alg, salt, ikm)
-            .map_err(|e| Error::CryptoLibraryError(format!("KDF extract error: {:?}", e)))
+        let mut prk = alloc::vec![0u8; alg.hash_len()];
+        libcrux_hkdf::extract(alg, &mut prk, salt, ikm)
+            .map_err(|e| Error::CryptoLibraryError(format!("KDF extract error: {:?}", e)))?;
+        Ok(prk)
     }
 
     fn kdf_expand(
@@ -42,8 +52,10 @@ impl HpkeCrypto for HpkeLibcrux {
         output_size: usize,
     ) -> Result<Vec<u8>, Error> {
         let alg = kdf_algorithm_to_libcrux_hkdf_algorithm(alg);
-        libcrux_hkdf::expand(alg, prk, info, output_size)
-            .map_err(|e| Error::CryptoLibraryError(format!("KDF expand error: {:?}", e)))
+        let mut okm = alloc::vec![0u8; output_size];
+        libcrux_hkdf::expand(alg, &mut okm, prk, info)
+            .map_err(|e| Error::CryptoLibraryError(format!("KDF expand error: {:?}", e)))?;
+        Ok(okm)
     }
 
     fn dh(alg: KemAlgorithm, pk: &[u8], sk: &[u8]) -> Result<Vec<u8>, Error> {
@@ -72,8 +84,16 @@ impl HpkeCrypto for HpkeLibcrux {
         prng: &mut Self::HpkePrng,
     ) -> Result<(Vec<u8>, Vec<u8>), Error> {
         match alg {
+            #[cfg(feature = "draft-connolly-cfrg-hpke-mlkem")]
+            KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => {
+                let kem_alg = kem_key_type_to_libcrux_alg(alg)?;
+                libcrux_kem::key_gen(kem_alg, prng)
+                    .map(|(sk, pk)| (pk.encode(), sk.encode()))
+                    .map_err(|e| Error::CryptoLibraryError(format!("KEM key gen error: {:?}", e)))
+            }
             KemAlgorithm::XWingDraft06 => {
-                libcrux_kem::key_gen(libcrux_kem::Algorithm::XWingKemDraft06, prng)
+                let kem_alg = kem_key_type_to_libcrux_alg(alg)?;
+                libcrux_kem::key_gen(kem_alg, prng)
                     .map(|(sk, pk)| (pk.encode(), sk.encode()))
                     .map_err(|e| Error::CryptoLibraryError(format!("KEM key gen error: {:?}", e)))
             }
@@ -126,7 +146,7 @@ impl HpkeCrypto for HpkeLibcrux {
 
     fn dh_validate_sk(alg: KemAlgorithm, sk: &[u8]) -> Result<Vec<u8>, Error> {
         match alg {
-            KemAlgorithm::DhKemP256 => libcrux_ecdh::p256::validate_scalar_slice(&sk)
+            KemAlgorithm::DhKemP256 => libcrux_ecdh::p256::validate_scalar_slice(sk)
                 .map_err(|e| Error::CryptoLibraryError(format!("ECDH invalid sk error: {:?}", e)))
                 .map(|sk| sk.0.to_vec()),
             _ => Err(Error::UnknownKemAlgorithm),
@@ -140,19 +160,28 @@ impl HpkeCrypto for HpkeLibcrux {
         aad: &[u8],
         msg: &[u8],
     ) -> Result<Vec<u8>, Error> {
-        // only chacha20poly1305 is supported
-        if !matches!(alg, AeadAlgorithm::ChaCha20Poly1305) {
-            return Err(Error::UnknownAeadAlgorithm);
-        }
+        let alg = aead_alg(alg)?;
 
-        let iv = <&[u8; 12]>::try_from(nonce).map_err(|_| Error::AeadInvalidNonce)?;
+        use libcrux_traits::aead::typed_refs::Aead as _;
 
-        // TODO: instead, use key conversion from the libcrux-chacha20poly1305 crate, when available,
-        let key = <&[u8; 32]>::try_from(key)
+        // set up buffer for ctxt and tag
+        let mut msg_ctx: Vec<u8> = alloc::vec![0; msg.len() + alg.tag_len()];
+        let (ctxt, tag) = msg_ctx.split_at_mut(msg.len());
+
+        // set up nonce
+        let nonce = alg.new_nonce(nonce).map_err(|_| Error::AeadInvalidNonce)?;
+
+        // set up key
+        let key = alg
+            .new_key(key)
             .map_err(|_| Error::CryptoLibraryError("AEAD invalid key length".into()))?;
 
-        let mut msg_ctx: Vec<u8> = alloc::vec![0; msg.len() + 16];
-        libcrux_chacha20poly1305::encrypt(key, msg, &mut msg_ctx, aad, iv)
+        // set up tag
+        let tag = alg
+            .new_tag_mut(tag)
+            .map_err(|_| Error::CryptoLibraryError("Invalid tag length".into()))?;
+
+        key.encrypt(ctxt, tag, nonce, aad, msg)
             .map_err(|_| Error::CryptoLibraryError("Invalid configuration".into()))?;
 
         Ok(msg_ctx)
@@ -165,31 +194,38 @@ impl HpkeCrypto for HpkeLibcrux {
         aad: &[u8],
         cipher_txt: &[u8],
     ) -> Result<Vec<u8>, Error> {
-        // only chacha20poly1305 is supported
-        if !matches!(alg, AeadAlgorithm::ChaCha20Poly1305) {
-            return Err(Error::UnknownAeadAlgorithm);
-        }
-        if cipher_txt.len() < 16 {
+        let alg = aead_alg(alg)?;
+
+        use libcrux_traits::aead::typed_refs::{Aead as _, DecryptError};
+
+        if cipher_txt.len() < alg.tag_len() {
             return Err(Error::AeadInvalidCiphertext);
         }
 
-        let boundary = cipher_txt.len() - 16;
+        let boundary = cipher_txt.len() - alg.tag_len();
 
+        // set up buffers for ptext, ctext, and tag
         let mut ptext = alloc::vec![0; boundary];
+        let (ctext, tag) = cipher_txt.split_at(boundary);
 
-        let iv = <&[u8; 12]>::try_from(nonce).map_err(|_| Error::AeadInvalidNonce)?;
+        // set up nonce
+        let nonce = alg.new_nonce(nonce).map_err(|_| Error::AeadInvalidNonce)?;
 
-        // TODO: instead, use key conversion from the libcrux-chacha20poly1305 crate, when available,
-        let key = <&[u8; 32]>::try_from(key)
+        // set up key
+        let key = alg
+            .new_key(key)
             .map_err(|_| Error::CryptoLibraryError("AEAD invalid key length".into()))?;
-        libcrux_chacha20poly1305::decrypt(key, &mut ptext, cipher_txt, aad, iv).map_err(
-            |e| match e {
-                libcrux_chacha20poly1305::AeadError::InvalidCiphertext => {
-                    Error::CryptoLibraryError(format!("AEAD decryption error: {:?}", e))
-                }
+
+        // set up tag
+        let tag = alg
+            .new_tag(tag)
+            .map_err(|_| Error::CryptoLibraryError("Invalid tag length".into()))?;
+
+        key.decrypt(&mut ptext, nonce, aad, ctext, tag)
+            .map_err(|e| match e {
+                DecryptError::InvalidTag => Error::AeadOpenError,
                 _ => Error::CryptoLibraryError("Invalid configuration".into()),
-            },
-        )?;
+            })?;
 
         Ok(ptext)
     }
@@ -199,19 +235,17 @@ impl HpkeCrypto for HpkeLibcrux {
     fn prng() -> Self::HpkePrng {
         #[cfg(feature = "deterministic-prng")]
         {
-            use rand::TryRngCore;
             let mut fake_rng = alloc::vec![0u8; 256];
-            rand_chacha::ChaCha20Rng::from_os_rng()
-                .try_fill_bytes(&mut fake_rng)
-                .unwrap();
+            rand_chacha::ChaCha20Rng::from_rng(&mut UnwrapErr(SysRng)).fill_bytes(&mut fake_rng);
             HpkeLibcruxPrng {
                 fake_rng,
-                rng: rand_chacha::ChaCha20Rng::from_os_rng(),
+                rng: rand_chacha::ChaCha20Rng::from_rng(&mut UnwrapErr(SysRng)),
             }
         }
+
         #[cfg(not(feature = "deterministic-prng"))]
         HpkeLibcruxPrng {
-            rng: rand_chacha::ChaCha20Rng::from_os_rng(),
+            rng: rand_chacha::ChaCha20Rng::from_rng(&mut UnwrapErr(SysRng)),
         }
     }
 
@@ -226,6 +260,8 @@ impl HpkeCrypto for HpkeLibcrux {
             KemAlgorithm::DhKem25519 | KemAlgorithm::DhKemP256 | KemAlgorithm::XWingDraft06 => {
                 Ok(())
             }
+            #[cfg(feature = "draft-connolly-cfrg-hpke-mlkem")]
+            KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => Ok(()),
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }
@@ -233,8 +269,7 @@ impl HpkeCrypto for HpkeLibcrux {
     /// Returns an error if the AEAD algorithm is not supported by this crypto provider.
     fn supports_aead(alg: AeadAlgorithm) -> Result<(), Error> {
         match alg {
-            // Don't support Aes
-            AeadAlgorithm::Aes128Gcm | AeadAlgorithm::Aes256Gcm => Err(Error::UnknownAeadAlgorithm),
+            AeadAlgorithm::Aes128Gcm | AeadAlgorithm::Aes256Gcm => Ok(()),
             AeadAlgorithm::ChaCha20Poly1305 => Ok(()),
             AeadAlgorithm::HpkeExport => Ok(()),
         }
@@ -277,6 +312,10 @@ fn kem_key_type_to_libcrux_alg(alg: KemAlgorithm) -> Result<libcrux_kem::Algorit
     match alg {
         KemAlgorithm::DhKem25519 => Ok(libcrux_kem::Algorithm::X25519),
         KemAlgorithm::DhKemP256 => Ok(libcrux_kem::Algorithm::Secp256r1),
+        #[cfg(feature = "draft-connolly-cfrg-hpke-mlkem")]
+        KemAlgorithm::MlKem768 => Ok(libcrux_kem::Algorithm::MlKem768),
+        #[cfg(feature = "draft-connolly-cfrg-hpke-mlkem")]
+        KemAlgorithm::MlKem1024 => Ok(libcrux_kem::Algorithm::MlKem1024),
         KemAlgorithm::XWingDraft06 => Ok(libcrux_kem::Algorithm::XWingKemDraft06),
         _ => Err(Error::UnknownKemAlgorithm),
     }
@@ -288,6 +327,16 @@ fn kem_key_type_to_ecdh_alg(alg: KemAlgorithm) -> Result<libcrux_ecdh::Algorithm
         KemAlgorithm::DhKem25519 => Ok(libcrux_ecdh::Algorithm::X25519),
         KemAlgorithm::DhKemP256 => Ok(libcrux_ecdh::Algorithm::P256),
         _ => Err(Error::UnknownKemAlgorithm),
+    }
+}
+
+#[inline(always)]
+fn aead_alg(alg_type: AeadAlgorithm) -> Result<libcrux_aead::Aead, Error> {
+    match alg_type {
+        AeadAlgorithm::ChaCha20Poly1305 => Ok(libcrux_aead::Aead::ChaCha20Poly1305),
+        AeadAlgorithm::Aes128Gcm => Ok(libcrux_aead::Aead::AesGcm128),
+        AeadAlgorithm::Aes256Gcm => Ok(libcrux_aead::Aead::AesGcm256),
+        _ => Err(Error::UnknownAeadAlgorithm),
     }
 }
 
@@ -304,6 +353,7 @@ impl hpke_rs_crypto::RngCore for HpkeLibcruxPrng {
         self.rng.fill_bytes(dest)
     }
 }
+
 impl CryptoRng for HpkeLibcruxPrng {}
 
 impl HpkeTestRng for HpkeLibcruxPrng {
@@ -318,11 +368,13 @@ impl HpkeTestRng for HpkeLibcruxPrng {
         dest.clone_from_slice(&self.fake_rng.split_off(self.fake_rng.len() - dest.len()));
         Ok(())
     }
+
     #[cfg(not(feature = "deterministic-prng"))]
     fn try_fill_test_bytes(&mut self, dest: &mut [u8]) -> Result<(), Error> {
-        use rand_core::TryRngCore;
-        self.try_fill_bytes(dest)
-            .map_err(|_| Error::InsufficientRandomness)
+        use hpke_rs_crypto::RngCore;
+
+        self.fill_bytes(dest);
+        Ok(())
     }
 
     #[cfg(feature = "deterministic-prng")]

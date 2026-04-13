@@ -1,6 +1,6 @@
 [package]
 name = "hpke-rs-rust-crypto"
-version = "0.3.0"
+version = "0.6.1"
 authors = ["Franziskus Kiefer <franziskuskiefer@gmail.com>"]
 edition = "2021"
 license = "MPL-2.0"
@@ -10,7 +10,7 @@ readme = "Readme.md"
 repository = "https://github.com/cryspen/hpke-rs"
 
 [dependencies]
-hpke-rs-crypto = { version = "0.3.0", path = "../traits" }
+hpke-rs-crypto = { version = "0.6.1", path = "../traits" }
 # Rust crypto
 hkdf = { version = "0.12" }
 sha2 = { version = "0.10", default-features = false }
@@ -31,14 +31,20 @@ chacha20poly1305 = { version = "0.10", default-features = false, features = [
     "alloc",
 ] }
 aes-gcm = { version = "0.10", default-features = false, features = ["aes"] }
-ml-kem = { version = "0.2.1", features = ["deterministic"] }
+# Post-quantum KEMs
+# XXX: These are broken and pre-releases. Dropping them until they are stable.
+x-wing = { version = "0.1.0-rc.0", default-features = false, optional = true }
+ml-kem = { version = "0.3.0-rc.0", default-features = false, optional = true }
 # Randomness
 rand_core = { version = "0.6", features = ["getrandom"] }
+rand_core_new = { version = "0.10", package = "rand_core", default-features = false }
 rand_old = { version = "0.8", package = "rand", default-features = false }
 rand_chacha = { version = "0.3", default-features = false }
+zeroize = "1.8.2"
+subtle = { version = "2.6.1", default-features = false }
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 rand = { version = "0.9" }
 
 [features]
@@ -47,6 +53,7 @@ deterministic-prng = [
     "hpke-rs-crypto/std",
     "rand_core/std",
 ] # ⚠️ FOR TESTING ONLY.
+experimental = ["dep:x-wing", "dep:ml-kem"]
 
 [[bench]]
 name = "bench_hkdf"

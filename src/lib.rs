@@ -1,4 +1,92 @@
 #![doc = include_str!("../Readme.md")]
+//! # Examples
+//!
+//! Oneshot HPKE encryption.
+//!
+//! ```
+//! use hpke_rs::{*, hpke_types::*};
+//! use hpke_rs_libcrux::HpkeLibcrux;
+//! use hpke_rs_crypto::{HpkeCrypto, RngCore};
+//!
+//! // Set up hpke mode.
+//! let mut hpke = Hpke::<HpkeLibcrux>::new(Mode::Base, KemAlgorithm::DhKem25519,
+//!    KdfAlgorithm::HkdfSha256, AeadAlgorithm::ChaCha20Poly1305);
+//!
+//! // Generate keys. The other parties public key must be received in some way.
+//! let (sk_r, pk_r) = hpke.generate_key_pair().unwrap().into_keys();
+//! let (sk_s, pk_s) = hpke.generate_key_pair().unwrap().into_keys();
+//!
+//! // Set the input. Only `plain_text` is required
+//! let info = b"HPKE demo info";
+//! let aad = b"HPKE demo aad";
+//! let plaintext = b"HPKE demo plain text";
+//! let exporter_context = b"HPKE demo exporter context";
+//!
+//! // We don't use authentication or PSKs here.
+//! let psk = None;
+//! let psk_id = None;
+//! let sk_s = None;
+//! let pk_s = None;
+//!
+//! // Encrypt the `plaintext` to the receiver.
+//! let (enc, ctxt) = hpke
+//!     .seal(&pk_r, info, aad, plaintext, psk, psk_id, sk_s)
+//!     .unwrap();
+//!
+//! // Decrypt the ciphertext on the receiver.
+//! let ptxt = hpke
+//!     .open(&enc, &sk_r, info, aad, &ctxt, psk, psk_id, pk_s)
+//!     .unwrap();
+//!
+//! assert_eq!(ptxt, plaintext);
+//! ```
+//!
+//! Encryption context.
+//!
+//! ```
+//! use hpke_rs::{*, hpke_types::*};
+//! use hpke_rs_libcrux::HpkeLibcrux;
+//! use hpke_rs_crypto::{HpkeCrypto, RngCore};
+//!
+//! // Set up hpke mode.
+//! let mut hpke = Hpke::<HpkeLibcrux>::new(Mode::Base, KemAlgorithm::DhKem25519,
+//!    KdfAlgorithm::HkdfSha256, AeadAlgorithm::ChaCha20Poly1305);
+//!
+//! // Generate keys. The other parties public key must be received in some way.
+//! let (sk_r, pk_r) = hpke.generate_key_pair().unwrap().into_keys();
+//! let (sk_s, pk_s) = hpke.generate_key_pair().unwrap().into_keys();
+//!
+//! // Set the input. Only `plain_text` is required
+//! let info = b"HPKE demo info";
+//! let aad = b"HPKE demo aad";
+//! let plaintext = b"HPKE demo plain text";
+//! let exporter_context = b"HPKE demo exporter context";
+//!
+//! // We don't use authentication or PSKs here.
+//! let psk = None;
+//! let psk_id = None;
+//! let sk_s = None;
+//! let pk_s = None;
+//!
+//! // Set up the context on both sides.
+//! let (enc, mut sender_context) = hpke
+//!     .setup_sender(&pk_r, info, psk, psk_id, sk_s)
+//!     .unwrap();
+//!
+//! // Share `enc` with the receiver.
+//! let mut receiver_context = hpke
+//!     .setup_receiver(&enc, &sk_r, info, psk, psk_id, pk_s)
+//!     .unwrap();
+//!
+//! // Encrypt the plaintext to the receiver, using the context.
+//! let ctxt = sender_context.seal(aad, plaintext).unwrap();
+//!
+//! // Decrypt the ciphertext on the receiver, using the context.
+//! let ptxt = receiver_context.open(aad, &ctxt).unwrap();
+//!
+//! assert_eq!(ptxt, plaintext);
+//! ```
+
 #![forbid(unsafe_code, unused_must_use, unstable_features)]
 #![deny(
     trivial_casts,
@@ -45,7 +133,7 @@ use rand_core::TryRngCore;
 
 #[cfg(feature = "serialization")]
 pub(crate) use serde::{Deserialize, Serialize};
-use zeroize::Zeroize;
+use zeroize::{Zeroize, ZeroizeOnDrop};
 
 mod dh_kem;
 pub(crate) mod kdf;
@@ -163,7 +251,7 @@ pub struct HpkeKeyPair {
 }
 
 /// HPKE supports four modes.
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug, Zeroize)]
 #[cfg_attr(feature = "serialization", derive(Serialize, Deserialize))]
 #[repr(u8)]
 pub enum Mode {
@@ -214,11 +302,12 @@ type Plaintext = Vec<u8>;
 /// The HPKE context.
 /// Note that the RFC currently doesn't define this.
 /// Also see <https://github.com/cfrg/draft-irtf-cfrg-hpke/issues/161>.
+#[derive(Zeroize, ZeroizeOnDrop)]
 pub struct Context<Crypto: 'static + HpkeCrypto> {
     key: Vec<u8>,
     nonce: Vec<u8>,
     exporter_secret: Vec<u8>,
-    sequence_number: u32,
+    sequence_number: u64,
     hpke: Hpke<Crypto>,
 }
 
@@ -250,6 +339,10 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
     /// Takes the associated data and the plain text as byte slices and returns
     /// the ciphertext or an error.
     ///
+    /// The context can be re-used up to the AEAD's message limit. However, we
+    /// use only a 64 bit counter, which technically limits context
+    /// re-use to 0xffffffffffffffff (2^64 - 1) uses.
+    ///
     /// ```text
     /// def Context.Seal(aad, pt):
     ///   ct = Seal(self.key, self.ComputeNonce(self.seq), aad, pt)
@@ -257,6 +350,10 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
     ///   return ct
     /// ```
     pub fn seal(&mut self, aad: &[u8], plain_txt: &[u8]) -> Result<Ciphertext, HpkeError> {
+        if self.hpke.aead_id == AeadAlgorithm::HpkeExport {
+            return Err(HpkeError::InvalidConfig);
+        }
+
         let ctxt = Crypto::aead_seal(
             self.hpke.aead_id,
             &self.key,
@@ -273,6 +370,10 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
     /// Takes the associated data and the ciphertext as byte slices and returns
     /// the plain text or an error.
     ///
+    /// The context can be re-used up to the AEAD's message limit. However, we
+    /// use only a 64 bit counter, which technically limits context
+    /// re-use to 0xffffffffffffffff (2^64 - 1) uses.
+    ///
     /// ```text
     /// def Context.Open(aad, ct):
     ///   pt = Open(self.key, self.ComputeNonce(self.seq), aad, ct)
@@ -282,6 +383,10 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
     ///   return pt
     /// ```
     pub fn open(&mut self, aad: &[u8], cipher_txt: &[u8]) -> Result<Plaintext, HpkeError> {
+        if self.hpke.aead_id == AeadAlgorithm::HpkeExport {
+            return Err(HpkeError::InvalidConfig);
+        }
+
         let ptxt = Crypto::aead_open(
             self.hpke.aead_id,
             &self.key,
@@ -332,9 +437,15 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
         if u128::from(self.sequence_number)
             >= ((1u128 << (8 * Crypto::aead_nonce_length(self.hpke.aead_id))) - 1)
         {
+            // The limit is 0xffffffffffffffffffffffff for all currently implemented
+            // ciphersuites.
             return Err(HpkeError::MessageLimitReached);
         }
-        self.sequence_number += 1;
+        self.sequence_number = self
+            .sequence_number
+            // We use a u64, which is lower than the AEAD limit
+            .checked_add(1)
+            .ok_or(HpkeError::MessageLimitReached)?;
         Ok(())
     }
 }
@@ -346,7 +457,7 @@ impl<Crypto: HpkeCrypto> Context<Crypto> {
 /// Now one can use the `hpke` configuration.
 ///
 /// Note that cloning does NOT clone the PRNG state.
-#[derive(Debug)]
+#[derive(Debug, Zeroize)]
 pub struct Hpke<Crypto: 'static + HpkeCrypto> {
     mode: Mode,
     kem_id: KemAlgorithm,
@@ -483,6 +594,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     }
 
     /// 6. Single-Shot APIs
+    ///
     /// 6.1. Encryption and Decryption
     ///
     /// Single shot API to encrypt the bytes in `plain_text` to the public key
@@ -511,6 +623,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     }
 
     /// 6. Single-Shot APIs
+    ///
     /// 6.1. Encryption and Decryption
     ///
     /// Single shot API to decrypt the bytes in `ct` with the private key `sk_r`.
@@ -538,6 +651,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     }
 
     /// 6. Single-Shot APIs
+    ///
     /// 6.2. Secret Export
     ///
     /// Single shot API to derive an exporter secret for receiver with public key
@@ -566,6 +680,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     }
 
     /// 6. Single-Shot APIs
+    ///
     /// 6.2. Secret Export
     ///
     /// Single shot API to derive an exporter secret for receiver with private key
@@ -698,13 +813,14 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     }
 
     /// 4. Cryptographic Dependencies
+    ///
     /// Randomized algorithm to generate a key pair `(skX, pkX)` for the KEM.
     /// This is equivalent to `derive_key_pair(random_vector(sk.len()))`
     ///
     /// Returns an `HpkeKeyPair`.
     pub fn generate_key_pair(&mut self) -> Result<HpkeKeyPair, HpkeError> {
         let (sk, pk) = kem::key_gen::<Crypto>(self.kem_id, &mut self.prng)?;
-        Ok(HpkeKeyPair::new(sk, pk))
+        Ok(HpkeKeyPair::new(sk.0.clone(), pk))
     }
 
     /// 7.1.2. DeriveKeyPair
@@ -713,7 +829,7 @@ impl<Crypto: HpkeCrypto> Hpke<Crypto> {
     /// Returns an `HpkeKeyPair` result or an `HpkeError` if key derivation fails.
     pub fn derive_key_pair(&self, ikm: &[u8]) -> Result<HpkeKeyPair, HpkeError> {
         let (pk, sk) = kem::derive_key_pair::<Crypto>(self.kem_id, ikm)?;
-        Ok(HpkeKeyPair::new(sk, pk))
+        Ok(HpkeKeyPair::new(sk.0.clone(), pk))
     }
 
     #[inline]
@@ -809,19 +925,11 @@ impl From<&[u8]> for HpkePrivateKey {
     }
 }
 
-/// Hopefully constant time comparison of the two values as long as they have the
-/// same length.
+/// Constant-time comparison of private key values.
 impl PartialEq for HpkePrivateKey {
     fn eq(&self, other: &Self) -> bool {
-        if self.value.len() != other.value.len() {
-            return false;
-        }
-
-        let mut different_bits = 0u8;
-        for (&byte_a, &byte_b) in self.value.iter().zip(other.value.iter()) {
-            different_bits |= byte_a ^ byte_b;
-        }
-        (1u8 & ((different_bits.wrapping_sub(1)).wrapping_shr(8)).wrapping_sub(1)) == 0
+        use subtle::ConstantTimeEq;
+        self.value.ct_eq(&other.value).into()
     }
 }
 
@@ -954,7 +1062,7 @@ pub mod test_util {
         }
         /// Get a reference to the sequence number in the context.
         #[doc(hidden)]
-        pub fn sequence_number(&self) -> u32 {
+        pub fn sequence_number(&self) -> u64 {
             self.sequence_number
         }
     }

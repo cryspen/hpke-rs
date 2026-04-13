@@ -7,6 +7,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -16,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13
+          - macos-15-intel
           - macos-latest
           - ubuntu-latest
           - windows-latest
@@ -24,38 +27,40 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        persist-credentials: false
     - name: Run tests all features
-      run: cargo test --verbose --no-default-features --all-features
+      run: cargo test --verbose --no-default-features -F "std,serialization,hazmat,rustcrypto,libcrux"
       # Release
     - name: Build Release
       run: cargo build --release --verbose
     - name: Run tests all features
-      run: cargo test --release --verbose --all-features
+      run: cargo test --release --verbose -F "std,serialization,hazmat,rustcrypto,libcrux"
       # Debug
     - name: Build Debug
       run: cargo build --verbose
     - name: Run tests all features
-      run: cargo test --verbose --all-features
+      run: cargo test --verbose -F "std,serialization,hazmat,rustcrypto,libcrux"
       # RC Provider
     - name: Build Debug RC provider all features
       working-directory: rust_crypto_provider
-      run: cargo build --verbose --all-features
+      run: cargo build --verbose -F "std"
     # Apple Silicon
-    - if: matrix.os == 'macos-13'
+    - if: matrix.os == 'macos-15-intel'
       run: |
         rustup target install aarch64-apple-darwin
         rustup target install aarch64-apple-ios
     - name: Build
       run: cargo build --verbose
     - name: Apple Silicon Build
-      if: matrix.os == 'macos-13'
+      if: matrix.os == 'macos-15-intel'
       run: |
         cargo build --target aarch64-apple-darwin --tests --verbose
         cargo build --release --target aarch64-apple-darwin --tests --verbose
     # ARM64 iOS
     - name: iOS aarch64
-      if: matrix.os == 'macos-13'
+      if: matrix.os == 'macos-15-intel'
       run: |
         cargo build --target aarch64-apple-ios --tests --verbose
         cargo build --release --target aarch64-apple-ios --tests --verbose
@@ -78,13 +83,13 @@ jobs:
           - target: aarch64-apple-ios
             rust: stable
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
         with:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
-          profile: minimal
-          override: true
       - run: ${{ matrix.deps }}
       - run: cargo build --target ${{ matrix.target }}
       - run: cargo build --target ${{ matrix.target }} --release
@@ -94,34 +99,34 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13
+          - macos-15-intel
           - ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
       - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
         with:
           toolchain: nightly
-          default: true
-      - uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-fuzz
-          version: latest
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
       - name: Fuzz Base w/ RustCrypto
         run: cargo fuzz run base -- -runs=10000
 
   no-std-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
       # we use a target that lacks a pre-compiled libstd to check if any dependency is using libstd
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
         with:
           toolchain: stable
-          target: thumbv7em-none-eabihf
-          default: true
+          targets: thumbv7em-none-eabihf
       - name: build crates in no-std mode
         run: cargo check --target thumbv7em-none-eabihf
         working-directory: no-std-support-check

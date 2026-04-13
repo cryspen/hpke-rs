@@ -4,6 +4,7 @@
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use zeroize::Zeroize;
 
 use crate::error;
 
@@ -30,11 +31,35 @@ pub enum KemAlgorithm {
     /// DH KEM on x448
     DhKem448 = 0x0021,
 
-    /// ML-KEM1024
-    MlKem1024 = 0x0042,
+    /// X-WING
+    ///
+    /// This is XWing draft 06, but uses an obsolete code point. You should use `XWingDraft06` instead.
+    #[deprecated(
+        since = "0.4.0",
+        note = "This uses an obsolete code point, use `XWingDraft06` instead for the correct code point."
+    )]
+    XWingDraft06Obsolete = 0x004D,
 
     /// X-WING
-    XWingDraft06 = 0x004D,
+    ///
+    /// <https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-xwing-kem-06>
+    XWingDraft06 = 0x647a,
+
+    /// ML-KEM-768
+    ///
+    /// <https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-hpke-mlkem>
+    MlKem768 = 0x0041,
+
+    /// ML-KEM-1024
+    ///
+    /// <https://datatracker.ietf.org/doc/html/draft-connolly-cfrg-hpke-mlkem>
+    MlKem1024 = 0x0042,
+}
+
+impl Zeroize for KemAlgorithm {
+    fn zeroize(&mut self) {
+        // Nothing to do here.
+    }
 }
 
 impl core::fmt::Display for KemAlgorithm {
@@ -53,7 +78,11 @@ impl core::convert::TryFrom<u16> for KemAlgorithm {
             0x0016 => Ok(KemAlgorithm::DhKemK256),
             0x0020 => Ok(KemAlgorithm::DhKem25519),
             0x0021 => Ok(KemAlgorithm::DhKem448),
-            0x004D => Ok(KemAlgorithm::XWingDraft06),
+            #[allow(deprecated)]
+            0x004D => Ok(KemAlgorithm::XWingDraft06Obsolete),
+            0x647a => Ok(KemAlgorithm::XWingDraft06),
+            0x0041 => Ok(KemAlgorithm::MlKem768),
+            0x0042 => Ok(KemAlgorithm::MlKem1024),
             _ => Err(Self::Error::UnknownKemAlgorithm),
         }
     }
@@ -69,8 +98,9 @@ impl KemAlgorithm {
             KemAlgorithm::DhKemK256 => 32,
             KemAlgorithm::DhKem25519 => 32,
             KemAlgorithm::DhKem448 => 56,
-            KemAlgorithm::MlKem1024 => 32,
-            KemAlgorithm::XWingDraft06 => 32,
+            #[allow(deprecated)]
+            KemAlgorithm::XWingDraft06 | KemAlgorithm::XWingDraft06Obsolete => 32,
+            KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => 64,
         }
     }
 
@@ -83,8 +113,9 @@ impl KemAlgorithm {
             KemAlgorithm::DhKemK256 => 32,
             KemAlgorithm::DhKem25519 => 32,
             KemAlgorithm::DhKem448 => 64,
-            KemAlgorithm::MlKem1024 => 32,
-            KemAlgorithm::XWingDraft06 => 32,
+            #[allow(deprecated)]
+            KemAlgorithm::XWingDraft06 | KemAlgorithm::XWingDraft06Obsolete => 32,
+            KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => 32,
         }
     }
 }
@@ -105,6 +136,12 @@ pub enum AeadAlgorithm {
 
     /// HPKE Export-only
     HpkeExport = 0xFFFF,
+}
+
+impl Zeroize for AeadAlgorithm {
+    fn zeroize(&mut self) {
+        // Nothing to do here.
+    }
 }
 
 impl core::fmt::Display for AeadAlgorithm {
@@ -188,6 +225,12 @@ pub enum KdfAlgorithm {
     HkdfSha512 = 0x0003,
 }
 
+impl Zeroize for KdfAlgorithm {
+    fn zeroize(&mut self) {
+        // Nothing to do here.
+    }
+}
+
 impl core::fmt::Display for KdfAlgorithm {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{:?}", self)
@@ -215,8 +258,11 @@ impl From<KemAlgorithm> for KdfAlgorithm {
             KemAlgorithm::DhKemK256 => KdfAlgorithm::HkdfSha256,
             KemAlgorithm::DhKem25519 => KdfAlgorithm::HkdfSha256,
             KemAlgorithm::DhKem448 => KdfAlgorithm::HkdfSha512,
-            KemAlgorithm::XWingDraft06 => KdfAlgorithm::HkdfSha512,
-            KemAlgorithm::MlKem1024 => KdfAlgorithm::HkdfSha512,
+            #[allow(deprecated)]
+            KemAlgorithm::XWingDraft06 | KemAlgorithm::XWingDraft06Obsolete => {
+                KdfAlgorithm::HkdfSha512
+            }
+            KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => KdfAlgorithm::HkdfSha256,
         }
     }
 }

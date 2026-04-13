@@ -5,7 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.6.1] - 2026-03-20
+
+- Update crypto providers
+
+## [0.6.0] - 2026-02-13
+
+### Added
+
+- [#127](https://github.com/cryspen/hpke-rs/pull/127): Add support for ML-KEM-768 (`KemAlgorithm::MlKem768 = 0x0041`) and ML-KEM-1024 (`KemAlgorithm::MlKem1024 = 0x0042`) to the RustCrypto provider, and add X-Wing support to the RustCrypto provider using the `x-wing` and `ml-kem` crates.
+
+### Fixed
+
+- [#127](https://github.com/cryspen/hpke-rs/pull/127): Fix `KemAlgorithm::TryFrom<u16>` mapping where `0x004D` incorrectly resolved to `XWingDraft06` instead of `XWingDraft06Obsolete`.
+- [#123](https://github.com/cryspen/hpke-rs/pull/123): Fix potential overflow in context counter and switch to use u64.
+- [#128](https://github.com/cryspen/hpke-rs/pull/128): Return errors when trying to use open/seal with export only ciphersuite and when using kdf export with an output that's too long (instead of truncating it)
+
+### Changed
+- [#128](https://github.com/cryspen/hpke-rs/pull/128): Added zeroize for Context and ephemeral private kem keys
+
+## [0.5.1] - 2026-02-02
+
+- [#114](https://github.com/cryspen/libcrux/pull/114): Update dependency `libcrux-sha3`
+
+## [0.5.0] - 2025-12-16
+
+- [#103](https://github.com/cryspen/hpke-rs/pull/103) Breaking: Use correct algorithm ID for XWing (`KemAlgorithm::XWingDraft06`) and deprecate old one (still available as `KemAlgorithm::XWingDraft06Obsolete`).
+
+## [0.4.0] - 2025-12-01
+
+- Updated dependencies
+
 ## [0.3.0] - 2025-07-01
+
+- [#98](https://github.com/cryspen/hpke-rs/pull/98): add support for AES-GCM to the Libcrux provider
 
 - [#77]():
   - `rustcrypto` and `libcrux` features expose the corresponding crypto providers

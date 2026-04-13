@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.6.1] - 2026-03-20
+
+### Changed
+
+- [#137](https://github.com/cryspen/hpke-rs/pull/137): Move unstable X-Wing and ML-KEM ciphersuites behind the `experimental` feature.
+
+## [0.6.0] - 2026-02-13
+
+### Fixed
+- [#124](https://github.com/cryspen/hpke-rs/pull/124): Error out on x25519 0 keys
+
+### Added
+- [#127](https://github.com/cryspen/hpke-rs/pull/127): Add support for ML-KEM-768 (`KemAlgorithm::MlKem768 = 0x0041`) and ML-KEM-1024 (`KemAlgorithm::MlKem1024 = 0x0042`) to the RustCrypto provider, and add X-Wing support to the RustCrypto provider using the `x-wing` and `ml-kem` crates.
+
+## [0.4.0] - 2025-12-16
+
+- [#105](https://github.com/cryspen/hpke-rs/pull/105) Update dependencies
+
 ## [0.3.0] - 2025-07-01
 
 - [#72](https://github.com/cryspen/hpke-rs/pull/72):
