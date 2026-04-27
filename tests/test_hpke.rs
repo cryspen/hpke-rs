@@ -1699,6 +1699,7 @@ generate_test_case!(
 
 // ML-KEM based test cases
 
+#[cfg(feature = "experimental")]
 generate_test_case!(
     base_mlkem_hkdfsha512_Aes256Gcm,
     HpkeMode::Base,
