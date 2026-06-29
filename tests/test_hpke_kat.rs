@@ -6,6 +6,7 @@ use serde::{self, Deserialize, Serialize};
 use std::convert::TryInto;
 use std::fs::File;
 use std::io::BufReader;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 
 use hpke::prelude::*;
@@ -26,16 +27,18 @@ struct HpkeTestVector {
     ikmE: String,
     skRm: String,
     skSm: Option<String>,
-    skEm: String,
+    // Ephemeral key material is absent from the post-quantum vectors (the
+    // encapsulation randomness is not expressed as an ephemeral key pair there).
+    skEm: Option<String>,
     psk: Option<String>,
     psk_id: Option<String>,
     pkRm: String,
     pkSm: Option<String>,
-    pkEm: String,
+    pkEm: Option<String>,
     enc: String,
     shared_secret: String,
-    key_schedule_context: String,
-    secret: String,
+    key_schedule_context: Option<String>,
+    secret: Option<String>,
     key: String,
     base_nonce: String,
     exporter_secret: String,
@@ -60,7 +63,12 @@ struct ExportsKAT {
     exported_value: String,
 }
 
-fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
+/// Runs the known-answer tests and returns the number of vectors actually
+/// exercised (i.e. not skipped as unparseable or unsupported by this build).
+fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) -> usize {
+    // Counts vectors that ran to completion, so callers can assert a floor and
+    // catch a regression that would otherwise silently skip everything.
+    let executed = AtomicUsize::new(0);
     // Replace into_par_iter() with into_iter() to run tests sequentially.
     tests.into_par_iter().for_each(|test| {
         println!(
@@ -68,9 +76,19 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             test.mode, test.kem_id, test.kdf_id, test.aead_id
         );
         let mode: HpkeMode = test.mode.try_into().unwrap();
-        let kem_id: KemAlgorithm = test.kem_id.try_into().unwrap();
-        let kdf_id: KdfAlgorithm = test.kdf_id.try_into().unwrap();
-        let aead_id: AeadAlgorithm = test.aead_id.try_into().unwrap();
+        // Algorithm identifiers this build doesn't know (e.g. TurboSHAKE,
+        // X448 in the post-quantum vectors) are simply skipped.
+        let (Ok(kem_id), Ok(kdf_id), Ok(aead_id)): (
+            Result<KemAlgorithm, _>,
+            Result<KdfAlgorithm, _>,
+            Result<AeadAlgorithm, _>,
+        ) = (
+            test.kem_id.try_into(),
+            test.kdf_id.try_into(),
+            test.aead_id.try_into(),
+        ) else {
+            return;
+        };
 
         if Crypto::supports_kem(kem_id).is_err() {
             log::trace!(
@@ -113,8 +131,14 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         // Set up sender and receiver.
         let pk_rm = HpkePublicKey::new(hex_to_bytes(&test.pkRm));
         let sk_rm = HpkePrivateKey::new(hex_to_bytes(&test.skRm));
-        let pk_em = HpkePublicKey::new(hex_to_bytes(&test.pkEm));
-        let sk_em = HpkePrivateKey::new(hex_to_bytes(&test.skEm));
+        // Ephemeral key pair is only present in the classical (RFC 9180) vectors.
+        let ephemeral_keys = match (&test.pkEm, &test.skEm) {
+            (Some(pk), Some(sk)) => Some((
+                HpkePublicKey::new(hex_to_bytes(pk)),
+                HpkePrivateKey::new(hex_to_bytes(sk)),
+            )),
+            _ => None,
+        };
         let pk_sm = hex_to_bytes_option(test.pkSm);
         let pk_sm = if pk_sm.is_empty() {
             None
@@ -152,7 +176,9 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
                 psk.unwrap_or_default(),
                 psk_id.unwrap_or_default(),
             )
-            .unwrap();
+            .unwrap_or_else(|e| {
+                panic!("key_schedule failed for {kem_id:?}_{kdf_id:?}_{aead_id:?}: {e:?}")
+            });
 
         // Check setup info
         // Note that key and nonce are empty for exporter only key derivation.
@@ -165,9 +191,11 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         let (my_sk_r, my_pk_r) = hpke.derive_key_pair(&ikm_r).unwrap().into_keys();
         assert_eq!(sk_rm, my_sk_r);
         assert_eq!(pk_rm, my_pk_r);
-        let (my_sk_e, my_pk_e) = hpke.derive_key_pair(&ikm_e).unwrap().into_keys();
-        assert_eq!(sk_em, my_sk_e);
-        assert_eq!(pk_em, my_pk_e);
+        if let Some((pk_em, sk_em)) = &ephemeral_keys {
+            let (my_sk_e, my_pk_e) = hpke.derive_key_pair(&ikm_e).unwrap().into_keys();
+            assert_eq!(sk_em, &my_sk_e);
+            assert_eq!(pk_em, &my_pk_e);
+        }
         if let (Some(sk_sm), Some(pk_sm)) = (sk_sm, pk_sm) {
             let (my_sk_s, my_pk_s) = hpke.derive_key_pair(&ikm_s).unwrap().into_keys();
             assert_eq!(sk_sm, &my_sk_s);
@@ -183,6 +211,9 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
         // Setup sender and receiver with KAT randomness.
         // We first have to inject the randomness (ikmE).
 
+        // Inject `ikmE` to check the sender-side `enc`. DH-based KEMs derive the
+        // ephemeral from `Hpke::random`; the PQ KEMs run derandomized
+        // from the injected seed. Either way `enc` must match the vector.
         #[cfg(feature = "hpke-test-prng")]
         {
             log::trace!("Testing with known ikmE ...");
@@ -226,8 +257,6 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             aead_id
         );
         for encryption in test.encryptions.iter() {
-            // Cloning the Hpke object renews the test PRNG.
-            hpke = hpke.clone();
             let aad = hex_to_bytes(&encryption.aad);
             let ptxt = hex_to_bytes(&encryption.pt);
             let ctxt_kat = hex_to_bytes(&encryption.ct);
@@ -237,15 +266,6 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             let ptxt_out = receiver_context.open(&aad, &ctxt_out).unwrap();
             assert_eq!(ptxt_out, ptxt);
 
-            // Test single-shot API self-test
-            let (enc, ct) = hpke
-                .seal(&pk_rm, &info, &aad, &ptxt, psk, psk_id, sk_sm)
-                .unwrap();
-            let ptxt_out = hpke
-                .open(&enc, &sk_rm, &info, &aad, &ct, psk, psk_id, pk_sm)
-                .unwrap();
-            assert_eq!(ptxt_out, ptxt);
-
             // Test KAT receiver context open
             let ptxt_out = receiver_context_kat.open(&aad, &ctxt_kat).unwrap();
             assert_eq!(ptxt_out, ptxt);
@@ -253,6 +273,25 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             // Test KAT seal on direct_ctx
             let ct = direct_ctx.seal(&aad, &ptxt).unwrap();
             assert_eq!(ctxt_kat, ct);
+        }
+
+        // Test the single-shot API once per vector. This path runs a full KEM
+        // setup_sender/setup_receiver (an encapsulation + decapsulation), so it
+        // is by far the most expensive operation here; running it for every one
+        // of the (up to 257) encryptions added no coverage over the per-message
+        // KAT checks above, which already byte-compare every ciphertext.
+        if let Some(encryption) = test.encryptions.first() {
+            let aad = hex_to_bytes(&encryption.aad);
+            let ptxt = hex_to_bytes(&encryption.pt);
+            // Cloning the Hpke object renews the test PRNG.
+            let mut hpke = hpke.clone();
+            let (enc, ct) = hpke
+                .seal(&pk_rm, &info, &aad, &ptxt, psk, psk_id, sk_sm)
+                .unwrap();
+            let ptxt_out = hpke
+                .open(&enc, &sk_rm, &info, &aad, &ct, psk, psk_id, pk_sm)
+                .unwrap();
+            assert_eq!(ptxt_out, ptxt);
         }
 
         // Test KAT on direct_ctx for exporters
@@ -271,35 +310,68 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) {
             let exported_secret = direct_ctx.export(&export_context, length).unwrap();
             assert_eq!(export_value, exported_secret);
         }
+
+        executed.fetch_add(1, Ordering::Relaxed);
     });
+
+    executed.into_inner()
 }
+
+/// Minimum number of post-quantum vectors expected to run for the libcrux
+/// provider with `draft-ietf-hpke-pq`. Ten currently execute (ML-KEM-512/768/1024,
+/// both ML-KEM/ECDH hybrids, X-Wing, and P-256/P-384 with SHAKE); the floor sits
+/// just below that so a regression that silently skips them all trips the test,
+/// without being brittle to the vendored file being reordered. The remaining
+/// three appendix vectors use TurboSHAKE (unimplemented) and are skipped.
+#[cfg(feature = "draft-ietf-hpke-pq")]
+const MIN_PQ_VECTORS: usize = 9;
 
 #[test]
 fn kats_rust_crypto() {
-    run::<HpkeRustCrypto>();
+    // `test_vectors_k256.json` runs zero vectors unless `experimental` is on
+    // (secp256k1 is gated behind it), so its floor is 0.
+    run::<HpkeRustCrypto>(&[
+        ("tests/test_vectors.json", 1),
+        ("tests/test_vectors_k256.json", 0),
+    ]);
 }
 
 #[test]
 fn kats_libcrux() {
-    run::<HpkeLibcrux>();
+    #[allow(unused_mut)]
+    let mut files = vec![("tests/test_vectors.json", 1)];
+
+    // `test_vectors_hpke_pq.json` is vendored from
+    // <https://github.com/hpkewg/hpke-pq/blob/main/test-vectors.json>
+    // (draft-ietf-hpke-pq). Only the libcrux provider implements these suites,
+    // and only under the `draft-ietf-hpke-pq` feature. Unsupported suites within
+    // the file (TurboSHAKE, X448, ML-KEM-512, …) are skipped automatically.
+    #[cfg(feature = "draft-ietf-hpke-pq")]
+    files.push(("tests/test_vectors_hpke_pq.json", MIN_PQ_VECTORS));
+
+    run::<HpkeLibcrux>(&files);
 }
 
-fn run<Crypto: HpkeCrypto + 'static>() {
+fn run<Crypto: HpkeCrypto + 'static>(files: &[(&str, usize)]) {
     let _ = pretty_env_logger::try_init();
-    let files = vec!["tests/test_vectors.json", "tests/test_vectors_k256.json"];
-    for file in files {
-        let file = match File::open(file) {
+    for &(file, min_executed) in files {
+        let f = match File::open(file) {
             Ok(f) => f,
             Err(_) => panic!("Couldn't open file {}.", file),
         };
-        let reader = BufReader::new(file);
+        let reader = BufReader::new(f);
         let tests: Vec<HpkeTestVector> = match serde_json::from_reader(reader) {
             Ok(r) => r,
             Err(e) => panic!("Error reading file.\n{:?}", e),
         };
 
         let now = Instant::now();
-        kat::<Crypto>(tests.clone());
+        let ran = kat::<Crypto>(tests.clone());
+        assert!(
+            ran >= min_executed,
+            "{file}: only {ran} vectors ran, expected >= {min_executed} \
+             (did parsing or algorithm dispatch silently skip them all?)"
+        );
         let time = now.elapsed();
         log::info!(
             "Test vectors with {} took: {}s",

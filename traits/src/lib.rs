@@ -47,6 +47,9 @@ pub trait HpkeCrypto: core::fmt::Debug + Send + Sync {
             types::KdfAlgorithm::HkdfSha256 => 32,
             types::KdfAlgorithm::HkdfSha384 => 48,
             types::KdfAlgorithm::HkdfSha512 => 64,
+            // `Nh` for the SHAKE KDFs per draft-ietf-hpke-pq Table 1.
+            types::KdfAlgorithm::Shake128 => 32,
+            types::KdfAlgorithm::Shake256 => 64,
         }
     }
 

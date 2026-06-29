@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Add `KemAlgorithm::MlKem512 = 0x0040` (per `draft-ietf-hpke-pq`). Repoint the
+  ML-KEM / hybrid KEM doc references to `draft-ietf-hpke-pq-04` (authoritative)
+  and `draft-irtf-cfrg-concrete-hybrid-kems-03`.
 - [#146](https://github.com/celabshq/hpke-rs/pull/146): Add support for ML-KEM768 and ML-KEM1024 gated behind the `draft-connolly-cfrg-hpke-mlkem` feature flag.
 
 ## [0.4.0] - 2025-12-16

@@ -66,6 +66,10 @@ impl HpkeCrypto for HpkeRustCrypto {
             KdfAlgorithm::HkdfSha256 => sha256_extract(salt, ikm),
             KdfAlgorithm::HkdfSha384 => sha384_extract(salt, ikm),
             KdfAlgorithm::HkdfSha512 => sha512_extract(salt, ikm),
+            // SHAKE (draft-ietf-hpke-pq) is only supported by the libcrux provider.
+            KdfAlgorithm::Shake128 | KdfAlgorithm::Shake256 => {
+                return Err(Error::UnknownKdfAlgorithm)
+            }
         })
     }
 
@@ -79,6 +83,8 @@ impl HpkeCrypto for HpkeRustCrypto {
             KdfAlgorithm::HkdfSha256 => sha256_expand(prk, info, output_size),
             KdfAlgorithm::HkdfSha384 => sha384_expand(prk, info, output_size),
             KdfAlgorithm::HkdfSha512 => sha512_expand(prk, info, output_size),
+            // SHAKE (draft-ietf-hpke-pq) is only supported by the libcrux provider.
+            KdfAlgorithm::Shake128 | KdfAlgorithm::Shake256 => Err(Error::UnknownKdfAlgorithm),
         }
     }
 
@@ -305,8 +311,14 @@ impl HpkeCrypto for HpkeRustCrypto {
     }
 
     /// Returns an error if the KDF algorithm is not supported by this crypto provider.
-    fn supports_kdf(_: KdfAlgorithm) -> Result<(), Error> {
-        Ok(())
+    fn supports_kdf(alg: KdfAlgorithm) -> Result<(), Error> {
+        match alg {
+            KdfAlgorithm::HkdfSha256 | KdfAlgorithm::HkdfSha384 | KdfAlgorithm::HkdfSha512 => {
+                Ok(())
+            }
+            // The SHAKE KDFs (draft-ietf-hpke-pq) are only in the libcrux provider.
+            KdfAlgorithm::Shake128 | KdfAlgorithm::Shake256 => Err(Error::UnknownKdfAlgorithm),
+        }
     }
 
     /// Returns an error if the KEM algorithm is not supported by this crypto provider.

@@ -24,6 +24,12 @@ libcrux-sha3 = { version = "0.0.9" }
 hpke-rs-rust-crypto = { version = "0.6.1", path = "./rust_crypto_provider", default-features = false, optional = true }
 hpke-rs-libcrux = { version = "0.6.1", path = "./libcrux_provider", default-features = false, optional = true }
 
+# `--all-features` does not build: `draft-connolly-cfrg-hpke-mlkem` and
+# `draft-ietf-hpke-pq` are mutually exclusive. Pin a working set for docs.rs.
+[package.metadata.docs.rs]
+no-default-features = true
+features = ["std", "serialization", "hazmat", "rustcrypto", "libcrux", "draft-ietf-hpke-pq"]
+
 [features]
 default = []
 std = [
@@ -38,6 +44,7 @@ libcrux = ["dep:hpke-rs-libcrux"]
 libcrux-rustcrypto-p-curves = ["hpke-rs-libcrux?/rustcrypto-p-curves"]
 experimental = ["hpke-rs-rust-crypto?/experimental"]
 draft-connolly-cfrg-hpke-mlkem = ["hpke-rs-libcrux?/draft-connolly-cfrg-hpke-mlkem"]
+draft-ietf-hpke-pq = ["hpke-rs-libcrux?/draft-ietf-hpke-pq"]
 
 hpke-test = ["std"]
 hpke-test-prng = [
