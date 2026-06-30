@@ -772,12 +772,13 @@ mod hybrid {
         /// Encoded ML-KEM ciphertext length.
         ml_ct_len: usize,
 
-        /// 64-byte ML-KEM seed plus the group's seed (`T::SEED_SIZE`).
-        prng_len: usize,
+        /// The group's seed length (`T::SEED_SIZE`). The seed expanded by
+        /// [`expand`] is `64` (ML-KEM `seed_pq`) plus this.
+        group_seed_len: usize,
     }
 
     #[inline]
-    fn params(alg: KemAlgorithm) -> Result<Params, Error> {
+    const fn params(alg: KemAlgorithm) -> Result<Params, Error> {
         match alg {
             // P-256: ML-KEM seed (64) + group seed (96 = 3 rejection windows).
             //
@@ -794,7 +795,7 @@ mod hybrid {
                 label: b"MLKEM768-P256",
                 ml_ek_len: 1184,
                 ml_ct_len: 1088,
-                prng_len: 64 + 96,
+                group_seed_len: 96,
             }),
             // P-384: ML-KEM seed (64) + group seed (48).
             KemAlgorithm::MlKem1024P384 => Ok(Params {
@@ -803,7 +804,7 @@ mod hybrid {
                 label: b"MLKEM1024-P384",
                 ml_ek_len: 1568,
                 ml_ct_len: 1568,
-                prng_len: 64 + 48,
+                group_seed_len: 48,
             }),
             _ => Err(Error::UnknownKemAlgorithm),
         }
@@ -854,22 +855,15 @@ mod hybrid {
         <HpkeLibcrux as HpkeCrypto>::dh_validate_sk(curve_kem_alg(curve), bytes).ok()
     }
 
-    /// `random_scalar`: rejection-sample successive `SCALAR_SIZE` windows.
+    /// `random_scalar`: rejection-sample successive `SCALAR_SIZE` windows,
+    /// returning the first valid scalar. Bounded by `seed.len() / SCALAR_SIZE`
+    /// windows; the trailing partial window (if any) is ignored, matching
+    /// concrete-hybrid-kems.
     #[inline]
     fn random_scalar(curve: NistCurve, seed: &[u8]) -> Result<Vec<u8>, Error> {
-        let sz = scalar_size(curve);
-        let mut start = 0;
-        // FIXME: don't use loop. Ensure it's always terminating.
-        loop {
-            let end = start + sz;
-            if end > seed.len() {
-                return Err(Error::KemInvalidSecretKey);
-            }
-            if let Some(scalar) = validate_scalar(curve, &seed[start..end]) {
-                return Ok(scalar);
-            }
-            start = end;
-        }
+        seed.chunks_exact(scalar_size(curve))
+            .find_map(|window| validate_scalar(curve, window))
+            .ok_or(Error::KemInvalidSecretKey)
     }
 
     /// `exp(generator, scalar)` — the public key, uncompressed SEC1.
@@ -896,7 +890,7 @@ mod hybrid {
     /// the ML-KEM `seed_pq`, and the group scalar `dk_T`.
     #[inline]
     fn expand(p: &Params, seed: &[u8]) -> Result<Expanded, Error> {
-        let material = shake_derive(KdfAlgorithm::Shake256, &[seed], p.prng_len);
+        let material = shake_derive(KdfAlgorithm::Shake256, &[seed], 64 + p.group_seed_len);
         let mut seed_pq = [0u8; 64];
         seed_pq.copy_from_slice(&material[..64]);
         let seed_t = &material[64..];
@@ -955,7 +949,7 @@ mod hybrid {
             .map_err(|e| Error::CryptoLibraryError(format!("Encaps error {:?}", e)))?;
 
         // Traditional encapsulation: ephemeral scalar from `T::SEED_SIZE` bytes.
-        let mut seed_e = alloc::vec![0u8; p.prng_len - 64];
+        let mut seed_e = alloc::vec![0u8; p.group_seed_len];
         prng.try_fill_bytes(&mut seed_e)
             .map_err(|_| Error::InsufficientRandomness)?;
         let sk_e = random_scalar(p.curve, &seed_e)?;

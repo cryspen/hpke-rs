@@ -51,9 +51,8 @@ rustcrypto-p-curves = ["dep:p384", "dep:p521"]
 draft-connolly-cfrg-hpke-mlkem = []
 # Post-quantum HPKE ciphersuites (SHAKE256 KDF, pure ML-KEM and the
 # ML-KEM/ECDH hybrid KEMs) as used by the MLS PQ ciphersuites.
-# Enables `rustcrypto-p-curves` for the P-384 component of MLKEM1024-P384.
+# For MLKEM1024-P384, "rustcrypto-p-curves" must be enabled as well for now.
 # <https://datatracker.ietf.org/doc/html/draft-ietf-hpke-pq>
-# For MLKEM1024-P384, "rustcrypto-p-curves" must be enabled as well
 draft-ietf-hpke-pq = []
 std = [
     "rand/std",
