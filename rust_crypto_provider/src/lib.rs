@@ -290,7 +290,8 @@ impl HpkeCrypto for HpkeRustCrypto {
     type HpkePrng = HpkeRustCryptoPrng;
 
     fn prng() -> Self::HpkePrng {
-        let rng = rand_chacha::ChaCha20Rng::from_rng(&mut rand::rng());
+        let rng = rand_chacha::ChaCha20Rng::try_from_rng(&mut rand::rngs::SysRng)
+            .unwrap_or_else(|error| panic!("could not initialize ChaCha20Rng: {}", error));
 
         #[cfg(feature = "deterministic-prng")]
         {
