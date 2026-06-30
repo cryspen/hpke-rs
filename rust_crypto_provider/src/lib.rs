@@ -5,7 +5,8 @@ extern crate alloc;
 
 use alloc::{string::String, vec::Vec};
 use core::fmt::Display;
-use rand::Rng;
+use rand::{rngs::SysRng, Rng};
+use rand_core::{SeedableRng, UnwrapErr};
 use zeroize::Zeroize;
 
 use hpke_rs_crypto::{
@@ -28,7 +29,6 @@ use p384::{
     SecretKey as p384SecretKey,
 };
 
-use rand_core::SeedableRng;
 use x25519_dalek::{PublicKey as X25519PublicKey, StaticSecret as X25519StaticSecret};
 
 mod aead;
@@ -290,8 +290,7 @@ impl HpkeCrypto for HpkeRustCrypto {
     type HpkePrng = HpkeRustCryptoPrng;
 
     fn prng() -> Self::HpkePrng {
-        let rng = rand_chacha::ChaCha20Rng::try_from_rng(&mut rand::rngs::SysRng)
-            .unwrap_or_else(|error| panic!("could not initialize ChaCha20Rng: {}", error));
+        let rng = rand_chacha::ChaCha20Rng::from_rng(&mut UnwrapErr(SysRng));
 
         #[cfg(feature = "deterministic-prng")]
         {
