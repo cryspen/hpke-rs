@@ -34,7 +34,7 @@ x-wing = { version = "0.1.0-rc.0", default-features = false, optional = true }
 ml-kem = { version = "0.3.0-rc.0", default-features = false, optional = true }
 # Randomness
 rand_core = { version = "0.10", default-features = false }
-rand = { version = "0.10", default-features = false }
+rand = { version = "0.10", default-features = false, features = ["sys_rng"] }
 rand_chacha = { version = "0.10", default-features = false }
 zeroize = "1.8.2"
 subtle = { version = "2.6.1", default-features = false }
