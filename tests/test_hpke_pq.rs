@@ -25,6 +25,7 @@ const SUITES: &[(KemAlgorithm, AeadAlgorithm)] = &[
     (KemAlgorithm::XWingDraft06, AeadAlgorithm::Aes256Gcm),
     (KemAlgorithm::MlKem768P256, AeadAlgorithm::Aes128Gcm),
     (KemAlgorithm::MlKem768P256, AeadAlgorithm::Aes256Gcm),
+    #[cfg(feature = "libcrux-rustcrypto-p-curves")]
     (KemAlgorithm::MlKem1024P384, AeadAlgorithm::Aes256Gcm),
 ];
 

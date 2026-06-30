@@ -323,7 +323,15 @@ fn kat<Crypto: HpkeCrypto + 'static>(tests: Vec<HpkeTestVector>) -> usize {
 /// just below that so a regression that silently skips them all trips the test,
 /// without being brittle to the vendored file being reordered. The remaining
 /// three appendix vectors use TurboSHAKE (unimplemented) and are skipped.
-#[cfg(feature = "draft-ietf-hpke-pq")]
+#[cfg(all(
+    feature = "draft-ietf-hpke-pq",
+    not(feature = "libcrux-rustcrypto-p-curves")
+))]
+const MIN_PQ_VECTORS: usize = 8;
+#[cfg(all(
+    feature = "draft-ietf-hpke-pq",
+    feature = "libcrux-rustcrypto-p-curves"
+))]
 const MIN_PQ_VECTORS: usize = 9;
 
 #[test]

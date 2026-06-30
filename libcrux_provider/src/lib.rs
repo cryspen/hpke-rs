@@ -476,7 +476,9 @@ impl HpkeCrypto for HpkeLibcrux {
             ))]
             KemAlgorithm::MlKem512 | KemAlgorithm::MlKem768 | KemAlgorithm::MlKem1024 => Ok(()),
             #[cfg(feature = "draft-ietf-hpke-pq")]
-            KemAlgorithm::MlKem768P256 | KemAlgorithm::MlKem1024P384 => Ok(()),
+            KemAlgorithm::MlKem768P256 => Ok(()),
+            #[cfg(all(feature = "draft-ietf-hpke-pq", feature = "rustcrypto-p-curves"))]
+            KemAlgorithm::MlKem1024P384 => Ok(()),
             _ => Err(Error::UnknownKemAlgorithm),
         }
     }

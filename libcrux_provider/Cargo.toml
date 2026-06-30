@@ -53,7 +53,8 @@ draft-connolly-cfrg-hpke-mlkem = []
 # ML-KEM/ECDH hybrid KEMs) as used by the MLS PQ ciphersuites.
 # Enables `rustcrypto-p-curves` for the P-384 component of MLKEM1024-P384.
 # <https://datatracker.ietf.org/doc/html/draft-ietf-hpke-pq>
-draft-ietf-hpke-pq = ["rustcrypto-p-curves"]
+# For MLKEM1024-P384, "rustcrypto-p-curves" must be enabled as well
+draft-ietf-hpke-pq = []
 std = [
     "rand/std",
     "rand_chacha/std",
