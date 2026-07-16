@@ -1,3 +1,9 @@
+> [!CAUTION]
+> ### THIS REPOSITORY HAS MOVED
+> This project is maintained as part of [libcrux](https://github.com/celabshq/libcrux/tree/main/crates/protocols/hpke) now.
+
+---
+
 # HPKE
 
 [![Build & Test][github-actions-badge]][github-actions-link]
